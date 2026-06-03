@@ -1,21 +1,21 @@
-# Pro Card Physique Coach Skill
+# I Want to be an IFBB PRO Skill
 
-[????](README.zh-CN.md)
+[中文说明](README.zh-CN.md)
 
-An open-source AI skill for serious physique coaching and long-term bodybuilding development: training plans, existing-plan audits, improvement seasons, contest prep, posing, nutrition, recovery, injury-risk controls, workout logs, and data-driven check-ins for users who may aspire to an IFBB Pro / pro card level goal.
+An open-source AI skill for professional-level personalized physique coaching. The name "I Want to be an IFBB PRO" is an aspirational image: it signals elite bodybuilding-style rigor, not a promise or default plan to earn an actual pro card. The skill supports training plans, existing-plan audits, improvement seasons, fat-loss phases, recomposition, contest-prep-inspired conditioning, posing, nutrition, recovery, injury-risk controls, workout logs, and data-driven check-ins.
 
-This project is not affiliated with, endorsed by, or an official resource of the IFBB Pro League, NPC, or NPC Worldwide. Always verify current qualification paths, divisions, rules, event details, and pro-card availability with official organizers.
+This project is not affiliated with, endorsed by, or an official resource of the IFBB Pro League, NPC, or NPC Worldwide. Always verify current qualification paths, divisions, rules, event details, and contest availability with official organizers when real competition planning is requested.
 
 The canonical skill lives in:
 
-`skills/pro-card-physique-coach/`
+`skills/i-want-to-be-an-ifbb-pro/`
 
 ## What It Does
 
-- Builds individualized bodybuilding and fitness plans from goals, body data, equipment, schedule, training age, division target, and constraints.
+- Builds individualized bodybuilding and fitness plans from goals, body data, equipment, schedule, training age, aesthetic target, and constraints.
 - Audits and optimizes existing plans instead of blindly replacing them.
 - Supports hypertrophy, improvement season, fat loss, recomposition, maintenance, deloads, contest prep, and return-to-training.
-- Helps map a long-term IFBB Pro / pro card aspiration into seasons, weak-point priorities, readiness criteria, and official-rule checkpoints.
+- Helps map a long-term IFBB PRO-inspired physique aspiration into seasons, weak-point priorities, readiness criteria, and official-rule checkpoints when competition is relevant.
 - Creates periodized training plans with exercises, sets, reps, RIR/RPE, progression, deloads, cardio, and substitutions.
 - Tracks each workout at exercise/set level, including hard sets, tonnage, RIR/RPE, pain, technique quality, and target-muscle stimulus.
 - Guides calories/macros, meal timing, hydration, supplements, and adjustment rules within conservative safety boundaries.
@@ -25,7 +25,7 @@ The canonical skill lives in:
 ## Repository Structure
 
 ```text
-skills/pro-card-physique-coach/
+skills/i-want-to-be-an-ifbb-pro/
   SKILL.md
   agents/openai.yaml
   references/
@@ -33,7 +33,7 @@ skills/pro-card-physique-coach/
     intake-assessment.md
     anatomy-and-movement.md
     goal-decision-system.md
-    pro-card-roadmap.md
+    pro-level-physique-roadmap.md
     plan-optimization.md
     training-programming.md
     exercise-library.md
@@ -62,13 +62,13 @@ skills/pro-card-physique-coach/
 Copy or symlink the skill folder into your Codex skills directory:
 
 ```bash
-cp -R skills/pro-card-physique-coach ~/.codex/skills/
+cp -R skills/i-want-to-be-an-ifbb-pro ~/.codex/skills/
 ```
 
 Then invoke it with:
 
 ```text
-Use $pro-card-physique-coach to create a long-term bodybuilding roadmap toward a pro card goal.
+Use $i-want-to-be-an-ifbb-pro to create a long-term bodybuilding roadmap toward an IFBB PRO-inspired physique goal.
 ```
 
 ## Use With Other Models
@@ -85,19 +85,19 @@ Recommended runtime behavior:
 ## Example Prompts
 
 ```text
-Use $pro-card-physique-coach to build a 2-year roadmap from intermediate lifter to regional bodybuilding competitor, with weak-point priorities and check-in metrics.
+Use $i-want-to-be-an-ifbb-pro to build a 2-year roadmap from intermediate lifter to a professional-level physique standard, with weak-point priorities and check-in metrics.
 ```
 
 ```text
-Use $pro-card-physique-coach to audit my current push/pull/legs plan and tell me how to adjust weekly hard sets, exercise order, and progression for Classic Physique.
+Use $i-want-to-be-an-ifbb-pro to audit my current push/pull/legs plan and tell me how to adjust weekly hard sets, exercise order, and progression for Classic Physique.
 ```
 
 ```text
-Use $pro-card-physique-coach to analyze this session log and decide which exercises should add reps, hold, deload, or be swapped.
+Use $i-want-to-be-an-ifbb-pro to analyze this session log and decide which exercises should add reps, hold, deload, or be swapped.
 ```
 
 ```text
-Use $pro-card-physique-coach to plan a conservative contest-prep outline, posing schedule, and safety checkpoints for a show I am considering.
+Use $i-want-to-be-an-ifbb-pro to plan a conservative contest-prep outline, posing schedule, and safety checkpoints for a show I am considering.
 ```
 
 See [examples/pressure-scenarios.md](examples/pressure-scenarios.md) for behavior tests and realistic usage scenarios.
@@ -116,7 +116,7 @@ The references are summarized from widely used public guidance and official/publ
 - International Society of Sports Nutrition position stands on protein, diets/body composition, and creatine.
 - Official IFBB Pro League / NPC / NPC Worldwide public resources for rule-verification prompts and pathway awareness.
 
-See [references/sources.md](skills/pro-card-physique-coach/references/sources.md) for source links.
+See [references/sources.md](skills/i-want-to-be-an-ifbb-pro/references/sources.md) for source links.
 
 ## License
 

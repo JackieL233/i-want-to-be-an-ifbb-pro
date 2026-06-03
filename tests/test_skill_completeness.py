@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "skills" / "pro-card-physique-coach"
+SKILL = ROOT / "skills" / "i-want-to-be-an-ifbb-pro"
 
 
 def read(relative: str) -> str:
@@ -16,22 +16,38 @@ class SkillCompletenessTest(unittest.TestCase):
         self.assertTrue(path.exists(), "README.zh-CN.md")
         text = path.read_text(encoding="utf-8")
         expected_terms = [
-            "Pro Card Physique Coach",
-            "$pro-card-physique-coach",
-            "??",
-            "????",
-            "????",
-            "????",
-            "??",
-            "??",
-            "??",
-            "??",
+            "I Want to be an IFBB PRO",
+            "$i-want-to-be-an-ifbb-pro",
+            "专业级个性化体型训练规划",
+            "抽象的目标形象",
+            "不是默认要求使用者真的去拿职业卡",
+            "创建新的训练计划",
+            "优化现有训练计划",
+            "训练质量",
+            "饮食",
+            "恢复",
+            "伤病风险控制",
             "IFBB Pro",
-            "???",
+            "session-log.csv",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, text)
+
+    def test_branding_uses_aspirational_ifbb_pro_positioning(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+        combined = f"{readme}\n{skill}"
+        expected_terms = [
+            "I Want to be an IFBB PRO",
+            "aspirational image",
+            "not a promise or default plan to earn an actual pro card",
+            "not necessarily to earn a real pro card",
+            "not an official IFBB Pro League, NPC, or NPC Worldwide resource",
+        ]
+        for term in expected_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, combined)
 
     def test_required_expert_references_exist_and_are_linked_from_skill(self) -> None:
         skill_text = read("SKILL.md")
@@ -43,7 +59,7 @@ class SkillCompletenessTest(unittest.TestCase):
             "references/adaptation-playbook.md",
             "references/plan-optimization.md",
             "references/session-execution-and-volume.md",
-            "references/pro-card-roadmap.md",
+            "references/pro-level-physique-roadmap.md",
             "references/contest-prep-and-posing.md",
             "references/model-adaptation.md",
         ]
@@ -131,7 +147,7 @@ class SkillCompletenessTest(unittest.TestCase):
         combined = "\n".join(
             (SKILL / "references" / name).read_text(encoding="utf-8").lower()
             for name in [
-                "pro-card-roadmap.md",
+                "pro-level-physique-roadmap.md",
                 "contest-prep-and-posing.md",
                 "safety-screening.md",
                 "nutrition-body-composition.md",
@@ -139,7 +155,7 @@ class SkillCompletenessTest(unittest.TestCase):
         )
         expected_terms = [
             "ifbb pro",
-            "pro card",
+            "pro-level physique",
             "npc",
             "division",
             "improvement season",

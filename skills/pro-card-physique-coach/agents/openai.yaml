@@ -1,7 +1,0 @@
-interface:
-  display_name: "Pro Card Physique Coach"
-  short_description: "Pro-card bodybuilding planning and coaching"
-  default_prompt: "Use $pro-card-physique-coach to build a safe long-term bodybuilding roadmap toward my pro card goal, including training, nutrition, posing, recovery, and tracking."
-
-policy:
-  allow_implicit_invocation: true

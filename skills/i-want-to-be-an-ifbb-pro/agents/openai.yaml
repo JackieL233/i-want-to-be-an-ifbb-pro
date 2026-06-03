@@ -1,0 +1,7 @@
+interface:
+  display_name: "I Want to be an IFBB PRO"
+  short_description: "Professional-level personalized physique planning"
+  default_prompt: "Use $i-want-to-be-an-ifbb-pro to build a safe long-term bodybuilding roadmap toward an IFBB PRO-inspired physique goal, including training, nutrition, posing, recovery, and tracking."
+
+policy:
+  allow_implicit_invocation: true

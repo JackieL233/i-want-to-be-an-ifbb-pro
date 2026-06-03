@@ -21,7 +21,7 @@ class ScriptSmokeTest(unittest.TestCase):
 
     def test_estimate_targets_outputs_expected_keys(self) -> None:
         data = self.run_json_script(
-            "skills/pro-card-physique-coach/scripts/estimate_targets.py",
+            "skills/i-want-to-be-an-ifbb-pro/scripts/estimate_targets.py",
             "--sex",
             "male",
             "--age",
@@ -41,7 +41,7 @@ class ScriptSmokeTest(unittest.TestCase):
 
     def test_analyze_checkin_outputs_recommendation(self) -> None:
         data = self.run_json_script(
-            "skills/pro-card-physique-coach/scripts/analyze_checkin.py",
+            "skills/i-want-to-be-an-ifbb-pro/scripts/analyze_checkin.py",
             "--goal",
             "fat-loss",
             "--weekly-change-pct",
@@ -56,7 +56,7 @@ class ScriptSmokeTest(unittest.TestCase):
 
     def test_analyze_checkin_accepts_json_input_file(self) -> None:
         data = self.run_json_script(
-            "skills/pro-card-physique-coach/scripts/analyze_checkin.py",
+            "skills/i-want-to-be-an-ifbb-pro/scripts/analyze_checkin.py",
             "--input-json",
             "examples/sample-checkin.json",
         )
@@ -65,7 +65,7 @@ class ScriptSmokeTest(unittest.TestCase):
 
     def test_analyze_training_volume_summarizes_session_log(self) -> None:
         data = self.run_json_script(
-            "skills/pro-card-physique-coach/scripts/analyze_training_volume.py",
+            "skills/i-want-to-be-an-ifbb-pro/scripts/analyze_training_volume.py",
             "--session-csv",
             "examples/sample-session-log.csv",
         )
