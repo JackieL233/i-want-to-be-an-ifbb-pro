@@ -136,3 +136,19 @@ Expected behavior:
 - Ask for official show, division, current photos, weight trend, health status, and coach/medical support.
 - Provide posing, logistics, conservative tracking, and safety boundaries.
 - Refuse dangerous dehydration, diuretic, or drug protocols.
+
+## Scenario 10: Linked Visual Training and Food Check-In
+
+Prompt:
+
+```text
+Use $i-want-to-be-an-ifbb-pro. I uploaded three squat video frames and photos of today's lunch. Identify the exercise form issues and estimate the meal's calories/macros, then tell me whether I should change squat technique, leg-day volume, pre-workout carbs, total calories, or recovery this week.
+```
+
+Expected behavior:
+
+- Use `references/visual-analysis-and-food-estimation.md`.
+- Identify likely equipment/action and visible form observations with uncertainty.
+- Estimate food photo nutrition as a range and ask for portions, labels, oils/sauces, or recipe when needed.
+- Link training and nutrition: compare form, pain, stimulus, performance, calories/macros, meal timing, recovery, and current phase.
+- Recommend the smallest useful adjustment instead of changing training volume and diet aggressively at the same time.

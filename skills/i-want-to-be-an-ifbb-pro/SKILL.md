@@ -1,6 +1,6 @@
 ---
 name: i-want-to-be-an-ifbb-pro
-description: Use when creating, auditing, optimizing, or iterating personalized professional-level physique plans for bodybuilding-inspired hypertrophy, fat loss, recomposition, nutrition, recovery, injury-risk control, gym exercise selection, session logging, training-volume tracking, posing, existing plan review, or data-driven check-ins under the aspirational "I Want to be an IFBB PRO" style goal.
+description: Use when creating, auditing, optimizing, or iterating personalized professional-level physique plans for bodybuilding-inspired hypertrophy, fat loss, recomposition, nutrition, recovery, injury-risk control, gym exercise selection, session logging, training-volume tracking, posing, food-photo nutrition estimates, exercise-form visual analysis, existing plan review, or data-driven check-ins under the aspirational "I Want to be an IFBB PRO" style goal.
 ---
 
 # I Want to be an IFBB PRO
@@ -17,11 +17,12 @@ This is not an official IFBB Pro League, NPC, or NPC Worldwide resource and does
 4. **Audit existing work when provided.** If the user has a current plan or training log, evaluate it before replacing it. Read `references/plan-optimization.md`.
 5. **Design the phase.** Create a 4-12 week mesocycle with clear weekly structure, exercise selection, sets, reps, proximity to failure, progression rules, warm-ups, cardio/steps, mobility, deload criteria, and tracking cadence. Read `references/training-programming.md`, `references/anatomy-and-movement.md`, `references/exercise-library.md`, and `references/phase-templates.md`.
 6. **Define session execution.** Specify each workout's exercises, target muscles, sets, reps, RIR/RPE, rest, technique notes, substitutions, and what to log. Read `references/session-execution-and-volume.md`.
-7. **Handle contest-prep specifics when relevant.** For stage goals, posing, stage conditioning, show selection, peak-week questions, or prep timelines, read `references/contest-prep-and-posing.md`.
-8. **Set nutrition targets.** Estimate calories and macros, then explain how to adjust from scale trend, performance, hunger, adherence, digestion, and energy. Read `references/nutrition-body-composition.md`.
-9. **Add recovery and injury-risk controls.** Include sleep, fatigue management, soreness interpretation, mobility/prehab only when relevant, pain rules, and deload decisions. Read `references/recovery-injury-risk.md`.
-10. **Create the tracking plan.** Specify what to measure, how often, how to interpret noise, and what change triggers an adjustment. Read `references/data-tracking-adjustment.md`.
-11. **Iterate from check-ins.** Compare recent data to target trend, session quality, exercise-level performance, hard sets, tonnage, pain, and recovery. Change one or two variables at a time: calories, steps/cardio, volume, intensity, exercise selection, deload, posing, or recovery constraints. Read `references/adaptation-playbook.md` and explain why.
+7. **Use multimodal evidence when available.** For photos, video frames, gym equipment images, food photos, package labels, menus, or plate images, read `references/visual-analysis-and-food-estimation.md`. Link exercise form analysis, equipment identification, food-photo nutrition estimates, and portion-size uncertainty to the user's plan instead of treating them as isolated observations.
+8. **Handle contest-prep specifics when relevant.** For stage goals, posing, stage conditioning, show selection, peak-week questions, or prep timelines, read `references/contest-prep-and-posing.md`.
+9. **Set nutrition targets.** Estimate calories and macros, then explain how to adjust from scale trend, performance, hunger, adherence, digestion, energy, and food-photo estimates when available. Read `references/nutrition-body-composition.md`.
+10. **Add recovery and injury-risk controls.** Include sleep, fatigue management, soreness interpretation, mobility/prehab only when relevant, pain rules, and deload decisions. Read `references/recovery-injury-risk.md`.
+11. **Create the tracking plan.** Specify what to measure, how often, how to interpret noise, and what change triggers an adjustment. Read `references/data-tracking-adjustment.md`.
+12. **Iterate from check-ins.** Compare recent data to target trend, session quality, exercise-level performance, hard sets, tonnage, pain, recovery, visual form notes, and nutrition estimates. Change one or two variables at a time: calories, steps/cardio, volume, intensity, exercise selection, deload, posing, or recovery constraints. Read `references/adaptation-playbook.md` and explain why.
 
 ## Reference Selection
 
@@ -35,6 +36,7 @@ This is not an official IFBB Pro League, NPC, or NPC Worldwide resource and does
 - Read `references/exercise-library.md` for exercise substitutions, movement patterns, equipment-specific options, technique cues, and common mistakes.
 - Read `references/phase-templates.md` for ready-to-adapt mesocycle structures, split examples, specialization phases, deload weeks, and home/gym variants.
 - Read `references/session-execution-and-volume.md` for each-session execution, session log fields, hard sets, tonnage, effective reps, training quality, and exercise-level progression decisions.
+- Read `references/visual-analysis-and-food-estimation.md` when the user provides images/video frames of gym equipment, exercise form, meals, food labels, menus, or asks for multimodal analysis. Use it for equipment identification, exercise form analysis, food photo nutrition estimate, portion size uncertainty, and linked check-in decisions across training and nutrition.
 - Read `references/contest-prep-and-posing.md` for contest prep timelines, stage conditioning, posing practice, show selection, peak week boundaries, and post-show recovery.
 - Read `references/nutrition-body-composition.md` for calories, macros, meal timing, supplements, hydration, cutting, bulking, recomposition, and contest-prep caution.
 - Read `references/recovery-injury-risk.md` for sleep, fatigue, soreness, pain rules, warm-up/cooldown, mobility, and return-to-training.
@@ -55,12 +57,14 @@ For a new plan, include:
 - Nutrition targets with calories, protein, fat, carbs, fiber, hydration, meal-timing notes, and adjustment rules.
 - Recovery plan.
 - Tracking/check-in protocol.
+- If images are used: visual-analysis assumptions, uncertainty, and how training and nutrition evidence were linked.
 - Clear next review date or data needed for iteration.
 
 For a check-in, include:
 
 - What changed in body weight, measurements, performance, adherence, sleep, hunger, and fatigue.
 - Session completion, exercise-level performance, hard sets, tonnage, training quality, pain flags, and target-muscle stimulus when logs are available.
+- Exercise form analysis, equipment identification, food photo nutrition estimate, and linked check-in summary when visual inputs are available.
 - Whether the trend matches the goal.
 - The smallest useful adjustment.
 - What to monitor before the next change.

@@ -2,6 +2,8 @@
 
 Use movement patterns and equipment options instead of forcing one exercise. Choose exercises that the user can perform with stable technique, target sensation, and tolerable joints.
 
+If the user provides equipment photos, exercise photos, or video frames, use `visual-analysis-and-food-estimation.md` for equipment identification and exercise form analysis before choosing cues or substitutions. Ask for load, reps, set number, RIR/RPE, pain, and target muscle so the visual observation can be connected to the session log.
+
 ## Movement Patterns
 
 ### Squat / Knee-Dominant

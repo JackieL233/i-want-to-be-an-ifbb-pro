@@ -69,6 +69,7 @@ def main() -> None:
         "references/exercise-library.md",
         "references/phase-templates.md",
         "references/session-execution-and-volume.md",
+        "references/visual-analysis-and-food-estimation.md",
         "references/contest-prep-and-posing.md",
         "references/nutrition-body-composition.md",
         "references/recovery-injury-risk.md",

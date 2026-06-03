@@ -60,6 +60,7 @@ class SkillCompletenessTest(unittest.TestCase):
             "references/plan-optimization.md",
             "references/session-execution-and-volume.md",
             "references/pro-level-physique-roadmap.md",
+            "references/visual-analysis-and-food-estimation.md",
             "references/contest-prep-and-posing.md",
             "references/model-adaptation.md",
         ]
@@ -142,6 +143,31 @@ class SkillCompletenessTest(unittest.TestCase):
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
+
+    def test_visual_analysis_links_training_and_nutrition_decisions(self) -> None:
+        visual = read("references/visual-analysis-and-food-estimation.md")
+        skill_text = read("SKILL.md")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8").lower()
+        chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+        combined = "\n".join([visual, skill_text, readme])
+        expected_terms = [
+            "multimodal",
+            "equipment identification",
+            "exercise form analysis",
+            "food photo",
+            "nutrition estimate",
+            "portion size",
+            "linked check-in",
+            "training and nutrition",
+            "uncertainty",
+            "visual-analysis-and-food-estimation.md",
+        ]
+        for term in expected_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, combined)
+        for term in ["器械识别", "动作质量", "食物照片", "营养估算", "联动"]:
+            with self.subTest(term=term):
+                self.assertIn(term, chinese)
 
     def test_pro_card_references_cover_competitive_bodybuilding_goal(self) -> None:
         combined = "\n".join(

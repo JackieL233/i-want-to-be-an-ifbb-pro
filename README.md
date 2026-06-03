@@ -2,7 +2,7 @@
 
 [中文说明](README.zh-CN.md)
 
-An open-source AI skill for professional-level personalized physique coaching. The name "I Want to be an IFBB PRO" is an aspirational image: it signals elite bodybuilding-style rigor, not a promise or default plan to earn an actual pro card. The skill supports training plans, existing-plan audits, improvement seasons, fat-loss phases, recomposition, contest-prep-inspired conditioning, posing, nutrition, recovery, injury-risk controls, workout logs, and data-driven check-ins.
+An open-source AI skill for professional-level personalized physique coaching. The name "I Want to be an IFBB PRO" is an aspirational image: it signals elite bodybuilding-style rigor, not a promise or default plan to earn an actual pro card. The skill supports training plans, existing-plan audits, improvement seasons, fat-loss phases, recomposition, contest-prep-inspired conditioning, posing, nutrition, recovery, injury-risk controls, workout logs, multimodal photo/video analysis, and data-driven check-ins.
 
 This project is not affiliated with, endorsed by, or an official resource of the IFBB Pro League, NPC, or NPC Worldwide. Always verify current qualification paths, divisions, rules, event details, and contest availability with official organizers when real competition planning is requested.
 
@@ -18,6 +18,7 @@ The canonical skill lives in:
 - Helps map a long-term IFBB PRO-inspired physique aspiration into seasons, weak-point priorities, readiness criteria, and official-rule checkpoints when competition is relevant.
 - Creates periodized training plans with exercises, sets, reps, RIR/RPE, progression, deloads, cardio, and substitutions.
 - Tracks each workout at exercise/set level, including hard sets, tonnage, RIR/RPE, pain, technique quality, and target-muscle stimulus.
+- Uses multimodal inputs for equipment identification, exercise form analysis, food photo nutrition estimates, portion-size uncertainty, and linked training/nutrition check-ins.
 - Guides calories/macros, meal timing, hydration, supplements, and adjustment rules within conservative safety boundaries.
 - Covers posing practice, stage conditioning, show logistics, peak-week caution, and post-show recovery.
 - Uses safety screening and referral boundaries instead of pretending to be a doctor.
@@ -39,6 +40,7 @@ skills/i-want-to-be-an-ifbb-pro/
     exercise-library.md
     phase-templates.md
     session-execution-and-volume.md
+    visual-analysis-and-food-estimation.md
     contest-prep-and-posing.md
     nutrition-body-composition.md
     recovery-injury-risk.md
@@ -81,6 +83,7 @@ Recommended runtime behavior:
 2. Load only the relevant reference files for the user's request.
 3. Keep the plan grounded in user data, official-rule verification, and safety boundaries.
 4. Iterate from tracked trends rather than one-off measurements.
+5. When images are available, link visual training evidence and food-photo nutrition estimates before changing the plan.
 
 ## Example Prompts
 
@@ -97,6 +100,10 @@ Use $i-want-to-be-an-ifbb-pro to analyze this session log and decide which exerc
 ```
 
 ```text
+Use $i-want-to-be-an-ifbb-pro to review my squat video frames and today's food photos together, estimate nutrition, identify form issues, and tell me whether training execution, calories, carbs, or recovery should change.
+```
+
+```text
 Use $i-want-to-be-an-ifbb-pro to plan a conservative contest-prep outline, posing schedule, and safety checkpoints for a show I am considering.
 ```
 
@@ -104,7 +111,7 @@ See [examples/pressure-scenarios.md](examples/pressure-scenarios.md) for behavio
 
 ## Safety
 
-This skill is for coaching support and education. It is not medical care, physical therapy, dietetic treatment, drug guidance, or an official contest-rules source. Users with symptoms, injuries, medical conditions, pregnancy/postpartum needs, eating-disorder risk, extreme body-composition goals, or drug/diuretic questions should work with qualified professionals and official organizers.
+This skill is for coaching support and education. It is not medical care, physical therapy, dietetic treatment, drug guidance, or an official contest-rules source. Photo/video form checks and food-photo nutrition estimates are approximate, not diagnoses or precise weighing. Users with symptoms, injuries, medical conditions, pregnancy/postpartum needs, eating-disorder risk, extreme body-composition goals, or drug/diuretic questions should work with qualified professionals and official organizers.
 
 ## Evidence-Informed Sources
 

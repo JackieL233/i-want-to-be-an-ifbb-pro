@@ -71,6 +71,8 @@ Avoid recommending unregulated fat burners, anabolic drugs, diuretics, dehydrati
 
 Use weekly average body weight, not single weigh-ins.
 
+If the user provides food photos, labels, menus, or plate images, use `visual-analysis-and-food-estimation.md`. Treat photo-based calorie and macro estimates as ranges, then compare them with the user's calorie, protein, fat, carbohydrate, fiber, and meal-timing targets. Ask for weighed portions, labels, recipes, and cooking oils/sauces when accuracy matters.
+
 For fat loss:
 
 - If average loss is slower than target for 2 consecutive weeks and adherence is good, reduce calories by 100-250/day or add steps/cardio.
@@ -84,6 +86,12 @@ For lean gain:
 For maintenance/recomp:
 
 - Keep calories stable while training performance and measurements clarify direction.
+
+For linked training/nutrition decisions:
+
+- If exercise form, pump, or performance is poor and food photos suggest low pre-workout carbohydrate or low total calories, improve meal timing before increasing training volume.
+- If form and performance are strong but body-weight gain is too fast, keep training stable and reduce easy-to-miss calories such as oils, sauces, snacks, or oversized portions.
+- If fatigue and pain rise during an aggressive deficit, avoid further calorie cuts and review recovery, exercise selection, and deload criteria.
 
 ## Evidence Anchors
 
