@@ -60,11 +60,24 @@ def main() -> None:
 
     required = [
         "references/safety-screening.md",
+        "references/intake-assessment.md",
+        "references/anatomy-and-movement.md",
+        "references/goal-decision-system.md",
         "references/training-programming.md",
         "references/exercise-library.md",
+        "references/phase-templates.md",
         "references/nutrition-body-composition.md",
         "references/recovery-injury-risk.md",
         "references/data-tracking-adjustment.md",
+        "references/adaptation-playbook.md",
+        "references/model-adaptation.md",
+        "references/sources.md",
+        "assets/templates/intake-form.md",
+        "assets/templates/check-in-form.md",
+        "assets/templates/plan-template.md",
+        "assets/templates/tracking-log.csv",
+        "scripts/estimate_targets.py",
+        "scripts/analyze_checkin.py",
         "agents/openai.yaml",
     ]
     for relative in required:

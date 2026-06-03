@@ -3,18 +3,21 @@
 ## Athlete Profile
 
 - Goal:
+- Goal priority:
 - Timeline:
 - Current stats:
 - Training age:
 - Equipment:
 - Schedule:
 - Constraints:
-- Safety notes:
+- Safety/red flag notes:
+- Medical clearance needed:
 
 ## Phase Overview
 
 - Phase length:
 - Primary objective:
+- Secondary guardrails:
 - Success metrics:
 - Review date:
 
@@ -50,6 +53,7 @@
 - Volume:
 - Deload:
 - Exercise swap rules:
+- Weak point priority:
 
 ## Nutrition
 
@@ -78,3 +82,4 @@
 - Training log:
 - Recovery markers:
 - Check-in questions:
+- Adjustment triggers:

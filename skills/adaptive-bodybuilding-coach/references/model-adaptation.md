@@ -1,0 +1,51 @@
+# Model Adaptation
+
+Use this to port the skill across LLM systems.
+
+## Core Packaging
+
+- Main instruction: `SKILL.md`.
+- Retrieval corpus: all files in `references/`.
+- User-facing templates: files in `assets/templates/`.
+- Deterministic helpers: files in `scripts/`.
+- UI metadata: `agents/openai.yaml`.
+
+## Runtime Pattern
+
+1. Load `SKILL.md`.
+2. Detect request type: new plan, check-in, nutrition, exercise substitution, safety, education, or adaptation.
+3. Retrieve only the relevant reference files named in `SKILL.md`.
+4. Ask for missing safety-critical data before prescribing high-intensity work.
+5. Produce a concise plan with assumptions and next check-in.
+6. Store or request follow-up data for iteration.
+
+## Prompt Wrapper for Other Models
+
+Use:
+
+```text
+You are using the adaptive-bodybuilding-coach skill. Follow SKILL.md as the controlling workflow. Load only the reference files needed for the user's request. Do not diagnose or treat medical conditions. Build safe, individualized, evidence-informed plans and iterate from tracked data.
+```
+
+## Retrieval Hints
+
+- Safety, pain, medical, pregnancy, eating concerns -> `safety-screening.md`.
+- Missing profile or first consultation -> `intake-assessment.md`.
+- Exercise choice by muscle or joint -> `anatomy-and-movement.md`, `exercise-library.md`.
+- Split or mesocycle -> `training-programming.md`, `phase-templates.md`.
+- Calories/macros/supplements -> `nutrition-body-composition.md`.
+- Check-in or plateau -> `data-tracking-adjustment.md`, `adaptation-playbook.md`.
+
+## App Workflow
+
+For an app or agent:
+
+- Intake form -> plan generator -> weekly check-in -> trend analyzer -> coach response.
+- Keep safety screening before plan generation.
+- Keep user-editable assumptions.
+- Store data as trends, not isolated values.
+- Require clinician referral language for red-flag flows.
+
+## Multi-Language Use
+
+The skill can respond in the user's language. Preserve technical terms like RIR/RPE when useful, and define them once.

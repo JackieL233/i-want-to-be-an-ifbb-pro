@@ -25,5 +25,7 @@ Run:
 
 ```bash
 python scripts/validate_skill.py skills/adaptive-bodybuilding-coach
+python -m unittest tests.test_skill_completeness
 python skills/adaptive-bodybuilding-coach/scripts/estimate_targets.py --sex male --age 30 --height-cm 178 --weight-kg 80 --activity moderate --goal fat-loss
+python skills/adaptive-bodybuilding-coach/scripts/analyze_checkin.py --goal fat-loss --weekly-change-pct -0.7 --adherence 0.9 --recovery good
 ```

@@ -13,7 +13,10 @@ Use these sources as anchors when updating the skill. Prefer newer consensus sta
 
 - ISSN. `International Society of Sports Nutrition Position Stand: protein and exercise` (2017): https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0177-8
 - ISSN. `International society of sports nutrition position stand: diets and body composition` (2017): https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0174-y
+- ISSN. `International Society of Sports Nutrition position stand: creatine supplementation and exercise` (2021): https://jissn.biomedcentral.com/articles/10.1186/s12970-021-00412-w
 - ACSM, Academy of Nutrition and Dietetics, Dietitians of Canada. `Nutrition and Athletic Performance` (2016): https://pubmed.ncbi.nlm.nih.gov/26891166/
+- National Academies. `Dietary Reference Intakes` reports and tables: https://www.nationalacademies.org/our-work/summary-report-of-the-dietary-reference-intakes
+- CDC. `Losing Weight`: https://www.cdc.gov/healthy-weight-growth/losing-weight/index.html
 
 ## Updating Rules
 

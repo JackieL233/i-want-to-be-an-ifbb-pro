@@ -23,13 +23,25 @@ skills/adaptive-bodybuilding-coach/
   agents/openai.yaml
   references/
     safety-screening.md
+    intake-assessment.md
+    anatomy-and-movement.md
+    goal-decision-system.md
     training-programming.md
     exercise-library.md
+    phase-templates.md
     nutrition-body-composition.md
     recovery-injury-risk.md
     data-tracking-adjustment.md
-  assets/templates/plan-template.md
+    adaptation-playbook.md
+    model-adaptation.md
+    sources.md
+  assets/templates/
+    intake-form.md
+    check-in-form.md
+    plan-template.md
+    tracking-log.csv
   scripts/estimate_targets.py
+  scripts/analyze_checkin.py
 ```
 
 ## Install for Codex
@@ -56,6 +68,22 @@ Recommended runtime behavior:
 2. Load only the relevant reference files for the user's request.
 3. Keep the plan grounded in user data and safety boundaries.
 4. Iterate from tracked trends rather than one-off measurements.
+
+## Example Prompts
+
+```text
+Use $adaptive-bodybuilding-coach to run an intake and build a 12-week hypertrophy plan for a 4-day gym schedule.
+```
+
+```text
+Use $adaptive-bodybuilding-coach to analyze this weekly check-in and decide whether to change calories, cardio, or training volume.
+```
+
+```text
+Use $adaptive-bodybuilding-coach to substitute exercises for shoulder discomfort while keeping the same muscle targets.
+```
+
+See [examples/pressure-scenarios.md](examples/pressure-scenarios.md) for behavior tests and realistic usage scenarios.
 
 ## Safety
 
