@@ -63,6 +63,7 @@ def main() -> None:
         "references/intake-assessment.md",
         "references/anatomy-and-movement.md",
         "references/goal-decision-system.md",
+        "references/evidence-map.md",
         "references/pro-level-physique-roadmap.md",
         "references/plan-optimization.md",
         "references/training-programming.md",

@@ -91,6 +91,7 @@ skills/i-want-to-be-an-ifbb-pro/
     intake-assessment.md
     anatomy-and-movement.md
     goal-decision-system.md
+    evidence-map.md
     pro-level-physique-roadmap.md
     plan-optimization.md
     training-programming.md
@@ -154,6 +155,14 @@ python skills/i-want-to-be-an-ifbb-pro/scripts/analyze_training_volume.py --sess
 如果用户有疼痛、受伤、胸痛、晕厥、呼吸异常、严重疲劳、进食障碍风险、极端减重目标、妊娠或产后情况、未控制的疾病，应该优先寻求合格专业人士帮助。
 
 这个 skill 不提供 anabolic steroids、growth hormone、diuretics、SARMs、甲状腺药物、兴奋剂或其他药物的周期、剂量、来源、protocol 或 peak week 危险操作。
+
+## 证据基础
+
+这个 skill 新增了 [evidence-map.md](skills/i-want-to-be-an-ifbb-pro/references/evidence-map.md)，明确说明每一类能力由哪些论文、实验类型、position stand、systematic review、meta-analysis 或 validation study 支撑。
+
+它覆盖的证据包括：ACSM 阻力训练指南、WHO 身体活动指南、ISSN 蛋白质/体成分/肌酸立场声明、Schoenfeld 等关于训练容量和肌肥大的系统综述与 meta-analysis、Morton 等关于蛋白质补充和阻力训练适应的 meta-analysis/meta-regression、Helms/Aragon/Fitschen 关于自然健美备赛营养的证据综述，以及 Boushey/mobile food record 和图像辅助饮食评估相关研究。
+
+这些证据会支持 skill 的默认建议，但不会被当成绝对答案；最终仍需要结合用户的训练年龄、恢复能力、身体数据、照片、训练日志、饮食记录和阶段性反馈来调整。
 
 ## 测试
 

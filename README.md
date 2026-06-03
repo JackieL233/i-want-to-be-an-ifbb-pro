@@ -34,6 +34,7 @@ skills/i-want-to-be-an-ifbb-pro/
     intake-assessment.md
     anatomy-and-movement.md
     goal-decision-system.md
+    evidence-map.md
     pro-level-physique-roadmap.md
     plan-optimization.md
     training-programming.md
@@ -115,12 +116,18 @@ This skill is for coaching support and education. It is not medical care, physic
 
 ## Evidence-Informed Sources
 
+The skill includes an evidence map at [references/evidence-map.md](skills/i-want-to-be-an-ifbb-pro/references/evidence-map.md), which explains which papers, experiments, position stands, systematic reviews, meta-analyses, and validation studies support each skill capability, and where the evidence stops.
+
 The references are summarized from widely used public guidance and official/public anchors, including:
 
 - WHO 2020 guidelines on physical activity and sedentary behavior.
 - ACSM 2026 position stand on resistance-training prescription for healthy adults.
 - ACSM exercise screening and sports nutrition position statements.
 - International Society of Sports Nutrition position stands on protein, diets/body composition, and creatine.
+- Resistance-training hypertrophy systematic reviews and meta-analyses, including Schoenfeld and colleagues on volume, frequency, and load.
+- Protein meta-analysis/meta-regression work, including Morton and colleagues.
+- Natural bodybuilding contest-prep evidence reviews, including Helms, Aragon, and Fitschen.
+- Image-assisted dietary assessment and food-recognition validation research, including Boushey/mobile food record work and systematic reviews.
 - Official IFBB Pro League / NPC / NPC Worldwide public resources for rule-verification prompts and pathway awareness.
 
 See [references/sources.md](skills/i-want-to-be-an-ifbb-pro/references/sources.md) for source links.
