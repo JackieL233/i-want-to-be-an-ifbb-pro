@@ -57,7 +57,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.CoachMode
+import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
+import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
@@ -1445,6 +1447,8 @@ private fun TrainingPage(
                 ExerciseExecutionCard(
                     exerciseIndex = exerciseIndex,
                     exercise = exercise,
+                    currentLog = state.dailyLog,
+                    recentLogs = state.recentLogs,
                     onRemove = { onRemoveExercise(exerciseIndex) },
                     onUpdateSetEntry = onUpdateSetEntry,
                     onCompleteSet = onCompleteSet
@@ -1458,6 +1462,8 @@ private fun TrainingPage(
 private fun ExerciseExecutionCard(
     exerciseIndex: Int,
     exercise: ExerciseEntry,
+    currentLog: DailyLog,
+    recentLogs: List<DailyLog>,
     onRemove: () -> Unit,
     onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
     onCompleteSet: (Int, Int) -> Unit
@@ -1492,6 +1498,7 @@ private fun ExerciseExecutionCard(
                     "Default RIR" to (exercise.rir?.let { formatDecimal(it) } ?: "--")
                 )
             )
+            ExerciseHistoryCard(summary = exercise.exerciseHistorySummary(currentLog, recentLogs))
             ProgressionCueCard(cue = exercise.progressionCue())
             exercise.trackedSets().forEachIndexed { setIndex, set ->
                 if (setIndex > 0) HorizontalDivider()
@@ -1503,6 +1510,49 @@ private fun ExerciseExecutionCard(
                     onCompleteSet = onCompleteSet
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ExerciseHistoryCard(summary: ExerciseHistorySummary) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text("Exercise History", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = summary.statusLabel,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Text(
+                    text = summary.previousDate ?: "No previous",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            MetricGrid(
+                metrics = listOf(
+                    "Last volume" to summary.previousVolumeKg.formatHistoryValue("kg"),
+                    "Today volume" to "${formatDecimal(summary.currentVolumeKg)} kg",
+                    "Best load" to "${summary.previousBestLoadKg.formatHistoryValue("kg")} -> ${summary.currentBestLoadKg.formatHistoryValue("kg")}",
+                    "Best reps" to "${summary.previousBestReps?.toString() ?: "--"} -> ${summary.currentBestReps?.toString() ?: "--"}",
+                    "Sets" to "${summary.previousCompletedSets?.toString() ?: "--"} -> ${summary.currentCompletedSets}",
+                    "Avg RIR" to "${summary.previousAverageRir.formatHistoryValue("")} -> ${summary.currentAverageRir.formatHistoryValue("")}"
+                )
+            )
+            Text(
+                text = summary.guidance,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -1525,6 +1575,12 @@ private fun ProgressionCueCard(cue: ProgressionCue) {
             )
         }
     }
+}
+
+private fun Double?.formatHistoryValue(unit: String): String {
+    if (this == null) return "--"
+    val value = formatDecimal(this)
+    return if (unit.isBlank()) value else "$value $unit"
 }
 
 @Composable

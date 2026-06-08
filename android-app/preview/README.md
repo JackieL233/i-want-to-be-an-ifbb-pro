@@ -11,6 +11,7 @@ The preview mirrors the current Android app structure:
 - Unified exercise visual guide for equipment/action recognition
 - Exercise Visual Library with simple instance diagrams, example movements, and look-for cues
 - Set-level training execution
+- Exercise History comparison for previous/current volume, best load, best reps, sets, and average RIR
 - Rest countdown after completing a set
 - Daily nutrition tracking
 - Health Connect and vendor-data boundary

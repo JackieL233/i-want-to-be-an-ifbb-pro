@@ -23,12 +23,14 @@ class DailySummaryBuilder {
         } ?: "- No weekly plan loaded."
         val exercises = log.trainingSession.exercises.joinToString("\n") { exercise ->
             val cue = exercise.progressionCue()
+            val history = exercise.exerciseHistorySummary(log, recentLogs)
             val setLog = exercise.trackedSets().joinToString("\n") { set ->
                 "  - Set ${set.setNumber}: target ${set.targetReps}, actual reps ${set.actualReps ?: "not logged"}, load ${set.loadKg ?: "not logged"} kg, RIR ${set.rir ?: "not logged"}, completed ${set.completed}, rest ${set.restSeconds}s, notes: ${set.notes.ifBlank { "none" }}"
             }
             """
             - ${exercise.name}: target ${exercise.targetMuscle.ifBlank { "not logged" }}, plan ${exercise.sets} sets x ${exercise.reps}, default load ${exercise.loadKg ?: "bodyweight"} kg, default RIR ${exercise.rir ?: "unknown"}, completed sets ${exercise.completedSetCount()}/${exercise.trackedSets().size}, volume ${exercise.volumeKg()} kg, default rest ${exercise.restSeconds}s, notes: ${exercise.notes.ifBlank { "none" }}
               Progression cue: ${cue.label}. ${cue.reason} ${cue.nextAction}
+              Exercise history: ${history.statusLabel}. Previous date ${history.previousDate ?: "none"}, previous volume ${history.previousVolumeKg ?: "not available"} kg, current volume ${history.currentVolumeKg} kg, previous best load ${history.previousBestLoadKg ?: "not available"} kg, current best load ${history.currentBestLoadKg ?: "not logged"} kg, previous best reps ${history.previousBestReps ?: "not available"}, current best reps ${history.currentBestReps ?: "not logged"}, previous average RIR ${history.previousAverageRir ?: "not available"}, current average RIR ${history.currentAverageRir ?: "not logged"}. ${history.guidance}
             $setLog
             """.trimIndent()
         }.ifBlank { "- No exercises logged yet." }
@@ -117,11 +119,12 @@ class DailySummaryBuilder {
             2. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
             3. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
             4. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
-            5. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            6. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            7. Compare food intake and Nutrition Pacing with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            8. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            9. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            5. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
+            6. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            7. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
+            8. Compare food intake and Nutrition Pacing with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            9. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            10. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 

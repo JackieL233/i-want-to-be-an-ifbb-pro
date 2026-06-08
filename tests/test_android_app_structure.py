@@ -19,6 +19,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SkillPromptBuilder.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SkillAssetRepository.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/network/OpenAiResponsesClient.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLog.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLogStore.kt",
@@ -183,11 +184,22 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Progression cue",
             "Use each Progression Cue",
             "progressionCue",
+            "Exercise history",
+            "Compare Exercise History",
+            "exerciseHistorySummary",
+            "previous volume",
+            "current volume",
+            "best load",
+            "best reps",
+            "average RIR",
         ]
         progression = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}"
+        history = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt").read_text(
+            encoding="utf-8"
+        )
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -284,6 +296,21 @@ class AndroidAppStructureTest(unittest.TestCase):
             "adherenceScore",
             "ProgressionCue",
             "Progression Cue",
+            "ExerciseHistorySummary",
+            "ExerciseHistoryCard",
+            "Exercise History",
+            "exerciseHistorySummary",
+            "First tracked session",
+            "Volume up",
+            "Volume down",
+            "Load PR",
+            "Rep PR",
+            "Matched last time",
+            "Last volume",
+            "Today volume",
+            "Best load",
+            "Best reps",
+            "Avg RIR",
             "Add reps first",
             "Add load next time",
             "Hold load",
@@ -297,7 +324,10 @@ class AndroidAppStructureTest(unittest.TestCase):
         progression = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{activity}\n{theme}\n{progression}"
+        history = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt").read_text(
+            encoding="utf-8"
+        )
+        combined = f"{ui}\n{view_model}\n{activity}\n{theme}\n{progression}\n{history}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -391,6 +421,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "macro adherence score",
             "next-meal focus",
             "Progression Cue",
+            "Exercise History",
+            "previous/current volume",
+            "best load",
+            "best reps",
+            "average RIR",
             "add reps",
             "add load",
             "hold",
@@ -441,7 +476,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Nutrition totals + pacing",
             "Protein behind",
             "Progression Cue",
+            "Exercise History",
             "Add reps first",
+            "Last volume",
+            "Today volume",
+            "Best load",
+            "Best reps",
+            "Avg RIR",
+            "previous/current volume",
             "data-tab",
             "complete-set",
             "setInterval",
