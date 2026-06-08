@@ -6,7 +6,15 @@ If the user provides equipment photos, exercise photos, or video frames, use `vi
 
 ## Exercise Visual Guide
 
-When outputting exercises for a beginner or a user who may not recognize professional exercise names, include a concise visual guide cue that maps the name to an equipment/action category. Use the same visual IDs, Chinese equipment labels, simple instance diagrams, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, example movements, common movements, and look-for cues the Android app can display:
+When outputting exercises for a beginner or a user who may not recognize professional exercise names, include a concise visual guide cue that maps the name to an equipment/action category. Use the same `Unified Exercise Visual Atlas` as the Android app: stable visual IDs, Chinese equipment labels, simple instance diagrams, three-step recognition, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, example movements, common movements, and look-for cues.
+
+Three-step recognition should stay consistent across plans, substitutions, visual/photo analysis, and AI review:
+
+1. Match the simplified instance diagram.
+2. Find the real equipment markers.
+3. Follow the intended movement path.
+
+The Android app can display these atlas categories:
 
 - VG-01 Smith machine (史密斯机): fixed bar path for guided presses, squats, or rows. Unified instance diagram: fixed bar between two vertical rails. Quick visual cue: 图例: 两根竖轨 + 一根固定杠. Find-equipment cue: 找器械: 史密斯架、固定杠、安全挂钩. Movement path cue: 动作路径: 杠铃沿竖轨上下移动. Action path cue: the bar travels up and down on rails while the bench or stance stays under the track. Beginner cue: 先找两根竖轨和一根固定杠；上斜推、深蹲、划船都沿这条轨道完成。 Equipment markers: two vertical rails, fixed guided bar, safety hooks. Example movement: Incline Smith Press. Common movements: Incline Smith Press, Smith Squat, Smith Row. Look-for cue: Look for two rails and a fixed bar.
 - VG-02 Cable station (绳索龙门架/滑轮器械): pulley resistance, cable handle/rope, adjustable pulley height. Unified instance diagram: pulley tower with cable and handle. Quick visual cue: 图例: 立柱滑轮 + 钢索 + 把手. Find-equipment cue: 找器械: 龙门架、下拉机、绳索把手或绳子. Movement path cue: 动作路径: 把手沿钢索方向受力. Action path cue: the handle follows the cable line from a high, middle, or low pulley. Beginner cue: 先找滑轮、钢索和把手/绳子；动作方向通常跟钢索拉力方向相反。 Equipment markers: pulley, visible cable, handle or rope. Example movement: Cable Lateral Raise. Common movements: Cable Lateral Raise, Lat Pulldown, Rope Pushdown. Look-for cue: Look for a cable, pulley, and handle.
@@ -21,7 +29,7 @@ When outputting exercises for a beginner or a user who may not recognize profess
 
 Pair the visual cue with the target muscle, one setup cue, an example movement, common movements, and one look-for cue, for example: `Exercise visual guide: VG-01 Smith machine (史密斯机) | unified instance diagram: fixed bar between two vertical rails | guided incline press path | quick visual cue: 图例: 两根竖轨 + 一根固定杠 | find-equipment cue: 找器械: 史密斯架、固定杠、安全挂钩 | movement path cue: 动作路径: 杠铃沿竖轨上下移动 | action path cue: the bar travels up and down on rails | instance diagram cue: two vertical rails with a bar that moves on a fixed track | beginner recognition cue: 先找两根竖轨和一根固定杠 | upper chest | align bench under the fixed bar path | example movement: Incline Smith Press | common movements: Incline Smith Press, Smith Squat, Smith Row | look-for cue: Look for two rails and a fixed bar`.
 
-For app-linked plans, keep the visual guide wording consistent across the written plan, Android Exercise Visual Library, Selected Day Visual Map, Today's Exercise Visual Map, exercise thumbnail headers, the Add Exercise live equipment/action preview, Next Set Coach, and AI review context. The goal is quick recognition, not anatomical artwork: simple unified instance diagrams plus equipment/action labels are enough for a non-pro user to understand which station or setup to find in the gym. When the user is confused by an exercise name, explain it in three steps: what the simplified instance diagram shows, what real gym equipment to find, and what movement path to follow.
+For app-linked plans, keep the visual guide wording consistent across the written plan, Android Unified Exercise Visual Atlas, Exercise Visual Library, Selected Day Visual Map, Today's Exercise Visual Map, exercise thumbnail headers, the Add Exercise live equipment/action preview, Next Set Coach, Exercise Substitution Coach, multimodal equipment/photo recognition, and AI review context. The goal is quick recognition, not anatomical artwork: simple unified instance diagrams plus equipment/action labels are enough for a non-pro user to understand which station or setup to find in the gym. When the user is confused by an exercise name, explain it in three steps: what the simplified instance diagram shows, what real gym equipment to find, and what movement path to follow.
 
 ## Movement Patterns
 

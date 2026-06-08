@@ -75,7 +75,7 @@ import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
-import com.iwanttobeanifbbpro.app.core.exerciseVisualLibrarySpecs
+import com.iwanttobeanifbbpro.app.core.exerciseVisualAtlas
 import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.exerciseSubstitutionGuide
@@ -1720,11 +1720,12 @@ private fun ExerciseVisualMap(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
+            val atlas = exerciseVisualAtlas()
             val categoryChips = items
                 .map { exerciseVisualSpec(it.name, it.targetMuscle) }
                 .distinctBy { it.visualId }
                 .map { "${it.visualId} ${it.equipmentZh}" }
-            DataChipGrid(items = categoryChips)
+            DataChipGrid(items = categoryChips + atlas.recognitionFlow)
             items.forEachIndexed { index, item ->
                 ExerciseVisualMapRow(item = item)
                 if (index != items.lastIndex) {
@@ -1763,6 +1764,11 @@ private fun ExerciseVisualMapRow(item: ExerciseVisualMapItem) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Text(
+                text = "统一图谱: ${spec.recognitionSteps().joinToString(" ")}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -1797,6 +1803,11 @@ private fun ExerciseVisualHeader(
             )
             Text(
                 text = spec.quickVisualCue,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spec.recognitionSteps().joinToString(" "),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1853,6 +1864,11 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Text(
+                    text = "统一三步: ${spec.recognitionSteps().joinToString(" ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 DataChipGrid(items = listOf(spec.primaryMuscle, spec.setupCue, spec.actionPathCue, spec.lookFor))
             }
         }
@@ -1861,10 +1877,12 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
 
 @Composable
 private fun ExerciseVisualGuideLibrary() {
+    val atlas = exerciseVisualAtlas()
     SectionCard(
         title = "Exercise Visual Library",
         subtitle = "Unified equipment/action instance diagrams help non-pro users recognize what an exercise name refers to before adding it. 中文图例会把动作名翻译成大概该找哪种器械。"
     ) {
+        ExerciseVisualAtlasOverview()
         Text(
             text = "When the app or AI sees an exercise name, it maps it to one of these shared visual IDs: equipment name, Chinese label, simple instance diagram, action path cue, beginner recognition cue, example movement, look-for cue, equipment markers, and common movements.",
             style = MaterialTheme.typography.bodySmall,
@@ -1875,7 +1893,7 @@ private fun ExerciseVisualGuideLibrary() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        val examples = exerciseVisualLibrarySpecs()
+        val examples = atlas.specs
         examples.forEachIndexed { index, spec ->
             ExerciseVisualGuideSample(spec = spec)
             if (index != examples.lastIndex) {
@@ -1887,6 +1905,28 @@ private fun ExerciseVisualGuideLibrary() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun ExerciseVisualAtlasOverview() {
+    val atlas = exerciseVisualAtlas()
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(atlas.title, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = atlas.summary,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            DataChipGrid(items = atlas.recognitionFlow)
+            DataChipGrid(items = atlas.specs.map { "${it.visualId} ${it.equipmentZh}" })
+        }
     }
 }
 
@@ -1937,6 +1977,11 @@ private fun ExerciseVisualRecognitionPreview(name: String, targetMuscle: String)
                 )
                 Text(
                     text = spec.lookFor,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = spec.recognitionSteps().joinToString(" "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1994,6 +2039,11 @@ private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
             )
             Text(
                 text = "Beginner cue: ${spec.beginnerCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Three-step recognition: ${spec.recognitionSteps().joinToString(" ")}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -3451,8 +3501,13 @@ private fun AiCoachPage(
                     "keepIntentCue",
                     "loadAdjustmentCue",
                     "Exercise visual guide",
+                    "Unified Exercise Visual Atlas",
                     "Visual guide ID",
                     "Equipment/action diagrams",
+                    "Three-step recognition",
+                    "Simplified instance diagram",
+                    "Find real equipment",
+                    "Movement path matching",
                     "Live equipment/action preview",
                     "Chinese equipment labels",
                     "Unified instance diagram",

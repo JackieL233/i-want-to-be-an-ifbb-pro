@@ -35,9 +35,46 @@ data class ExerciseVisualSpec(
     val equipmentMarkers: List<String>,
     val commonMovements: List<String>
 ) {
-    fun visualPromptLine(): String {
-        return "Exercise visual guide: $visualId $equipment ($equipmentZh) | unified instance diagram: $figureTitle | $pattern | quick visual cue: $quickVisualCue | find-equipment cue: $findEquipmentCue | movement path cue: $movementPathCue | action path cue: $actionPathCue | instance diagram cue: $instanceCue | beginner recognition cue: $beginnerCue | equipment markers: ${equipmentMarkers.joinToString(", ")} | target $primaryMuscle | setup cue: $setupCue | example movement: $example | look-for cue: $lookFor | common movements: ${commonMovements.joinToString(", ")}"
+    fun recognitionSteps(): List<String> {
+        return listOf(
+            "1. See: $figureTitle.",
+            "2. Find: $findEquipmentCue.",
+            "3. Move: $movementPathCue."
+        )
     }
+
+    fun atlasLine(): String {
+        return "$visualId $equipment ($equipmentZh): $figureTitle | $quickVisualCue | $findEquipmentCue | $movementPathCue | beginner cue: $beginnerCue | common movements: ${commonMovements.joinToString(", ")}"
+    }
+
+    fun visualPromptLine(): String {
+        return "Exercise visual guide: $visualId $equipment ($equipmentZh) | unified instance diagram: $figureTitle | $pattern | quick visual cue: $quickVisualCue | find-equipment cue: $findEquipmentCue | movement path cue: $movementPathCue | three-step recognition: ${recognitionSteps().joinToString(" ")} | action path cue: $actionPathCue | instance diagram cue: $instanceCue | beginner recognition cue: $beginnerCue | equipment markers: ${equipmentMarkers.joinToString(", ")} | target $primaryMuscle | setup cue: $setupCue | example movement: $example | look-for cue: $lookFor | common movements: ${commonMovements.joinToString(", ")}"
+    }
+}
+
+data class ExerciseVisualAtlas(
+    val title: String,
+    val summary: String,
+    val recognitionFlow: List<String>,
+    val specs: List<ExerciseVisualSpec>
+) {
+    fun promptLine(): String {
+        val atlas = specs.joinToString(" || ") { it.atlasLine() }
+        return "$title: $summary | three-step recognition flow: ${recognitionFlow.joinToString(" -> ")} | atlas categories: $atlas"
+    }
+}
+
+fun exerciseVisualAtlas(): ExerciseVisualAtlas {
+    return ExerciseVisualAtlas(
+        title = "Unified Exercise Visual Atlas",
+        summary = "A stable VG-01 to VG-10 equipment/action diagram system that maps non-pro exercise names to the gym station, visible markers, and intended movement path before the user trains.",
+        recognitionFlow = listOf(
+            "Match the simplified instance diagram",
+            "Find the real equipment markers",
+            "Follow the intended movement path"
+        ),
+        specs = exerciseVisualLibrarySpecs()
+    )
 }
 
 fun exerciseVisualLibrarySpecs(): List<ExerciseVisualSpec> {

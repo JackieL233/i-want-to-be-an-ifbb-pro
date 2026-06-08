@@ -19,6 +19,7 @@ class DailySummaryBuilder {
         val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val recoveryGuidance = recoveryGuidance(log, recentLogs)
         val physiqueMeasurement = physiqueMeasurementSummary(log, recentLogs)
+        val visualAtlas = exerciseVisualAtlas()
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
         val nextSet = nextSetCoach(log)
         val sessionQuality = sessionQualityDashboard(log)
@@ -123,6 +124,7 @@ class DailySummaryBuilder {
             - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             - Recovery guidance: ${recoveryGuidance.statusLabel}, readiness score ${recoveryGuidance.readinessScore}, training pressure ${recoveryGuidance.trainingPressure}, sleep signal ${recoveryGuidance.sleepSignal}, stress signal ${recoveryGuidance.stressSignal}, soreness signal ${recoveryGuidance.sorenessSignal}, HR signal ${recoveryGuidance.heartRateSignal}, recommended training action ${recoveryGuidance.recommendedTrainingAction}. ${recoveryGuidance.rationale} ${recoveryGuidance.nextAction}
             - ${physiqueMeasurement.promptLine()}
+            - ${visualAtlas.promptLine()}
             - ${dailyExecution.promptLine()}
             - ${weeklyCheckIn.promptLine()}
             - ${tomorrowBrief.promptLine()}
@@ -184,7 +186,7 @@ class DailySummaryBuilder {
             8. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
             9. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
             10. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            11. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
+            11. Use the Unified Exercise Visual Atlas and Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, quick visual cues, find-equipment cues, movement path cues, three-step recognition, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
             12. Use Exercise Substitution Coach before swapping: preserve same target muscle, same movement pattern, rep range, planned RIR, fatigue cost, and visual guide ID continuity unless pain, technique, or equipment constraints require a safer option.
             13. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
             14. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
