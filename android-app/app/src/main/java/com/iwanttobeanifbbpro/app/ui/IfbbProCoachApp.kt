@@ -63,6 +63,7 @@ import com.iwanttobeanifbbpro.app.core.DailyExecutionRoute
 import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualType
+import com.iwanttobeanifbbpro.app.core.MealAssemblyGuide
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
 import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
@@ -72,6 +73,7 @@ import com.iwanttobeanifbbpro.app.core.exerciseVisualLibrarySpecs
 import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.progressionCue
+import com.iwanttobeanifbbpro.app.core.mealAssemblyGuide
 import com.iwanttobeanifbbpro.app.core.recoveryGuidance
 import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
@@ -1015,6 +1017,49 @@ private fun NextMealBuilderCard(log: DailyLog) {
             text = builder.photoCue,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun MealAssemblyGuideCard(guide: MealAssemblyGuide) {
+    SectionCard(
+        title = "Meal Assembly Guide",
+        subtitle = "Turn the macro target into a simple plate, shopping cue, prep cue, and photo logging cue."
+    ) {
+        Text(guide.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            text = guide.plateStructure,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                guide.proteinAnchor,
+                guide.carbAnchor,
+                guide.fatControl,
+                guide.fiberMicros
+            )
+        )
+        Text(
+            text = "Shopping: ${guide.shoppingCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Prep: ${guide.prepCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Photo/logging: ${guide.photoLoggingCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Avoid: ${guide.avoidCue}",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }
@@ -2337,6 +2382,7 @@ private fun NutritionPage(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         NutritionPacingCard(log = state.dailyLog)
         NextMealBuilderCard(log = state.dailyLog)
+        MealAssemblyGuideCard(guide = mealAssemblyGuide(state.dailyLog))
         BodyCompositionCard(
             guidance = bodyCompositionGuidance(state.dailyLog, state.recentLogs, state.athleteProfile),
             subtitle = "Use body-weight trend, average intake, and phase goal before changing targets."
@@ -2738,6 +2784,15 @@ private fun AiCoachPage(
                     "Meal macros",
                     "Nutrition Pacing",
                     "Next Meal Builder",
+                    "Meal Assembly Guide",
+                    "Plate structure",
+                    "Protein anchor",
+                    "Carb anchor",
+                    "Fat control",
+                    "Fiber/micros",
+                    "Shopping cue",
+                    "Prep cue",
+                    "Photo/logging cue",
                     "Next meal macro targets",
                     "Meal timing cue",
                     "Portion uncertainty cue",

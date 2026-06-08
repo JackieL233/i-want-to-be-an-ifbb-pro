@@ -15,6 +15,7 @@ class DailySummaryBuilder {
         val totals = log.nutritionTotals()
         val nutritionPacing = log.nutritionPacingSummary()
         val nextMealBuilder = log.nextMealBuilderSummary()
+        val mealAssembly = mealAssemblyGuide(log)
         val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val recoveryGuidance = recoveryGuidance(log, recentLogs)
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
@@ -95,6 +96,7 @@ class DailySummaryBuilder {
             - Nutrition pacing: ${nutritionPacing.statusLabel}, adherence ${nutritionPacing.adherenceScore}%, calories ${nutritionPacing.caloriesRemaining} kcal remaining, protein ${nutritionPacing.proteinRemaining}g remaining, carbs ${nutritionPacing.carbsRemaining}g remaining, fat ${nutritionPacing.fatRemaining}g remaining, fiber ${nutritionPacing.fiberRemaining}g remaining.
             - Next meal focus: ${nutritionPacing.nextMealFocus}
             - Next Meal Builder: ${nextMealBuilder.title}. ${nextMealBuilder.summary} Macro target P ${nextMealBuilder.proteinGrams}g, C ${nextMealBuilder.carbsGrams}g, F ${nextMealBuilder.fatGrams}g, fiber ${nextMealBuilder.fiberGrams}g. Timing cue: ${nextMealBuilder.timingCue} Portion cue: ${nextMealBuilder.portionCue} Photo/label cue: ${nextMealBuilder.photoCue}
+            - ${mealAssembly.promptLine()}
             - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             - Recovery guidance: ${recoveryGuidance.statusLabel}, readiness score ${recoveryGuidance.readinessScore}, training pressure ${recoveryGuidance.trainingPressure}, sleep signal ${recoveryGuidance.sleepSignal}, stress signal ${recoveryGuidance.stressSignal}, soreness signal ${recoveryGuidance.sorenessSignal}, HR signal ${recoveryGuidance.heartRateSignal}, recommended training action ${recoveryGuidance.recommendedTrainingAction}. ${recoveryGuidance.rationale} ${recoveryGuidance.nextAction}
             - ${dailyExecution.promptLine()}
@@ -146,7 +148,7 @@ class DailySummaryBuilder {
             9. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
             10. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
             11. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            12. Compare food intake, Nutrition Pacing, Next Meal Builder, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            12. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
             13. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
             14. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()

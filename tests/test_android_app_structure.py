@@ -21,6 +21,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt",
@@ -230,6 +231,19 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Next Meal Builder",
             "NextMealBuilderSummary",
             "nextMealBuilderSummary",
+            "Meal Assembly Guide",
+            "MealAssemblyGuide",
+            "mealAssemblyGuide",
+            "promptLine",
+            "Plate structure",
+            "Protein anchor",
+            "Carb anchor",
+            "Fat control",
+            "Fiber/micros",
+            "Shopping cue",
+            "Prep cue",
+            "Photo/logging cue",
+            "Avoid cue",
             "Macro target",
             "Timing cue",
             "Portion cue",
@@ -321,6 +335,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         daily_execution = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        meal_assembly = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt"
+        ).read_text(encoding="utf-8")
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
@@ -330,7 +347,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{recovery}\n{training_readiness}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{recovery}\n{training_readiness}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -502,6 +519,18 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Next Meal Builder",
             "NextMealBuilderCard",
             "nextMealBuilder",
+            "MealAssemblyGuide",
+            "Meal Assembly Guide",
+            "MealAssemblyGuideCard",
+            "mealAssemblyGuide",
+            "Plate structure",
+            "Protein anchor",
+            "Carb anchor",
+            "Fat control",
+            "Fiber/micros",
+            "Shopping cue",
+            "Prep cue",
+            "Photo/logging cue",
             "Next meal macro targets",
             "Meal timing cue",
             "Portion uncertainty cue",
@@ -596,6 +625,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         daily_execution = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        meal_assembly = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt"
+        ).read_text(encoding="utf-8")
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
@@ -605,7 +637,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{recovery}\n{training_readiness}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{recovery}\n{training_readiness}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -716,6 +748,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "next practical meal target",
             "meal timing cue",
             "portion uncertainty cue",
+            "Meal Assembly Guide",
+            "plate structure",
+            "protein anchor",
+            "carb anchor",
+            "fat control",
+            "shopping cue",
+            "prep cue",
+            "photo/logging cue",
             "Meal Templates",
             "Lean Protein Bowl",
             "Pre-Workout Carbs",
@@ -842,6 +882,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Nutrition Pacing",
             "Next Meal Builder",
             "Next meal macro targets",
+            "Meal Assembly Guide",
+            "Plate structure",
+            "Protein anchor",
+            "Carb anchor",
+            "Fat control",
+            "Fiber/micros",
+            "Shopping cue",
+            "Prep cue",
+            "Photo/logging cue",
             "Meal timing cue",
             "Portion uncertainty cue",
             "Meal Templates",

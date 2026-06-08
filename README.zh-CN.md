@@ -47,13 +47,14 @@
 - 休息倒计时：点击一组 `Complete` 后自动启动休息倒计时。
 - Nutrition Pacing：显示今天热量、蛋白质、碳水、脂肪、纤维还剩多少或已经超出多少，给出宏量营养执行分数和下一餐建议，让用户知道接下来该优先吃什么。
 - Next Meal Builder：把剩余热量、蛋白质、碳水、脂肪、纤维和训练需求转换成下一餐可执行目标，包含下一餐大概 P/C/F/纤维克数、meal timing cue、portion uncertainty cue 和照片/标签提示。
+- Meal Assembly Guide：把 Next Meal Builder 的宏量目标翻译成新手可以直接照做的一盘饭，包括 plate structure、protein anchor、carb anchor、fat control、fiber/micros、shopping cue、prep cue、photo/logging cue 和 avoid cue，帮助用户知道下一餐该选什么食材、怎么控制油和酱料、什么时候需要拍照给 AI 估算。
 - Meal Templates 餐食模板：内置 Lean Protein Bowl、Pre-Workout Carbs、Low-Fat Protein Fix、Salmon Potato Plate 和 Fiber + Micronutrient Add，用户可以快速添加常见高蛋白餐，再根据实际份量、油、酱料、标签或照片修正。
 - Body Composition Guidance：根据当前阶段、体重趋势、平均热量、平均蛋白质和训练输出，判断热量目标应该保持、小幅上调还是小幅下调，避免只凭一天体重或一天饮食做过度调整。
 - Recovery Guidance：根据睡眠、疲劳、酸痛、压力、静息心率、计划/完成组数和近期趋势，判断今天训练应该继续推进、保持训练压力、减少容量，还是进入 deload 检查。
 - 饮食记录：设置热量和宏量营养目标，记录每餐热量、蛋白质、碳水、脂肪、纤维，并可上传食物照片让 AI 估算。
 - 身体与恢复指标：体重、体脂、瘦体重、腰围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
 - Health Connect 同步：用户授权后读取体重、体脂、瘦体重、步数、睡眠、静息心率和总消耗热量。
-- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
+- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
 
 ## 小米、华为和手机健康数据
 
