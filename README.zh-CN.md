@@ -40,6 +40,7 @@
 - 每周训练计划：在 `Plan` 中设置阶段目标、训练日、计划动作、组数、次数、RIR、休息时间和备注。
 - 今日训练执行：点击 `Apply today` 将某一天计划转换成今天的 set-level 训练日志。
 - Training Readiness Builder：在 `Training` 页把 Recovery Guidance 转换成训练前执行闸门，包括热身策略、ramp-up 提示、第一组工作组选择、容量调整和停止规则，让用户进健身房时知道今天该怎么开始、什么时候不该硬推。
+- Next Set Coach：在 `Training` 页自动找到第一组还没完成的 working set，并把当前动作、下一组目标、建议重量、目标次数、RIR、休息秒数、停止规则、完成后记录提示和对应的器械/动作实例图放在同一张卡片里；用户不懂动作名时，也能通过 VG 图例编号、中文器械名、统一实例图和 look-for cue 知道该找哪台器械或哪个动作路径。
 - Session Quality Dashboard：在 `Training` 页汇总整节训练质量，包括 completion rate、logged set rate、average RIR、completed volume、muscle-volume distribution、pain flags、technique flags、quality cue、capacity cue 和 risk cue，让用户训练中途或结束后知道这节课是否足够可靠，可以不可以作为下一次加重量/加次数/调整容量的依据。
 - 统一动作示意：计划动作卡片和今日训练卡片都会显示简洁的器械/动作示意图；`Add Planned Exercise` 和 `Add Exercise` 会在输入动作名称时实时显示 live equipment/action preview，告诉用户这个动作大概率对应哪一个 VG 视觉图例编号、哪类器械、中文叫什么、常见动作有哪些；`Plan` 页还提供 Exercise Visual Library 图例库，集中展示 Smith 机、绳索、哑铃、杠铃、固定器械、可调训练凳、引体/双杠站、弹力带、腿举/哈克深蹲、自重/开放空间动作的统一实例图、实例图提示、动作路径提示、新手识别提示、器械标志点、示例动作、常见动作和识别提示，帮助不是 pro 的用户直观看懂动作名称对应哪类器械或动作路径。
 - 单组记录：每一组都可以记录重量、次数、RIR、是否完成、休息时间和备注。
@@ -55,7 +56,7 @@
 - 饮食记录：设置热量和宏量营养目标，记录每餐热量、蛋白质、碳水、脂肪、纤维，并可上传食物照片让 AI 估算。
 - 身体与恢复指标：体重、体脂、瘦体重、腰围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
 - Health Connect 同步：用户授权后读取体重、体脂、瘦体重、步数、睡眠、静息心率和总消耗热量。
-- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、Session Quality Dashboard、completion rate、logged set rate、average RIR、muscle-volume distribution、pain/technique flags、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
+- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、Next Set Coach、current exercise、next set target、load cue、reps cue、RIR cue、rest cue、stop cue、after-set logging cue、Session Quality Dashboard、completion rate、logged set rate、average RIR、muscle-volume distribution、pain/technique flags、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
 
 ## 小米、华为和手机健康数据
 

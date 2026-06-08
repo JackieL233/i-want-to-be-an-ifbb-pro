@@ -64,6 +64,7 @@ import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualType
 import com.iwanttobeanifbbpro.app.core.MealAssemblyGuide
+import com.iwanttobeanifbbpro.app.core.NextSetCoach
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
 import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.SessionQualityDashboard
@@ -75,6 +76,7 @@ import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.core.mealAssemblyGuide
+import com.iwanttobeanifbbpro.app.core.nextSetCoach
 import com.iwanttobeanifbbpro.app.core.recoveryGuidance
 import com.iwanttobeanifbbpro.app.core.sessionQualityDashboard
 import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
@@ -1936,10 +1938,12 @@ private fun TrainingPage(
     val session = state.dailyLog.trainingSession
     val recovery = recoveryGuidance(state.dailyLog, state.recentLogs)
     val readinessBuilder = trainingReadinessBuilder(state.dailyLog, recovery)
+    val nextSet = nextSetCoach(state.dailyLog)
     val qualityDashboard = sessionQualityDashboard(state.dailyLog)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TrainingReadinessBuilderCard(builder = readinessBuilder)
+        NextSetCoachCard(coach = nextSet)
         SessionQualityDashboardCard(dashboard = qualityDashboard)
         SectionCard(title = "Training Execution", subtitle = "Log every working set, hard sets, rest time, and effort so AI can compare performance, pain, and recovery.") {
             MetricGrid(
@@ -2042,6 +2046,98 @@ private fun TrainingPage(
                     onRemove = { onRemoveExercise(exerciseIndex) },
                     onUpdateSetEntry = onUpdateSetEntry,
                     onCompleteSet = onCompleteSet
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NextSetCoachCard(coach: NextSetCoach) {
+    SectionCard(
+        title = "Next Set Coach",
+        subtitle = "Next set target, simple equipment/action diagram, and the decision cues to execute safely."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to coach.statusLabel,
+                "Current exercise" to coach.currentExerciseName.ifBlank { "--" },
+                "Next set target" to if (coach.hasActiveSet) "${coach.setNumber}/${coach.totalSets} | ${coach.targetReps.ifBlank { "--" }}" else "--",
+                "Load cue" to (coach.plannedLoadKg?.let { "${formatDecimal(it)} kg" } ?: "bodyweight/plan"),
+                "RIR cue" to (coach.plannedRir?.let { formatDecimal(it) } ?: "--"),
+                "Rest" to if (coach.restSeconds > 0) "${coach.restSeconds}s" else "--"
+            )
+        )
+        if (coach.currentExerciseName.isNotBlank()) {
+            NextSetVisualGuide(spec = coach.visualSpec)
+        }
+        Text(
+            text = coach.primaryAction,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Load/Reps/RIR: ${coach.loadCue} ${coach.repsCue} ${coach.rirCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Rest + execution: ${coach.restCue} ${coach.executionCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Stop + log: ${coach.stopCue} ${coach.afterSetLoggingCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                coach.visualSpec.visualId,
+                coach.visualSpec.equipmentZh,
+                coach.visualSpec.equipment,
+                "Look-for cue: ${coach.visualSpec.lookFor}"
+            )
+        )
+    }
+}
+
+@Composable
+private fun NextSetVisualGuide(spec: ExerciseVisualSpec) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier.padding(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .weight(0.68f)
+                    .height(74.dp)
+            ) {
+                drawExerciseVisual(type = spec.type)
+            }
+            Column(modifier = Modifier.weight(1.32f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("${spec.visualId} ${spec.equipment} (${spec.equipmentZh})", fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "Unified instance diagram: ${spec.figureTitle}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Look-for cue: ${spec.lookFor}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Beginner recognition cue: ${spec.beginnerCue}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -2805,6 +2901,15 @@ private fun AiCoachPage(
                     "AI review gate",
                     "Plan adjustment signal",
                     "Training Readiness Builder",
+                    "Next Set Coach",
+                    "Current exercise",
+                    "Next set target",
+                    "Load cue",
+                    "Reps cue",
+                    "RIR cue",
+                    "Rest cue",
+                    "Stop cue",
+                    "After-set logging cue",
                     "Session Quality Dashboard",
                     "Completion rate",
                     "Logged set rate",

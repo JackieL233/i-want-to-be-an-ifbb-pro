@@ -23,6 +23,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt",
@@ -271,6 +272,23 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Training Readiness Builder",
             "TrainingReadinessBuilder",
             "trainingReadinessBuilder",
+            "Next Set Coach",
+            "NextSetCoach",
+            "nextSetCoach",
+            "currentExerciseName",
+            "current exercise",
+            "next set target",
+            "load cue",
+            "reps cue",
+            "RIR cue",
+            "rest cue",
+            "stop cue",
+            "after-set logging cue",
+            "Load cue",
+            "Reps cue",
+            "Rest cue",
+            "Stop cue",
+            "After-set logging cue",
             "promptLine",
             "Session Quality Dashboard",
             "SessionQualityDashboard",
@@ -365,10 +383,13 @@ class AndroidAppStructureTest(unittest.TestCase):
         training_readiness = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingReadinessAdvisor.kt"
         ).read_text(encoding="utf-8")
+        next_set = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt"
+        ).read_text(encoding="utf-8")
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -590,6 +611,18 @@ class AndroidAppStructureTest(unittest.TestCase):
             "TrainingReadinessBuilderCard",
             "trainingReadinessBuilder",
             "Training Readiness Builder",
+            "NextSetCoach",
+            "NextSetCoachCard",
+            "nextSetCoach",
+            "Next Set Coach",
+            "Current exercise",
+            "Next set target",
+            "Load cue",
+            "Reps/RIR",
+            "Rest cue",
+            "Execution cue",
+            "Stop cue",
+            "After-set logging cue",
             "SessionQualityDashboard",
             "SessionQualityDashboardCard",
             "sessionQualityDashboard",
@@ -671,10 +704,13 @@ class AndroidAppStructureTest(unittest.TestCase):
         training_readiness = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingReadinessAdvisor.kt"
         ).read_text(encoding="utf-8")
+        next_set = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt"
+        ).read_text(encoding="utf-8")
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -811,6 +847,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI review gate",
             "plan adjustment signal",
             "Training Readiness Builder",
+            "Next Set Coach",
+            "current exercise",
+            "next set target",
+            "load cue",
+            "reps cue",
+            "RIR cue",
+            "rest cue",
+            "stop cue",
+            "after-set logging cue",
             "Session Quality Dashboard",
             "completion rate",
             "logged set rate",
@@ -865,6 +910,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Weekly Plan",
             "Training Execution",
             "Training Readiness Builder",
+            "Next Set Coach",
+            "Current exercise",
+            "Next set target",
+            "Load cue",
+            "RIR cue",
+            "Rest cue",
+            "Stop cue",
+            "After-set logging cue",
             "Session Quality Dashboard",
             "Completion rate",
             "Logged set rate",

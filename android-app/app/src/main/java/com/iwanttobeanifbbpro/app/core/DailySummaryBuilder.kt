@@ -19,6 +19,7 @@ class DailySummaryBuilder {
         val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val recoveryGuidance = recoveryGuidance(log, recentLogs)
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
+        val nextSet = nextSetCoach(log)
         val sessionQuality = sessionQualityDashboard(log)
         val dailyExecution = dailyExecutionPlan(
             log = log,
@@ -111,6 +112,7 @@ class DailySummaryBuilder {
             - Completed hard sets: ${log.completedHardSets()}
             - Completed training volume: ${log.trainingVolumeKg()} kg
             - ${trainingReadiness.promptLine()}
+            - ${nextSet.promptLine()}
             - ${sessionQuality.promptLine()}
             - Session notes: ${log.trainingSession.sessionNotes}
             - Exercise log:
@@ -144,16 +146,17 @@ class DailySummaryBuilder {
             3. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
             4. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
             5. Use Training Readiness Builder before progression decisions: check warm-up quality, ramp-up quality, first working set choice, volume adjustment, stop rule, and whether recovery gates were respected.
-            6. Use Session Quality Dashboard to judge completion rate, logged set rate, average RIR, muscle-volume distribution, pain flags, technique flags, and whether the session is valid for progression.
-            7. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
-            8. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
-            9. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            10. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
-            11. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
-            12. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            13. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            14. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            15. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            6. Use Next Set Coach to compare the current exercise, next set target, visual guide ID, equipment/action diagram, load cue, reps cue, RIR cue, rest cue, stop cue, and after-set logging cue against what the user actually logged.
+            7. Use Session Quality Dashboard to judge completion rate, logged set rate, average RIR, muscle-volume distribution, pain flags, technique flags, and whether the session is valid for progression.
+            8. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
+            9. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
+            10. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            11. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
+            12. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
+            13. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
+            14. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            15. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            16. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 
