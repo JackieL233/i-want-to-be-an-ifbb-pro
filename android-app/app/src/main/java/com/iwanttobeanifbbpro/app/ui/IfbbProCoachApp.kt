@@ -265,6 +265,60 @@ private data class DailyReadiness(
     val nextAction: String
 )
 
+private data class NutritionPacing(
+    val caloriesRemaining: Int,
+    val proteinRemaining: Int,
+    val carbsRemaining: Int,
+    val fatRemaining: Int,
+    val fiberRemaining: Int,
+    val adherenceScore: Int,
+    val statusLabel: String,
+    val nextMealFocus: String
+)
+
+private fun DailyLog.nutritionPacing(): NutritionPacing {
+    val totals = nutritionTotals()
+    val caloriesRemaining = targets.calories - totals.calories
+    val proteinRemaining = targets.protein - totals.protein
+    val carbsRemaining = targets.carbs - totals.carbs
+    val fatRemaining = targets.fat - totals.fat
+    val fiberRemaining = targets.fiber - totals.fiber
+    val targetSum = listOf(targets.calories, targets.protein, targets.carbs, targets.fat, targets.fiber)
+        .sumOf { it.coerceAtLeast(1) }
+        .toDouble()
+    val missSum = listOf(caloriesRemaining, proteinRemaining, carbsRemaining, fatRemaining, fiberRemaining)
+        .sumOf { kotlin.math.abs(it).coerceAtMost(400) }
+        .toDouble()
+    val adherenceScore = (100 - (missSum / targetSum * 100)).toInt().coerceIn(0, 100)
+    val statusLabel = when {
+        caloriesRemaining < -150 || fatRemaining < -15 -> "Over target"
+        proteinRemaining > 30 -> "Protein behind"
+        carbsRemaining > 80 -> "Carbs available"
+        fiberRemaining > 10 -> "Fiber behind"
+        adherenceScore >= 88 -> "On pace"
+        else -> "Needs logging"
+    }
+    val nextMealFocus = when {
+        caloriesRemaining < -150 -> "Keep the next meal lean and mostly protein/vegetables."
+        proteinRemaining > 35 -> "Prioritize a lean protein serving before adding extra fats."
+        carbsRemaining > 90 -> "Place carbs around training or the next high-output window."
+        fiberRemaining > 10 -> "Add fruit, vegetables, oats, beans, or another high-fiber carb."
+        fatRemaining < -10 -> "Keep fats low for the rest of the day."
+        meals.isEmpty() -> "Log the first meal or attach a food photo for portion estimation."
+        else -> "Stay close to targets; use photos only where portions are uncertain."
+    }
+    return NutritionPacing(
+        caloriesRemaining = caloriesRemaining,
+        proteinRemaining = proteinRemaining,
+        carbsRemaining = carbsRemaining,
+        fatRemaining = fatRemaining,
+        fiberRemaining = fiberRemaining,
+        adherenceScore = adherenceScore,
+        statusLabel = statusLabel,
+        nextMealFocus = nextMealFocus
+    )
+}
+
 private fun CoachUiState.dailyReadiness(): DailyReadiness {
     val metrics = dailyLog.metrics
     val recoveryPenalty = listOf(metrics.fatigue, metrics.soreness, metrics.stress).sumOf { (it - 3).coerceAtLeast(0) } * 8
@@ -284,6 +338,7 @@ private fun CoachUiState.dailyReadiness(): DailyReadiness {
         dailyLog.trainingSession.exercises.isEmpty() -> "Apply a plan day or add today's first exercise."
         dailyLog.completedHardSets() < dailyLog.plannedHardSets() -> "Finish the remaining working sets and keep RIR honest."
         dailyLog.meals.isEmpty() -> "Log the first meal or add a food photo for AI estimation."
+        dailyLog.nutritionPacing().adherenceScore < 72 -> "Use Nutrition Pacing to fix the biggest macro gap before AI review."
         metrics.bodyWeightKg == null || metrics.sleepHours == null -> "Sync Health Connect or fill today's recovery metrics."
         else -> "Run AI review and lock tomorrow's training and food targets."
     }
@@ -394,6 +449,7 @@ private fun TodayActionGrid(
 ) {
     val log = state.dailyLog
     val totals = log.nutritionTotals()
+    val pacing = log.nutritionPacing()
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         ActionCard(
             title = "Training",
@@ -404,8 +460,8 @@ private fun TodayActionGrid(
         )
         ActionCard(
             title = "Nutrition",
-            value = "${totals.calories}/${log.targets.calories}",
-            detail = "Protein ${totals.protein}/${log.targets.protein} g",
+            value = formatRemaining(pacing.caloriesRemaining, "kcal"),
+            detail = "${pacing.statusLabel} | Protein ${totals.protein}/${log.targets.protein} g",
             actionLabel = "Log meal",
             onAction = onOpenNutrition
         )
@@ -507,6 +563,7 @@ private fun TodayDashboard(
 ) {
     val log = state.dailyLog
     val totals = log.nutritionTotals()
+    val pacing = log.nutritionPacing()
     val readiness = state.dailyReadiness()
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         CommandCenterCard(
@@ -530,6 +587,7 @@ private fun TodayDashboard(
                     "Volume" to "${formatDecimal(log.trainingVolumeKg())} kg",
                     "Calories" to "${totals.calories}/${log.targets.calories}",
                     "Protein" to "${totals.protein}/${log.targets.protein} g",
+                    "Macro pace" to "${pacing.adherenceScore}%",
                     "Body fat" to formatOptional(log.metrics.bodyFatPercent, "%"),
                     "Sleep" to formatOptional(log.metrics.sleepHours, "h"),
                     "Resting HR" to formatOptional(log.metrics.restingHeartRateBpm, "bpm")
@@ -543,6 +601,11 @@ private fun TodayDashboard(
                 text = "Nutrition: C ${totals.carbs}/${log.targets.carbs} g, F ${totals.fat}/${log.targets.fat} g, fiber ${totals.fiber}/${log.targets.fiber} g.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Next meal: ${pacing.nextMealFocus}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = "Recovery: waist ${formatOptional(log.metrics.waistCm, "cm")}, steps ${log.metrics.steps}, hunger ${log.metrics.hunger}/5, fatigue ${log.metrics.fatigue}/5, soreness ${log.metrics.soreness}/5.",
@@ -560,6 +623,38 @@ private fun TodayDashboard(
         }
         TrendOverviewCard(logs = state.recentLogs)
         BeginnerGuideCard(onOpenPlan = onOpenPlan, onOpenNutrition = onOpenNutrition, onOpenMetrics = onOpenMetrics)
+    }
+}
+
+@Composable
+private fun NutritionPacingCard(log: DailyLog) {
+    val pacing = log.nutritionPacing()
+    SectionCard(title = "Nutrition Pacing", subtitle = "What is still available today and what the next meal should bias toward.") {
+        MetricGrid(
+            metrics = listOf(
+                "Pace" to "${pacing.adherenceScore}%",
+                "Status" to pacing.statusLabel,
+                "Kcal" to formatRemaining(pacing.caloriesRemaining, "kcal"),
+                "Protein" to formatRemaining(pacing.proteinRemaining, "g"),
+                "Carbs" to formatRemaining(pacing.carbsRemaining, "g"),
+                "Fat" to formatRemaining(pacing.fatRemaining, "g"),
+                "Fiber" to formatRemaining(pacing.fiberRemaining, "g")
+            )
+        )
+        LinearProgressIndicator(
+            progress = { pacing.adherenceScore / 100f },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = "Next meal focus: ${pacing.nextMealFocus}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Negative remaining values mean the target is already exceeded; AI review uses this with training demand and recent trends before changing tomorrow's targets.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -1378,6 +1473,7 @@ private fun NutritionPage(
     val totals = state.dailyLog.nutritionTotals()
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        NutritionPacingCard(log = state.dailyLog)
         SectionCard(title = "Nutrition Targets", subtitle = "Use weighed food when possible; use photos for AI estimates when weighing is not practical.") {
             MacroLine("Calories", totals.calories.toString(), targets.calories.toString(), "kcal")
             MacroLine("Protein", totals.protein.toString(), targets.protein.toString(), "g")
@@ -1982,6 +2078,14 @@ private fun formatTimer(seconds: Int): String {
 
 private fun formatOptional(value: Double?, unit: String): String {
     return value?.let { "${formatDecimal(it)} $unit" } ?: "--"
+}
+
+private fun formatRemaining(value: Int, unit: String): String {
+    return when {
+        value > 0 -> "$value $unit left"
+        value < 0 -> "${kotlin.math.abs(value)} $unit over"
+        else -> "on target"
+    }
 }
 
 private fun formatDecimal(value: Double): String {

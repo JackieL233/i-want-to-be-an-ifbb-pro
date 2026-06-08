@@ -13,6 +13,7 @@ class DailySummaryBuilder {
         extraRequest: String = ""
     ): String {
         val totals = log.nutritionTotals()
+        val nutritionPacing = log.nutritionPacingSummary()
         val trend = buildTrendSummary(recentLogs.ifEmpty { listOf(log) })
         val weeklyPlan = plan?.days?.joinToString("\n") { day ->
             val plannedExercises = day.exercises.joinToString("\n") { exercise ->
@@ -72,6 +73,8 @@ class DailySummaryBuilder {
             - Carbs ${totals.carbs}/${log.targets.carbs}g
             - Fat ${totals.fat}/${log.targets.fat}g
             - Fiber ${totals.fiber}/${log.targets.fiber}g
+            - Nutrition pacing: ${nutritionPacing.statusLabel}, adherence ${nutritionPacing.adherenceScore}%, calories ${nutritionPacing.caloriesRemaining} kcal remaining, protein ${nutritionPacing.proteinRemaining}g remaining, carbs ${nutritionPacing.carbsRemaining}g remaining, fat ${nutritionPacing.fatRemaining}g remaining, fiber ${nutritionPacing.fiberRemaining}g remaining.
+            - Next meal focus: ${nutritionPacing.nextMealFocus}
             Meals:
             $meals
 
@@ -114,7 +117,7 @@ class DailySummaryBuilder {
             4. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
             5. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
             6. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            7. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            7. Compare food intake and Nutrition Pacing with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
             8. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
             9. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
@@ -157,6 +160,60 @@ class DailySummaryBuilder {
             $days
         """.trimIndent()
     }
+}
+
+private data class NutritionPacingSummary(
+    val caloriesRemaining: Int,
+    val proteinRemaining: Int,
+    val carbsRemaining: Int,
+    val fatRemaining: Int,
+    val fiberRemaining: Int,
+    val adherenceScore: Int,
+    val statusLabel: String,
+    val nextMealFocus: String
+)
+
+private fun DailyLog.nutritionPacingSummary(): NutritionPacingSummary {
+    val totals = nutritionTotals()
+    val caloriesRemaining = targets.calories - totals.calories
+    val proteinRemaining = targets.protein - totals.protein
+    val carbsRemaining = targets.carbs - totals.carbs
+    val fatRemaining = targets.fat - totals.fat
+    val fiberRemaining = targets.fiber - totals.fiber
+    val targetSum = listOf(targets.calories, targets.protein, targets.carbs, targets.fat, targets.fiber)
+        .sumOf { it.coerceAtLeast(1) }
+        .toDouble()
+    val missSum = listOf(caloriesRemaining, proteinRemaining, carbsRemaining, fatRemaining, fiberRemaining)
+        .sumOf { kotlin.math.abs(it).coerceAtMost(400) }
+        .toDouble()
+    val adherenceScore = (100 - (missSum / targetSum * 100)).toInt().coerceIn(0, 100)
+    val statusLabel = when {
+        caloriesRemaining < -150 || fatRemaining < -15 -> "Over target"
+        proteinRemaining > 30 -> "Protein behind"
+        carbsRemaining > 80 -> "Carbs available"
+        fiberRemaining > 10 -> "Fiber behind"
+        adherenceScore >= 88 -> "On pace"
+        else -> "Needs logging"
+    }
+    val nextMealFocus = when {
+        caloriesRemaining < -150 -> "Keep the next meal lean and mostly protein/vegetables."
+        proteinRemaining > 35 -> "Prioritize a lean protein serving before adding extra fats."
+        carbsRemaining > 90 -> "Place carbs around training or the next high-output window."
+        fiberRemaining > 10 -> "Add fruit, vegetables, oats, beans, or another high-fiber carb."
+        fatRemaining < -10 -> "Keep fats low for the rest of the day."
+        meals.isEmpty() -> "Log the first meal or attach a food photo for portion estimation."
+        else -> "Stay close to targets; use photos only where portions are uncertain."
+    }
+    return NutritionPacingSummary(
+        caloriesRemaining = caloriesRemaining,
+        proteinRemaining = proteinRemaining,
+        carbsRemaining = carbsRemaining,
+        fatRemaining = fatRemaining,
+        fiberRemaining = fiberRemaining,
+        adherenceScore = adherenceScore,
+        statusLabel = statusLabel,
+        nextMealFocus = nextMealFocus
+    )
 }
 
 private fun List<Int>.averageIntOrNull(): Double? = takeIf { it.isNotEmpty() }?.map { it.toDouble() }?.average()

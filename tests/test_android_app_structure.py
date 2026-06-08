@@ -176,6 +176,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Recent trend window",
             "Weight change in window",
             "Daily trend rows",
+            "Nutrition pacing",
+            "adherence",
+            "Next meal focus",
         ]
         combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}"
         for term in expected_terms:
@@ -254,6 +257,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Barbell",
             "Machine",
             "Bodyweight or open station",
+            "NutritionPacing",
+            "Nutrition Pacing",
+            "nextMealFocus",
+            "Next meal focus",
+            "formatRemaining",
+            "$unit left",
+            "over",
+            "adherenceScore",
         ]
         activity = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/MainActivity.kt").read_text(encoding="utf-8")
         theme = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/AppTheme.kt").read_text(encoding="utf-8")
@@ -343,6 +354,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "barbell",
             "machine",
             "bodyweight/open-station",
+            "Nutrition Pacing",
+            "remaining or over target",
+            "macro adherence score",
+            "next-meal focus",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
@@ -377,6 +392,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Guided press path",
             "Pulley resistance",
             "Unified exercise visual guide",
+            "Nutrition Pacing",
+            "Next meal focus",
+            "Nutrition totals + pacing",
+            "Protein behind",
             "data-tab",
             "complete-set",
             "setInterval",
