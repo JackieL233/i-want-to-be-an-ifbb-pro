@@ -18,6 +18,12 @@ class DailySummaryBuilder {
         val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val recoveryGuidance = recoveryGuidance(log, recentLogs)
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
+        val dailyExecution = dailyExecutionPlan(
+            log = log,
+            recentLogs = recentLogs,
+            profile = profile,
+            hasWeeklyPlan = plan?.days?.any { it.exercises.isNotEmpty() } == true
+        )
         val trend = buildTrendSummary(recentLogs.ifEmpty { listOf(log) })
         val weeklyPlan = plan?.days?.joinToString("\n") { day ->
             val plannedExercises = day.exercises.joinToString("\n") { exercise ->
@@ -91,6 +97,7 @@ class DailySummaryBuilder {
             - Next Meal Builder: ${nextMealBuilder.title}. ${nextMealBuilder.summary} Macro target P ${nextMealBuilder.proteinGrams}g, C ${nextMealBuilder.carbsGrams}g, F ${nextMealBuilder.fatGrams}g, fiber ${nextMealBuilder.fiberGrams}g. Timing cue: ${nextMealBuilder.timingCue} Portion cue: ${nextMealBuilder.portionCue} Photo/label cue: ${nextMealBuilder.photoCue}
             - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             - Recovery guidance: ${recoveryGuidance.statusLabel}, readiness score ${recoveryGuidance.readinessScore}, training pressure ${recoveryGuidance.trainingPressure}, sleep signal ${recoveryGuidance.sleepSignal}, stress signal ${recoveryGuidance.stressSignal}, soreness signal ${recoveryGuidance.sorenessSignal}, HR signal ${recoveryGuidance.heartRateSignal}, recommended training action ${recoveryGuidance.recommendedTrainingAction}. ${recoveryGuidance.rationale} ${recoveryGuidance.nextAction}
+            - ${dailyExecution.promptLine()}
             Meals:
             $meals
 
@@ -129,18 +136,19 @@ class DailySummaryBuilder {
 
             Please perform an AI review:
             1. Interpret today's data through the athlete profile: goal, phase, experience, equipment, schedule, weak points, and constraints.
-            2. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
-            3. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
-            4. Use Training Readiness Builder before progression decisions: check warm-up quality, ramp-up quality, first working set choice, volume adjustment, stop rule, and whether recovery gates were respected.
-            5. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
-            6. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
-            7. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            8. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
-            9. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
-            10. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            11. Compare food intake, Nutrition Pacing, Next Meal Builder, Body Composition Guidance, and Recovery Guidance with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            12. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            13. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            2. Start from Daily Execution Plan: confirm the priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal before recommending changes.
+            3. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
+            4. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
+            5. Use Training Readiness Builder before progression decisions: check warm-up quality, ramp-up quality, first working set choice, volume adjustment, stop rule, and whether recovery gates were respected.
+            6. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
+            7. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
+            8. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            9. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
+            10. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
+            11. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
+            12. Compare food intake, Nutrition Pacing, Next Meal Builder, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            13. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            14. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 

@@ -20,6 +20,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SkillAssetRepository.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt",
@@ -133,6 +134,24 @@ class AndroidAppStructureTest(unittest.TestCase):
             "weakPoints",
             "constraints",
             "TrainingSession",
+            "Daily Execution Plan",
+            "DailyExecutionPlan",
+            "DailyExecutionRoute",
+            "dailyExecutionPlan",
+            "priorityFocus",
+            "primaryActionLabel",
+            "primaryActionRoute",
+            "trainingDecision",
+            "nutritionDecision",
+            "recoveryDecision",
+            "dataQualityGate",
+            "aiReviewGate",
+            "planAdjustmentSignal",
+            "nextBestAction",
+            "Primary action",
+            "Data quality gate",
+            "AI review gate",
+            "Plan adjustment signal",
             "ExerciseEntry",
             "SetEntry",
             "WeeklyTrainingPlan",
@@ -299,6 +318,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         body_composition = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        daily_execution = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
@@ -308,7 +330,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{recovery}\n{training_readiness}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{recovery}\n{training_readiness}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -378,6 +400,17 @@ class AndroidAppStructureTest(unittest.TestCase):
             "NavigationBar",
             "NavigationBarItem",
             "Command Center",
+            "Daily Execution Plan",
+            "DailyExecutionPlan",
+            "DailyExecutionPlanCard",
+            "DailyExecutionRoute",
+            "dailyExecutionPlan",
+            "Priority",
+            "Priority focus",
+            "Primary action",
+            "Data quality gate",
+            "AI review gate",
+            "Plan adjustment signal",
             "Daily Coach Checklist",
             "DailyCoachTask",
             "dailyCoachTasks",
@@ -560,6 +593,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         body_composition = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        daily_execution = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
@@ -569,7 +605,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{recovery}\n{training_readiness}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{recovery}\n{training_readiness}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -691,6 +727,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "small calorie adjustment",
             "Recovery Guidance",
             "training-pressure guidance",
+            "Daily Execution Plan",
+            "priority focus",
+            "primary action",
+            "data quality gate",
+            "AI review gate",
+            "plan adjustment signal",
             "Training Readiness Builder",
             "warm-up strategy",
             "first working set",
@@ -725,6 +767,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Apple",
             "Today",
             "Command Center",
+            "Daily Execution Plan",
+            "Priority",
+            "Primary",
+            "Data quality gate",
+            "AI review gate",
+            "Plan adjustment signal",
             "Athlete Profile",
             "Plan Templates",
             "Beginner Full Body",

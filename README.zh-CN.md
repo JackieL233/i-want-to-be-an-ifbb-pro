@@ -31,6 +31,7 @@
 
 - 简洁 Apple-inspired 浅色界面：安静背景、蓝色主操作、底部导航、分组卡片和清晰层级。
 - `Today` Command Center：首页显示 readiness、下一步行动、训练、饮食、恢复和体成分卡片，让新手知道先做什么，也让进阶用户快速扫关键数据。
+- Daily Execution Plan：在 `Today` 中把当天训练执行、饮食缺口、恢复状态、数据完整度和 AI 复盘时机合成一个主决策层，显示 priority focus、primary action、training decision、nutrition decision、recovery decision、data quality gate、AI review gate 和 plan adjustment signal，让用户每天打开 app 后知道第一件事该做什么。
 - Daily Coach Checklist：在 `Today` 中把每天必须完成的闭环变成可点击清单，包括 `Plan prepared`、`Training executed`、`Food logged`、`Metrics synced` 和 `AI review locked`，让用户可以照着 app 完成训练、饮食、健康数据和 AI 复盘。
 - 本地每日历史记录和 7 天趋势卡片：追踪体重、热量、蛋白质、睡眠、步数、hard sets 和训练量，并把趋势行加入 AI 复盘，避免只根据某一天数据做过度调整。
 - AI 复盘结果本地保存：最新建议会显示在 `Today`，最近几次复盘可在 `AI Coach` 回看，让 app 更像持续跟进的每日教练，而不是一次性的聊天回答。
@@ -52,7 +53,7 @@
 - 饮食记录：设置热量和宏量营养目标，记录每餐热量、蛋白质、碳水、脂肪、纤维，并可上传食物照片让 AI 估算。
 - 身体与恢复指标：体重、体脂、瘦体重、腰围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
 - Health Connect 同步：用户授权后读取体重、体脂、瘦体重、步数、睡眠、静息心率和总消耗热量。
-- AI 复盘：把周计划、今日实际训练、Training Readiness Builder、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
+- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
 
 ## 小米、华为和手机健康数据
 

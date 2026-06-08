@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
+import com.iwanttobeanifbbpro.app.core.DailyExecutionPlan
+import com.iwanttobeanifbbpro.app.core.DailyExecutionRoute
 import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualType
@@ -65,6 +67,7 @@ import com.iwanttobeanifbbpro.app.core.ProgressionCue
 import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
+import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
 import com.iwanttobeanifbbpro.app.core.exerciseVisualLibrarySpecs
 import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
@@ -619,6 +622,70 @@ private fun CommandCenterCard(
 }
 
 @Composable
+private fun DailyExecutionPlanCard(
+    plan: DailyExecutionPlan,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onDailyReview: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    SectionCard(
+        title = "Daily Execution Plan",
+        subtitle = "The app's current decision layer: what to do first, what to adjust, and when AI review is reliable."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to plan.statusLabel,
+                "Priority" to plan.priorityFocus,
+                "Readiness" to plan.readinessScore.toString(),
+                "Primary" to plan.primaryActionLabel
+            )
+        )
+        Text(
+            text = plan.nextBestAction,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Training: ${plan.trainingDecision}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Nutrition: ${plan.nutritionDecision}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Recovery: ${plan.recoveryDecision}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                plan.dataQualityGate,
+                plan.aiReviewGate,
+                plan.planAdjustmentSignal
+            )
+        )
+        Button(
+            onClick = when (plan.primaryActionRoute) {
+                DailyExecutionRoute.PLAN -> onOpenPlan
+                DailyExecutionRoute.TRAINING -> onOpenTraining
+                DailyExecutionRoute.NUTRITION -> onOpenNutrition
+                DailyExecutionRoute.METRICS -> onOpenMetrics
+                DailyExecutionRoute.AI_REVIEW -> if (plan.primaryActionLabel == "View review") onOpenAi else onDailyReview
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(plan.primaryActionLabel)
+        }
+    }
+}
+
+@Composable
 private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>) {
     val completed = tasks.count { it.done }
     SectionCard(
@@ -789,6 +856,13 @@ private fun TodayDashboard(
     val totals = log.nutritionTotals()
     val pacing = log.nutritionPacing()
     val readiness = state.dailyReadiness()
+    val executionPlan = dailyExecutionPlan(
+        log = log,
+        recentLogs = state.recentLogs,
+        profile = state.athleteProfile,
+        hasWeeklyPlan = state.trainingPlan.days.any { it.exercises.isNotEmpty() },
+        hasAiReviewToday = state.reviewHistory.any { it.logDate == log.date }
+    )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         CommandCenterCard(
             readiness = readiness,
@@ -797,6 +871,15 @@ private fun TodayDashboard(
             onOpenTraining = onOpenTraining,
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics
+        )
+        DailyExecutionPlanCard(
+            plan = executionPlan,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onDailyReview = onDailyReview,
+            onOpenAi = onOpenAi
         )
         DailyCoachChecklistCard(
             tasks = state.dailyCoachTasks(
@@ -2622,6 +2705,12 @@ private fun AiCoachPage(
                     "Rest time",
                     "Hard sets",
                     "Tonnage",
+                    "Daily Execution Plan",
+                    "Priority focus",
+                    "Primary action",
+                    "Data quality gate",
+                    "AI review gate",
+                    "Plan adjustment signal",
                     "Training Readiness Builder",
                     "Warm-up cue",
                     "Ramp-up cue",

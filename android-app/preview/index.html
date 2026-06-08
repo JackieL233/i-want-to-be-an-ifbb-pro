@@ -1283,6 +1283,32 @@
             </div>
           </div>
 
+          <div class="section">
+            <div class="section-head">
+              <h2>Daily Execution Plan</h2>
+              <p class="subtle">The app's current decision layer: what to do first, what to adjust, and when AI review is reliable.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Status</span><span class="value">Execute workout</span></div>
+              <div class="metric"><span class="label">Priority</span><span class="value">Training execution</span></div>
+              <div class="metric"><span class="label">Readiness</span><span class="value">84</span></div>
+              <div class="metric"><span class="label">Primary</span><span class="value">Log sets</span></div>
+            </div>
+            <h3>Open Training, complete the remaining sets, and respect rest timers and RIR.</h3>
+            <p class="subtle"><strong>Training:</strong> finish 10 remaining working sets using ready-to-execute rules and avoid bonus volume.</p>
+            <p class="subtle"><strong>Nutrition:</strong> protein is 57 g behind; make the next meal protein-first before adding extra fats.</p>
+            <p class="subtle"><strong>Recovery:</strong> Controlled push: keep planned training; progress only clean exercises with supportive history and RIR.</p>
+            <div class="chip-row">
+              <span class="chip active">Data quality gate</span>
+              <span class="chip active">AI review gate</span>
+              <span class="chip active">Plan adjustment signal</span>
+            </div>
+            <div class="action-row">
+              <button class="button primary" type="button" data-tab-target="training">Log sets</button>
+              <button class="button" type="button" data-tab-target="ai">Review later</button>
+            </div>
+          </div>
+
           <div class="task-list">
             <div class="task">
               <div>
@@ -1791,6 +1817,12 @@
               <span class="chip active">Weekly plan</span>
               <span class="chip active">Set load/reps/RIR</span>
               <span class="chip active">Training Readiness Builder</span>
+              <span class="chip active">Daily Execution Plan</span>
+              <span class="chip active">Priority focus</span>
+              <span class="chip active">Primary action</span>
+              <span class="chip active">Data quality gate</span>
+              <span class="chip active">AI review gate</span>
+              <span class="chip active">Plan adjustment signal</span>
               <span class="chip active">Warm-up cue</span>
               <span class="chip active">Ramp-up cue</span>
               <span class="chip active">First working set</span>

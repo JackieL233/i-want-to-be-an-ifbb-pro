@@ -7,6 +7,7 @@ Open `index.html` in a browser to review the Apple-inspired product feel without
 The preview mirrors the current Android app structure:
 
 - Today command center
+- Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
 - Daily Coach Checklist for plan, training, food, metrics, and AI review completion
 - Athlete profile and weekly plan
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
