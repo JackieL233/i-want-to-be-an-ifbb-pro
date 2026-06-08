@@ -38,6 +38,7 @@
 - Plan Templates 训练模板：内置 Beginner Full Body、4-Day Hypertrophy 和 5-Day Physique Priority，用户可以一键生成可直接训练的周计划，再按器械、弱项、恢复和个人偏好微调。
 - 每周训练计划：在 `Plan` 中设置阶段目标、训练日、计划动作、组数、次数、RIR、休息时间和备注。
 - 今日训练执行：点击 `Apply today` 将某一天计划转换成今天的 set-level 训练日志。
+- Training Readiness Builder：在 `Training` 页把 Recovery Guidance 转换成训练前执行闸门，包括热身策略、ramp-up 提示、第一组工作组选择、容量调整和停止规则，让用户进健身房时知道今天该怎么开始、什么时候不该硬推。
 - 统一动作示意：计划动作卡片和今日训练卡片都会显示简洁的器械/动作示意图；`Add Planned Exercise` 和 `Add Exercise` 会在输入动作名称时实时显示 live equipment/action preview，告诉用户这个动作大概率对应哪一个 VG 视觉图例编号、哪类器械、中文叫什么、常见动作有哪些；`Plan` 页还提供 Exercise Visual Library 图例库，集中展示 Smith 机、绳索、哑铃、杠铃、固定器械、可调训练凳、引体/双杠站、弹力带、腿举/哈克深蹲、自重/开放空间动作的统一实例图、实例图提示、动作路径提示、新手识别提示、器械标志点、示例动作、常见动作和识别提示，帮助不是 pro 的用户直观看懂动作名称对应哪类器械或动作路径。
 - 单组记录：每一组都可以记录重量、次数、RIR、是否完成、休息时间和备注。
 - Exercise History：重复动作会对比上一次记录，显示上次/今天训练量、最佳重量、最佳次数、完成组数和平均 RIR，让用户知道这次是真进步、持平还是需要先稳住。
@@ -51,7 +52,7 @@
 - 饮食记录：设置热量和宏量营养目标，记录每餐热量、蛋白质、碳水、脂肪、纤维，并可上传食物照片让 AI 估算。
 - 身体与恢复指标：体重、体脂、瘦体重、腰围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
 - Health Connect 同步：用户授权后读取体重、体脂、瘦体重、步数、睡眠、静息心率和总消耗热量。
-- AI 复盘：把周计划、今日实际训练、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
+- AI 复盘：把周计划、今日实际训练、Training Readiness Builder、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
 
 ## 小米、华为和手机健康数据
 

@@ -14,6 +14,7 @@ The preview mirrors the current Android app structure:
 - Live equipment/action preview while adding planned or active exercises
 - Exercise Visual Library with Chinese equipment labels, simple unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
 - Set-level training execution
+- Training Readiness Builder for warm-up strategy, ramp-up cue, first working set, volume adjustment, and stop rule
 - Exercise History comparison for previous/current volume, best load, best reps, sets, and average RIR
 - Rest countdown after completing a set
 - Daily nutrition tracking

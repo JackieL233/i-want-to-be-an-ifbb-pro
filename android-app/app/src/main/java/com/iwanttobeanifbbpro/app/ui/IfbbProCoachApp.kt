@@ -63,12 +63,14 @@ import com.iwanttobeanifbbpro.app.core.ExerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualType
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
 import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
+import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.exerciseVisualLibrarySpecs
 import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.core.recoveryGuidance
+import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
 import com.iwanttobeanifbbpro.app.data.DailyLog
@@ -1802,8 +1804,11 @@ private fun TrainingPage(
     var rest by remember { mutableStateOf("120") }
     var notes by remember { mutableStateOf("") }
     val session = state.dailyLog.trainingSession
+    val recovery = recoveryGuidance(state.dailyLog, state.recentLogs)
+    val readinessBuilder = trainingReadinessBuilder(state.dailyLog, recovery)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        TrainingReadinessBuilderCard(builder = readinessBuilder)
         SectionCard(title = "Training Execution", subtitle = "Log every working set, hard sets, rest time, and effort so AI can compare performance, pain, and recovery.") {
             MetricGrid(
                 metrics = listOf(
@@ -1908,6 +1913,47 @@ private fun TrainingPage(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun TrainingReadinessBuilderCard(builder: TrainingReadinessBuilder) {
+    SectionCard(
+        title = "Training Readiness Builder",
+        subtitle = "Warm up, choose the first working set, adjust volume, and know when to stop before logging sets."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to builder.statusLabel,
+                "Readiness" to builder.readinessScore.toString(),
+                "Recovery gate" to builder.recoveryGate
+            )
+        )
+        Text(
+            text = "Warm-up cue: ${builder.warmUpCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Ramp-up cue: ${builder.rampUpCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "First working set: ${builder.firstWorkingSetCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Volume adjustment: ${builder.volumeAdjustmentCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Stop rule: ${builder.stopRule}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -2576,6 +2622,12 @@ private fun AiCoachPage(
                     "Rest time",
                     "Hard sets",
                     "Tonnage",
+                    "Training Readiness Builder",
+                    "Warm-up cue",
+                    "Ramp-up cue",
+                    "First working set",
+                    "Volume adjustment",
+                    "Stop rule",
                     "Progression Cue",
                     "Exercise History",
                     "Exercise visual guide",
