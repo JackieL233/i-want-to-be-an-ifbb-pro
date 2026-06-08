@@ -14,6 +14,19 @@ data class DailyTargets(
     companion object
 }
 
+data class SetEntry(
+    val setNumber: Int,
+    val targetReps: String,
+    val actualReps: Int?,
+    val loadKg: Double?,
+    val rir: Double?,
+    val completed: Boolean = false,
+    val restSeconds: Int = 120,
+    val notes: String = ""
+) {
+    companion object
+}
+
 data class ExerciseEntry(
     val name: String,
     val targetMuscle: String,
@@ -21,8 +34,33 @@ data class ExerciseEntry(
     val reps: String,
     val loadKg: Double?,
     val rir: Double?,
-    val notes: String
+    val notes: String,
+    val setEntries: List<SetEntry> = emptyList(),
+    val restSeconds: Int = 120
 ) {
+    fun trackedSets(): List<SetEntry> {
+        if (setEntries.isNotEmpty()) return setEntries
+        return (1..sets.coerceAtLeast(0)).map { setNumber ->
+            SetEntry(
+                setNumber = setNumber,
+                targetReps = reps,
+                actualReps = null,
+                loadKg = loadKg,
+                rir = rir,
+                completed = false,
+                restSeconds = restSeconds
+            )
+        }
+    }
+
+    fun completedSetCount(): Int = trackedSets().count { it.completed }
+
+    fun volumeKg(): Double {
+        return trackedSets()
+            .filter { it.completed }
+            .sumOf { set -> (set.loadKg ?: 0.0) * (set.actualReps ?: 0) }
+    }
+
     companion object
 }
 
@@ -78,6 +116,12 @@ data class DailyLog(
         )
     }
 
+    fun completedHardSets(): Int = trainingSession.exercises.sumOf { it.completedSetCount() }
+
+    fun plannedHardSets(): Int = trainingSession.exercises.sumOf { it.trackedSets().size }
+
+    fun trainingVolumeKg(): Double = trainingSession.exercises.sumOf { it.volumeKg() }
+
     fun toJson(): JSONObject {
         return JSONObject()
             .put("date", date)
@@ -130,6 +174,20 @@ private fun ExerciseEntry.toJson(): JSONObject {
         .put("reps", reps)
         .put("loadKg", loadKg)
         .put("rir", rir)
+        .put("notes", notes)
+        .put("restSeconds", restSeconds)
+        .put("setEntries", JSONArray().also { array -> trackedSets().forEach { array.put(it.toJson()) } })
+}
+
+private fun SetEntry.toJson(): JSONObject {
+    return JSONObject()
+        .put("setNumber", setNumber)
+        .put("targetReps", targetReps)
+        .put("actualReps", actualReps)
+        .put("loadKg", loadKg)
+        .put("rir", rir)
+        .put("completed", completed)
+        .put("restSeconds", restSeconds)
         .put("notes", notes)
 }
 
@@ -199,6 +257,7 @@ fun TrainingSession.Companion.fromJson(json: JSONObject): TrainingSession {
 }
 
 fun ExerciseEntry.Companion.fromJson(json: JSONObject): ExerciseEntry {
+    val setEntries = json.optJSONArray("setEntries") ?: JSONArray()
     return ExerciseEntry(
         name = json.safeString("name", "Exercise"),
         targetMuscle = json.optString("targetMuscle", ""),
@@ -206,6 +265,23 @@ fun ExerciseEntry.Companion.fromJson(json: JSONObject): ExerciseEntry {
         reps = json.optString("reps", ""),
         loadKg = json.nullableDouble("loadKg"),
         rir = json.nullableDouble("rir"),
+        notes = json.optString("notes", ""),
+        setEntries = (0 until setEntries.length()).mapNotNull { index ->
+            setEntries.optJSONObject(index)?.let { SetEntry.fromJson(it) }
+        },
+        restSeconds = json.safeInt("restSeconds", 120)
+    )
+}
+
+fun SetEntry.Companion.fromJson(json: JSONObject): SetEntry {
+    return SetEntry(
+        setNumber = json.safeInt("setNumber", 1),
+        targetReps = json.safeString("targetReps", ""),
+        actualReps = if (json.has("actualReps") && !json.isNull("actualReps")) json.optInt("actualReps") else null,
+        loadKg = json.nullableDouble("loadKg"),
+        rir = json.nullableDouble("rir"),
+        completed = json.optBoolean("completed", false),
+        restSeconds = json.safeInt("restSeconds", 120),
         notes = json.optString("notes", "")
     )
 }

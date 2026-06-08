@@ -3,8 +3,10 @@ package com.iwanttobeanifbbpro.app.ui
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -14,15 +16,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,14 +36,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.data.DailyMetrics
 import com.iwanttobeanifbbpro.app.data.DailyTargets
+import com.iwanttobeanifbbpro.app.data.ExerciseEntry
+import com.iwanttobeanifbbpro.app.data.SetEntry
+import java.util.Locale
 
 @Composable
 fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
@@ -54,11 +65,21 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item { Header() }
+        state.restTimer?.let { timer ->
+            item { RestTimerBanner(timer = timer, onSkip = viewModel::skipRestTimer) }
+        }
         item { TabPicker(selected = state.selectedTab, onSelect = viewModel::selectTab) }
         when (state.selectedTab) {
             AppTab.TODAY -> {
-                item { TodayDashboard(state = state, onDailyReview = viewModel::runDailyReview, onReset = viewModel::resetToday) }
+                item {
+                    TodayDashboard(
+                        state = state,
+                        onDailyReview = viewModel::runDailyReview,
+                        onReset = viewModel::resetToday
+                    )
+                }
             }
+
             AppTab.TRAINING -> {
                 item {
                     TrainingPage(
@@ -67,10 +88,13 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                         onNotesChange = viewModel::updateSessionNotes,
                         onCompletedChange = { viewModel.toggleTrainingCompleted() },
                         onAddExercise = viewModel::addExercise,
-                        onRemoveExercise = viewModel::removeExercise
+                        onRemoveExercise = viewModel::removeExercise,
+                        onUpdateSetEntry = viewModel::updateSetEntry,
+                        onCompleteSet = viewModel::completeSet
                     )
                 }
             }
+
             AppTab.NUTRITION -> {
                 item {
                     NutritionPage(
@@ -84,6 +108,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                     )
                 }
             }
+
             AppTab.METRICS -> {
                 item {
                     MetricsPage(
@@ -93,6 +118,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                     )
                 }
             }
+
             AppTab.AI_COACH -> {
                 item {
                     AiCoachPage(
@@ -129,8 +155,9 @@ private fun Header() {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Daily training, daily nutrition, metrics, photos, and AI review for tomorrow's training and diet adjustment.",
-            style = MaterialTheme.typography.bodyMedium
+            text = "Daily bodybuilding execution: training, food, recovery, photos, and AI adjustments in one log.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -157,26 +184,74 @@ private fun TodayDashboard(
 ) {
     val log = state.dailyLog
     val totals = log.nutritionTotals()
-    Card {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+    SectionCard(title = "Today", subtitle = log.date) {
+        MetricGrid(
+            metrics = listOf(
+                "Sets" to "${log.completedHardSets()}/${log.plannedHardSets()}",
+                "Volume" to "${formatDecimal(log.trainingVolumeKg())} kg",
+                "Calories" to "${totals.calories}/${log.targets.calories}",
+                "Protein" to "${totals.protein}/${log.targets.protein} g",
+                "Weight" to formatOptional(log.metrics.bodyWeightKg, "kg"),
+                "Sleep" to formatOptional(log.metrics.sleepHours, "h")
+            )
+        )
+        Text(
+            text = "Focus: ${log.trainingSession.plannedFocus}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = "Nutrition: C ${totals.carbs}/${log.targets.carbs} g, F ${totals.fat}/${log.targets.fat} g, fiber ${totals.fiber}/${log.targets.fiber} g.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Recovery: waist ${formatOptional(log.metrics.waistCm, "cm")}, steps ${log.metrics.steps}, hunger ${log.metrics.hunger}/5, fatigue ${log.metrics.fatigue}/5, soreness ${log.metrics.soreness}/5.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Today", fontWeight = FontWeight.SemiBold)
-            Text("Training: ${log.trainingSession.plannedFocus} | completed: ${log.trainingSession.completed}")
-            Text("Exercises: ${log.trainingSession.exercises.size} | hard sets: ${log.trainingSession.exercises.sumOf { it.sets }}")
-            Text("Nutrition: ${totals.calories}/${log.targets.calories} kcal | P ${totals.protein}/${log.targets.protein}g | C ${totals.carbs}/${log.targets.carbs}g | F ${totals.fat}/${log.targets.fat}g")
-            Text("Metrics: ${log.metrics.bodyWeightKg ?: "--"} kg, waist ${log.metrics.waistCm ?: "--"} cm, sleep ${log.metrics.sleepHours ?: "--"} h, steps ${log.metrics.steps}")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onDailyReview, enabled = !state.isLoading) {
-                    Text(if (state.isLoading) "Reviewing..." else "AI review tomorrow")
-                }
-                TextButton(onClick = onReset) {
-                    Text("Reset today")
-                }
+            Button(
+                onClick = onDailyReview,
+                enabled = !state.isLoading,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (state.isLoading) "Reviewing" else "AI review")
             }
-            if (state.isLoading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            TextButton(onClick = onReset) {
+                Text("Reset")
+            }
+        }
+        if (state.isLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+@Composable
+private fun RestTimerBanner(timer: RestTimerState, onSkip: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text("Rest timer", fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "${timer.exerciseName} set ${timer.setNumber} finished. Next set in ${formatTimer(timer.remainingSeconds)}.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            TextButton(onClick = onSkip) {
+                Text("Skip")
             }
         }
     }
@@ -188,8 +263,10 @@ private fun TrainingPage(
     onFocusChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     onCompletedChange: () -> Unit,
-    onAddExercise: (String, String, Int, String, Double?, Double?, String) -> Unit,
-    onRemoveExercise: (Int) -> Unit
+    onAddExercise: (String, String, Int, String, Double?, Double?, String, Int) -> Unit,
+    onRemoveExercise: (Int) -> Unit,
+    onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
+    onCompleteSet: (Int, Int) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var muscle by remember { mutableStateOf("") }
@@ -197,45 +274,245 @@ private fun TrainingPage(
     var reps by remember { mutableStateOf("8-12") }
     var load by remember { mutableStateOf("") }
     var rir by remember { mutableStateOf("2") }
+    var rest by remember { mutableStateOf("120") }
     var notes by remember { mutableStateOf("") }
     val session = state.dailyLog.trainingSession
 
-    Card {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Training", fontWeight = FontWeight.SemiBold)
-            OutlinedTextField(session.plannedFocus, onFocusChange, Modifier.fillMaxWidth(), label = { Text("Planned focus") })
-            Row {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionCard(title = "Training Execution", subtitle = "Log every working set, hard sets, rest time, and effort so AI can compare performance, pain, and recovery.") {
+            MetricGrid(
+                metrics = listOf(
+                    "Exercises" to session.exercises.size.toString(),
+                    "Completed sets" to "${state.dailyLog.completedHardSets()}/${state.dailyLog.plannedHardSets()}",
+                    "Tonnage" to "${formatDecimal(state.dailyLog.trainingVolumeKg())} kg"
+                )
+            )
+            OutlinedTextField(
+                value = session.plannedFocus,
+                onValueChange = onFocusChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Planned focus") }
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(checked = session.completed, onCheckedChange = { onCompletedChange() })
                 Text("Training completed")
             }
-            Text("Log exercise, hard sets, RIR, load, target muscle, pain or form notes.")
-            OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text("Exercise") })
-            OutlinedTextField(muscle, { muscle = it }, Modifier.fillMaxWidth(), label = { Text("Target muscle") })
+            OutlinedTextField(
+                value = session.sessionNotes,
+                onValueChange = onNotesChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Session notes: pump, stimulus, pain, technique, energy") },
+                minLines = 2
+            )
+        }
+
+        SectionCard(title = "Add Exercise", subtitle = "Create planned set rows first, then update actual reps and load during the workout.") {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Exercise") },
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = muscle,
+                onValueChange = { muscle = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Target muscle") },
+                singleLine = true
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(sets, { sets = it }, Modifier.weight(1f), label = { Text("Sets") })
-                OutlinedTextField(reps, { reps = it }, Modifier.weight(1f), label = { Text("Reps") })
+                NumberField(value = sets, onChange = { sets = it }, label = "Sets", modifier = Modifier.weight(1f))
+                OutlinedTextField(
+                    value = reps,
+                    onValueChange = { reps = it },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Target reps") },
+                    singleLine = true
+                )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(load, { load = it }, Modifier.weight(1f), label = { Text("Load kg") })
-                OutlinedTextField(rir, { rir = it }, Modifier.weight(1f), label = { Text("RIR") })
+                DecimalField(value = load, onChange = { load = it }, label = "Load kg", modifier = Modifier.weight(1f))
+                DecimalField(value = rir, onChange = { rir = it }, label = "RIR", modifier = Modifier.weight(1f))
             }
-            OutlinedTextField(notes, { notes = it }, Modifier.fillMaxWidth(), label = { Text("Technique, stimulus, pain") })
-            Button(
-                onClick = {
-                    onAddExercise(name, muscle, sets.toIntOrNull() ?: 0, reps, load.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
-                    name = ""; muscle = ""; notes = ""
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(value = rest, onChange = { rest = it }, label = "Rest sec", modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        onAddExercise(
+                            name,
+                            muscle,
+                            sets.toIntOrNull() ?: 0,
+                            reps,
+                            load.toDoubleOrNull(),
+                            rir.toDoubleOrNull(),
+                            notes,
+                            rest.toIntOrNull() ?: 120
+                        )
+                        name = ""
+                        muscle = ""
+                        notes = ""
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Add")
                 }
-            ) {
-                Text("Add exercise")
             }
-            OutlinedTextField(session.sessionNotes, onNotesChange, Modifier.fillMaxWidth(), label = { Text("Session notes") })
-            state.dailyLog.trainingSession.exercises.forEachIndexed { index, exercise ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("${exercise.name}: ${exercise.sets} x ${exercise.reps}, ${exercise.targetMuscle}", Modifier.weight(1f))
-                    TextButton(onClick = { onRemoveExercise(index) }) { Text("Remove") }
-                }
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Technique, stimulus, substitutions, pain") },
+                minLines = 2
+            )
+        }
+
+        if (session.exercises.isEmpty()) {
+            EmptyState("No exercises yet. Add your first movement to start set-level tracking.")
+        } else {
+            session.exercises.forEachIndexed { exerciseIndex, exercise ->
+                ExerciseExecutionCard(
+                    exerciseIndex = exerciseIndex,
+                    exercise = exercise,
+                    onRemove = { onRemoveExercise(exerciseIndex) },
+                    onUpdateSetEntry = onUpdateSetEntry,
+                    onCompleteSet = onCompleteSet
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun ExerciseExecutionCard(
+    exerciseIndex: Int,
+    exercise: ExerciseEntry,
+    onRemove: () -> Unit,
+    onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
+    onCompleteSet: (Int, Int) -> Unit
+) {
+    Card(shape = RoundedCornerShape(8.dp)) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(exercise.name, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "${exercise.targetMuscle.ifBlank { "Target muscle not set" }} | ${exercise.sets} x ${exercise.reps} | rest ${exercise.restSeconds}s",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (exercise.notes.isNotBlank()) {
+                        Text(
+                            text = exercise.notes,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                TextButton(onClick = onRemove) {
+                    Text("Remove")
+                }
+            }
+            MetricGrid(
+                metrics = listOf(
+                    "Done" to "${exercise.completedSetCount()}/${exercise.trackedSets().size}",
+                    "Volume" to "${formatDecimal(exercise.volumeKg())} kg",
+                    "Default RIR" to (exercise.rir?.let { formatDecimal(it) } ?: "--")
+                )
+            )
+            exercise.trackedSets().forEachIndexed { setIndex, set ->
+                if (setIndex > 0) HorizontalDivider()
+                SetRow(
+                    exerciseIndex = exerciseIndex,
+                    setIndex = setIndex,
+                    set = set,
+                    onUpdateSetEntry = onUpdateSetEntry,
+                    onCompleteSet = onCompleteSet
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SetRow(
+    exerciseIndex: Int,
+    setIndex: Int,
+    set: SetEntry,
+    onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
+    onCompleteSet: (Int, Int) -> Unit
+) {
+    var reps by remember(exerciseIndex, setIndex) { mutableStateOf(set.actualReps?.toString().orEmpty()) }
+    var load by remember(exerciseIndex, setIndex) { mutableStateOf(set.loadKg?.let { formatDecimal(it) }.orEmpty()) }
+    var rir by remember(exerciseIndex, setIndex) { mutableStateOf(set.rir?.let { formatDecimal(it) }.orEmpty()) }
+    var notes by remember(exerciseIndex, setIndex) { mutableStateOf(set.notes) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("Set ${set.setNumber}", fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "Target ${set.targetReps.ifBlank { "--" }} reps | rest ${set.restSeconds}s",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Button(
+                onClick = {
+                    onUpdateSetEntry(
+                        exerciseIndex,
+                        setIndex,
+                        reps.toIntOrNull(),
+                        load.toDoubleOrNull(),
+                        rir.toDoubleOrNull(),
+                        notes
+                    )
+                    onCompleteSet(exerciseIndex, setIndex)
+                },
+                enabled = !set.completed
+            ) {
+                Text(if (set.completed) "Done" else "Complete")
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberField(
+                value = reps,
+                onChange = {
+                    reps = it
+                    onUpdateSetEntry(exerciseIndex, setIndex, it.toIntOrNull(), load.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
+                },
+                label = "Reps",
+                modifier = Modifier.weight(1f)
+            )
+            DecimalField(
+                value = load,
+                onChange = {
+                    load = it
+                    onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), it.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
+                },
+                label = "kg",
+                modifier = Modifier.weight(1f)
+            )
+            DecimalField(
+                value = rir,
+                onChange = {
+                    rir = it
+                    onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), load.toDoubleOrNull(), it.toDoubleOrNull(), notes)
+                },
+                label = "RIR",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        OutlinedTextField(
+            value = notes,
+            onValueChange = {
+                notes = it
+                onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), load.toDoubleOrNull(), rir.toDoubleOrNull(), it)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Set notes") },
+            minLines = 1
+        )
     }
 }
 
@@ -257,42 +534,118 @@ private fun NutritionPage(
     var notes by remember { mutableStateOf("") }
     val totals = state.dailyLog.nutritionTotals()
 
-    Card {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Nutrition", fontWeight = FontWeight.SemiBold)
-            Text("Daily nutrition: ${totals.calories}/${targets.calories} kcal, P ${totals.protein}/${targets.protein}g, C ${totals.carbs}/${targets.carbs}g, F ${totals.fat}/${targets.fat}g")
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionCard(title = "Nutrition Targets", subtitle = "Use weighed food when possible; use photos for AI estimates when weighing is not practical.") {
+            MacroLine("Calories", totals.calories.toString(), targets.calories.toString(), "kcal")
+            MacroLine("Protein", totals.protein.toString(), targets.protein.toString(), "g")
+            MacroLine("Carbs", totals.carbs.toString(), targets.carbs.toString(), "g")
+            MacroLine("Fat", totals.fat.toString(), targets.fat.toString(), "g")
+            MacroLine("Fiber", totals.fiber.toString(), targets.fiber.toString(), "g")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(targets.calories.toString(), { onTargetsChange(targets.copy(calories = it.toIntOrNull() ?: targets.calories)) }, Modifier.weight(1f), label = { Text("Target kcal") })
-                OutlinedTextField(targets.protein.toString(), { onTargetsChange(targets.copy(protein = it.toIntOrNull() ?: targets.protein)) }, Modifier.weight(1f), label = { Text("Protein") })
+                NumberField(
+                    value = targets.calories.toString(),
+                    onChange = { onTargetsChange(targets.copy(calories = it.toIntOrNull() ?: targets.calories)) },
+                    label = "Target kcal",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = targets.protein.toString(),
+                    onChange = { onTargetsChange(targets.copy(protein = it.toIntOrNull() ?: targets.protein)) },
+                    label = "Protein",
+                    modifier = Modifier.weight(1f)
+                )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(targets.carbs.toString(), { onTargetsChange(targets.copy(carbs = it.toIntOrNull() ?: targets.carbs)) }, Modifier.weight(1f), label = { Text("Carbs") })
-                OutlinedTextField(targets.fat.toString(), { onTargetsChange(targets.copy(fat = it.toIntOrNull() ?: targets.fat)) }, Modifier.weight(1f), label = { Text("Fat") })
+                NumberField(
+                    value = targets.carbs.toString(),
+                    onChange = { onTargetsChange(targets.copy(carbs = it.toIntOrNull() ?: targets.carbs)) },
+                    label = "Carbs",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = targets.fat.toString(),
+                    onChange = { onTargetsChange(targets.copy(fat = it.toIntOrNull() ?: targets.fat)) },
+                    label = "Fat",
+                    modifier = Modifier.weight(1f)
+                )
             }
-            OutlinedTextField(mealName, { mealName = it }, Modifier.fillMaxWidth(), label = { Text("Meal") })
+        }
+
+        SectionCard(title = "Add Meal", subtitle = "Log macros manually or attach food photos for portion and label analysis.") {
+            OutlinedTextField(
+                value = mealName,
+                onValueChange = { mealName = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Meal") },
+                singleLine = true
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(calories, { calories = it }, Modifier.weight(1f), label = { Text("kcal") })
-                OutlinedTextField(protein, { protein = it }, Modifier.weight(1f), label = { Text("Protein") })
+                NumberField(value = calories, onChange = { calories = it }, label = "kcal", modifier = Modifier.weight(1f))
+                DecimalField(value = protein, onChange = { protein = it }, label = "Protein", modifier = Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(carbs, { carbs = it }, Modifier.weight(1f), label = { Text("Carbs") })
-                OutlinedTextField(fat, { fat = it }, Modifier.weight(1f), label = { Text("Fat") })
+                DecimalField(value = carbs, onChange = { carbs = it }, label = "Carbs", modifier = Modifier.weight(1f))
+                DecimalField(value = fat, onChange = { fat = it }, label = "Fat", modifier = Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(fiber, { fiber = it }, Modifier.weight(1f), label = { Text("Fiber") })
-                ElevatedButton(onClick = onPickMealPhoto, modifier = Modifier.weight(1f)) { Text("Add meal photo") }
+                DecimalField(value = fiber, onChange = { fiber = it }, label = "Fiber", modifier = Modifier.weight(1f))
+                ElevatedButton(onClick = onPickMealPhoto, modifier = Modifier.weight(1f)) {
+                    Text("meal photo")
+                }
             }
-            OutlinedTextField(notes, { notes = it }, Modifier.fillMaxWidth(), label = { Text("Food source, portion, oils, label") })
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Food source, portion, oils, label, uncertainty") },
+                minLines = 2
+            )
             Button(
                 onClick = {
-                    onAddMeal(mealName, calories.toIntOrNull() ?: 0, protein.toDoubleOrNull() ?: 0.0, carbs.toDoubleOrNull() ?: 0.0, fat.toDoubleOrNull() ?: 0.0, fiber.toDoubleOrNull() ?: 0.0, notes)
-                    mealName = ""; calories = ""; protein = ""; carbs = ""; fat = ""; fiber = ""; notes = ""
-                }
-            ) { Text("Add meal") }
-            state.dailyLog.meals.forEachIndexed { index, meal ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("${meal.name}: ${meal.calories} kcal, P ${meal.protein}g C ${meal.carbs}g F ${meal.fat}g", Modifier.weight(1f))
-                    TextButton(onClick = { onRemoveMeal(index) }) { Text("Remove") }
+                    onAddMeal(
+                        mealName,
+                        calories.toIntOrNull() ?: 0,
+                        protein.toDoubleOrNull() ?: 0.0,
+                        carbs.toDoubleOrNull() ?: 0.0,
+                        fat.toDoubleOrNull() ?: 0.0,
+                        fiber.toDoubleOrNull() ?: 0.0,
+                        notes
+                    )
+                    mealName = ""
+                    calories = ""
+                    protein = ""
+                    carbs = ""
+                    fat = ""
+                    fiber = ""
+                    notes = ""
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add meal")
+            }
+        }
+
+        if (state.dailyLog.meals.isEmpty()) {
+            EmptyState("No meals logged yet. Add meals or attach photos before running a nutrition review.")
+        } else {
+            SectionCard(title = "Meals", subtitle = "${state.dailyLog.meals.size} logged today") {
+                state.dailyLog.meals.forEachIndexed { index, meal ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                        Text(
+                            text = "${meal.name}: ${meal.calories} kcal, P ${formatDecimal(meal.protein)} g, C ${formatDecimal(meal.carbs)} g, F ${formatDecimal(meal.fat)} g",
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(onClick = { onRemoveMeal(index) }) {
+                            Text("Remove")
+                        }
+                    }
+                    if (meal.notes.isNotBlank()) {
+                        Text(
+                            text = meal.notes,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
@@ -306,27 +659,70 @@ private fun MetricsPage(
     onReflectionChange: (String) -> Unit
 ) {
     val metrics = state.dailyLog.metrics
-    Card {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Metrics", fontWeight = FontWeight.SemiBold)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(metrics.bodyWeightKg?.toString().orEmpty(), { onMetricsChange(metrics.copy(bodyWeightKg = it.toDoubleOrNull())) }, Modifier.weight(1f), label = { Text("Weight kg") })
-                OutlinedTextField(metrics.waistCm?.toString().orEmpty(), { onMetricsChange(metrics.copy(waistCm = it.toDoubleOrNull())) }, Modifier.weight(1f), label = { Text("Waist cm") })
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(metrics.sleepHours?.toString().orEmpty(), { onMetricsChange(metrics.copy(sleepHours = it.toDoubleOrNull())) }, Modifier.weight(1f), label = { Text("Sleep h") })
-                OutlinedTextField(metrics.steps.toString(), { onMetricsChange(metrics.copy(steps = it.toIntOrNull() ?: metrics.steps)) }, Modifier.weight(1f), label = { Text("Steps") })
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(metrics.hunger.toString(), { onMetricsChange(metrics.copy(hunger = it.toIntOrNull() ?: metrics.hunger)) }, Modifier.weight(1f), label = { Text("Hunger 1-5") })
-                OutlinedTextField(metrics.fatigue.toString(), { onMetricsChange(metrics.copy(fatigue = it.toIntOrNull() ?: metrics.fatigue)) }, Modifier.weight(1f), label = { Text("Fatigue 1-5") })
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(metrics.soreness.toString(), { onMetricsChange(metrics.copy(soreness = it.toIntOrNull() ?: metrics.soreness)) }, Modifier.weight(1f), label = { Text("Soreness 1-5") })
-                OutlinedTextField(metrics.stress.toString(), { onMetricsChange(metrics.copy(stress = it.toIntOrNull() ?: metrics.stress)) }, Modifier.weight(1f), label = { Text("Stress 1-5") })
-            }
-            OutlinedTextField(state.dailyLog.reflection, onReflectionChange, Modifier.fillMaxWidth(), label = { Text("Daily reflection") })
+    SectionCard(title = "Metrics", subtitle = "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.") {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DecimalField(
+                value = metrics.bodyWeightKg?.toString().orEmpty(),
+                onChange = { onMetricsChange(metrics.copy(bodyWeightKg = it.toDoubleOrNull())) },
+                label = "Weight kg",
+                modifier = Modifier.weight(1f)
+            )
+            DecimalField(
+                value = metrics.waistCm?.toString().orEmpty(),
+                onChange = { onMetricsChange(metrics.copy(waistCm = it.toDoubleOrNull())) },
+                label = "Waist cm",
+                modifier = Modifier.weight(1f)
+            )
         }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DecimalField(
+                value = metrics.sleepHours?.toString().orEmpty(),
+                onChange = { onMetricsChange(metrics.copy(sleepHours = it.toDoubleOrNull())) },
+                label = "Sleep h",
+                modifier = Modifier.weight(1f)
+            )
+            NumberField(
+                value = metrics.steps.toString(),
+                onChange = { onMetricsChange(metrics.copy(steps = it.toIntOrNull() ?: metrics.steps)) },
+                label = "Steps",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberField(
+                value = metrics.hunger.toString(),
+                onChange = { onMetricsChange(metrics.copy(hunger = it.toIntOrNull() ?: metrics.hunger)) },
+                label = "Hunger 1-5",
+                modifier = Modifier.weight(1f)
+            )
+            NumberField(
+                value = metrics.fatigue.toString(),
+                onChange = { onMetricsChange(metrics.copy(fatigue = it.toIntOrNull() ?: metrics.fatigue)) },
+                label = "Fatigue 1-5",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberField(
+                value = metrics.soreness.toString(),
+                onChange = { onMetricsChange(metrics.copy(soreness = it.toIntOrNull() ?: metrics.soreness)) },
+                label = "Soreness 1-5",
+                modifier = Modifier.weight(1f)
+            )
+            NumberField(
+                value = metrics.stress.toString(),
+                onChange = { onMetricsChange(metrics.copy(stress = it.toIntOrNull() ?: metrics.stress)) },
+                label = "Stress 1-5",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        OutlinedTextField(
+            value = state.dailyLog.reflection,
+            onValueChange = onReflectionChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Daily reflection") },
+            minLines = 3
+        )
     }
 }
 
@@ -344,54 +740,122 @@ private fun AiCoachPage(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SettingsCard(settings = state.settings, onChange = onSettingsChange)
-        Text("AI Coach", fontWeight = FontWeight.SemiBold)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            CoachMode.entries.forEach { mode ->
-                FilterChip(selected = state.mode == mode, onClick = { onModeChange(mode) }, label = { Text(mode.title) })
+        SectionCard(title = "AI Coach", subtitle = "Use the bundled skill, daily logs, and optional photos together.") {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                CoachMode.entries.forEach { mode ->
+                    FilterChip(
+                        selected = state.mode == mode,
+                        onClick = { onModeChange(mode) },
+                        label = { Text(mode.title) }
+                    )
+                }
+            }
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                value = state.userInput,
+                onValueChange = onPromptChange,
+                label = { Text("Question, goal, or extra AI review instruction") },
+                minLines = 5
+            )
+            ImageCard(images = state.images, onPick = onPickImages, onClear = onClearImages)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onDailyReview, enabled = !state.isLoading, modifier = Modifier.weight(1f)) {
+                    Text("Daily review")
+                }
+                ElevatedButton(onClick = onRunAnalysis, enabled = !state.isLoading, modifier = Modifier.weight(1f)) {
+                    Text("Run mode")
+                }
+            }
+            if (state.isLoading) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth().height(150.dp),
-            value = state.userInput,
-            onValueChange = onPromptChange,
-            label = { Text("Question, goal, or extra AI review instruction") },
-            minLines = 5
-        )
-        ImageCard(images = state.images, onPick = onPickImages, onClear = onClearImages)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = onDailyReview, enabled = !state.isLoading, modifier = Modifier.weight(1f)) { Text("AI review tomorrow") }
-            ElevatedButton(onClick = onRunAnalysis, enabled = !state.isLoading, modifier = Modifier.weight(1f)) { Text("Run mode") }
-        }
-        if (state.isLoading) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        SectionCard(title = "AI Data Map", subtitle = "These app records are designed to be linked in the same analysis request.") {
+            DataChipGrid(
+                items = listOf(
+                    "Exercise selection",
+                    "Set load",
+                    "Actual reps",
+                    "RIR/RPE intent",
+                    "Rest time",
+                    "Hard sets",
+                    "Tonnage",
+                    "Technique notes",
+                    "Pain flags",
+                    "Meal macros",
+                    "Food photos",
+                    "Equipment photos",
+                    "Form photos",
+                    "Body weight",
+                    "Waist",
+                    "Sleep",
+                    "Steps",
+                    "Hunger",
+                    "Fatigue",
+                    "Soreness",
+                    "Stress"
+                )
+            )
         }
     }
 }
 
 @Composable
 private fun SettingsCard(settings: AiSettings, onChange: (AiSettings) -> Unit) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("API settings", fontWeight = FontWeight.SemiBold)
-            OutlinedTextField(settings.baseUrl, { onChange(settings.copy(baseUrl = it)) }, Modifier.fillMaxWidth(), label = { Text("base URL") }, singleLine = true)
-            OutlinedTextField(settings.model, { onChange(settings.copy(model = it)) }, Modifier.fillMaxWidth(), label = { Text("model") }, singleLine = true)
-            OutlinedTextField(settings.apiKey, { onChange(settings.copy(apiKey = it)) }, Modifier.fillMaxWidth(), label = { Text("API key") }, singleLine = true, visualTransformation = PasswordVisualTransformation())
-        }
+    SectionCard(title = "API Settings", subtitle = "Bring your own AI provider key; credentials stay in local SharedPreferences.") {
+        OutlinedTextField(
+            value = settings.baseUrl,
+            onValueChange = { onChange(settings.copy(baseUrl = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Base URL") },
+            singleLine = true
+        )
+        OutlinedTextField(
+            value = settings.model,
+            onValueChange = { onChange(settings.copy(model = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Model") },
+            singleLine = true
+        )
+        OutlinedTextField(
+            value = settings.apiKey,
+            onValueChange = { onChange(settings.copy(apiKey = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("API key") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation()
+        )
     }
 }
 
 @Composable
 private fun ImageCard(images: List<ImageAttachment>, onPick: () -> Unit, onClear: () -> Unit) {
-    Card {
-        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ElevatedButton(onClick = onPick) { Text("Add photos") }
-                TextButton(onClick = onClear, enabled = images.isNotEmpty()) { Text("Clear") }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                ElevatedButton(onClick = onPick) {
+                    Text("Add photos")
+                }
+                TextButton(onClick = onClear, enabled = images.isNotEmpty()) {
+                    Text("Clear")
+                }
             }
             if (images.isEmpty()) {
-                Text("Attach exercise frames, equipment photos, food photos, meal photo labels, or menu screenshots.")
+                Text(
+                    text = "Attach exercise frames, equipment photos, food photos, labels, menus, or progress photos.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             } else {
-                images.forEach { image -> Text("${image.name} (${image.mimeType})") }
+                images.forEach { image ->
+                    Text("${image.name} (${image.mimeType})", style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
     }
@@ -399,7 +863,7 @@ private fun ImageCard(images: List<ImageAttachment>, onPick: () -> Unit, onClear
 
 @Composable
 private fun MessageCard(title: String, body: String) {
-    Card {
+    Card(shape = RoundedCornerShape(8.dp)) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(title, fontWeight = FontWeight.SemiBold)
             Text(body)
@@ -408,10 +872,143 @@ private fun MessageCard(title: String, body: String) {
 }
 
 @Composable
+private fun SectionCard(title: String, subtitle: String? = null, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(title, fontWeight = FontWeight.SemiBold)
+                subtitle?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            content()
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun MetricGrid(metrics: List<Pair<String, String>>) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        metrics.forEach { (label, value) ->
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(text = value, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun DataChipGrid(items: List<String>) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items.forEach { item ->
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Text(
+                    text = item,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MacroLine(label: String, current: String, target: String, unit: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label)
+        Text("$current / $target $unit", fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun EmptyState(text: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(14.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun NumberField(value: String, onChange: (String) -> Unit, label: String, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier,
+        label = { Text(label) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    )
+}
+
+@Composable
+private fun DecimalField(value: String, onChange: (String) -> Unit, label: String, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier,
+        label = { Text(label) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+    )
+}
+
+@Composable
 private fun SafetyNote() {
     Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = "This app is coaching support, not medical care. Photo form checks and food estimates are approximate.",
-        style = MaterialTheme.typography.bodySmall
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
+}
+
+private fun formatTimer(seconds: Int): String {
+    val minutes = seconds / 60
+    val remainder = seconds % 60
+    return "%d:%02d".format(Locale.US, minutes, remainder)
+}
+
+private fun formatOptional(value: Double?, unit: String): String {
+    return value?.let { "${formatDecimal(it)} $unit" } ?: "--"
+}
+
+private fun formatDecimal(value: Double): String {
+    return if (value % 1.0 == 0.0) {
+        value.toInt().toString()
+    } else {
+        "%.1f".format(Locale.US, value)
+    }
 }

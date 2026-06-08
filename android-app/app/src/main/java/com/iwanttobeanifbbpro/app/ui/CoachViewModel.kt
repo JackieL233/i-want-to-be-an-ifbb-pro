@@ -21,8 +21,11 @@ import com.iwanttobeanifbbpro.app.data.DailyMetrics
 import com.iwanttobeanifbbpro.app.data.DailyTargets
 import com.iwanttobeanifbbpro.app.data.ExerciseEntry
 import com.iwanttobeanifbbpro.app.data.MealEntry
+import com.iwanttobeanifbbpro.app.data.SetEntry
 import com.iwanttobeanifbbpro.app.network.OpenAiResponsesClient
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -46,12 +49,20 @@ data class ImageAttachment(
     val base64: String
 )
 
+data class RestTimerState(
+    val exerciseName: String,
+    val setNumber: Int,
+    val remainingSeconds: Int,
+    val totalSeconds: Int
+)
+
 data class CoachUiState(
     val selectedTab: AppTab = AppTab.TODAY,
     val mode: CoachMode = CoachMode.LINKED_TRAINING_NUTRITION,
     val userInput: String = CoachMode.LINKED_TRAINING_NUTRITION.defaultPrompt,
     val settings: AiSettings = AiSettings(),
     val dailyLog: DailyLog = DailyLog(),
+    val restTimer: RestTimerState? = null,
     val images: List<ImageAttachment> = emptyList(),
     val result: String = "",
     val isLoading: Boolean = false,
@@ -64,6 +75,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     private val dailySummaryBuilder = DailySummaryBuilder()
     private val promptBuilder = SkillPromptBuilder(SkillAssetRepository(application))
     private val apiClient = OpenAiResponsesClient()
+    private var restTimerJob: Job? = null
 
     var uiState by mutableStateOf(
         CoachUiState(
@@ -120,17 +132,30 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
         reps: String,
         loadKg: Double?,
         rir: Double?,
-        notes: String
+        notes: String,
+        restSeconds: Int
     ) {
         if (name.isBlank()) return
+        val plannedSets = sets.coerceAtLeast(0)
         val entry = ExerciseEntry(
             name = name.trim(),
             targetMuscle = targetMuscle.trim(),
-            sets = sets.coerceAtLeast(0),
+            sets = plannedSets,
             reps = reps.trim(),
             loadKg = loadKg,
             rir = rir,
-            notes = notes.trim()
+            notes = notes.trim(),
+            restSeconds = restSeconds.coerceIn(30, 600),
+            setEntries = (1..plannedSets).map { setNumber ->
+                SetEntry(
+                    setNumber = setNumber,
+                    targetReps = reps.trim(),
+                    actualReps = null,
+                    loadKg = loadKg,
+                    rir = rir,
+                    restSeconds = restSeconds.coerceIn(30, 600)
+                )
+            }
         )
         val session = uiState.dailyLog.trainingSession
         updateLog(uiState.dailyLog.copy(trainingSession = session.copy(exercises = session.exercises + entry)))
@@ -140,6 +165,50 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
         val session = uiState.dailyLog.trainingSession
         val exercises = session.exercises.filterIndexed { itemIndex, _ -> itemIndex != index }
         updateLog(uiState.dailyLog.copy(trainingSession = session.copy(exercises = exercises)))
+    }
+
+    fun updateSetEntry(
+        exerciseIndex: Int,
+        setIndex: Int,
+        actualReps: Int?,
+        loadKg: Double?,
+        rir: Double?,
+        notes: String
+    ) {
+        updateExercise(exerciseIndex) { exercise ->
+            val sets = exercise.trackedSets().mapIndexed { index, set ->
+                if (index == setIndex) {
+                    set.copy(
+                        actualReps = actualReps?.coerceAtLeast(0),
+                        loadKg = loadKg?.coerceAtLeast(0.0),
+                        rir = rir?.coerceIn(0.0, 10.0),
+                        notes = notes.trim()
+                    )
+                } else {
+                    set
+                }
+            }
+            exercise.copy(setEntries = sets)
+        }
+    }
+
+    fun completeSet(exerciseIndex: Int, setIndex: Int) {
+        val exercise = uiState.dailyLog.trainingSession.exercises.getOrNull(exerciseIndex) ?: return
+        val targetSet = exercise.trackedSets().getOrNull(setIndex) ?: return
+        updateExercise(exerciseIndex) { current ->
+            current.copy(
+                setEntries = current.trackedSets().mapIndexed { index, set ->
+                    if (index == setIndex) set.copy(completed = true) else set
+                }
+            )
+        }
+        startRestTimer(exercise.name, targetSet.setNumber, targetSet.restSeconds)
+    }
+
+    fun skipRestTimer() {
+        restTimerJob?.cancel()
+        restTimerJob = null
+        uiState = uiState.copy(restTimer = null)
     }
 
     fun addMeal(
@@ -173,6 +242,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun resetToday() {
+        skipRestTimer()
         dailyLogStore.resetToday()
         uiState = uiState.copy(dailyLog = dailyLogStore.readLog(), result = "", error = null)
     }
@@ -225,6 +295,33 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateLog(log: DailyLog) {
         dailyLogStore.saveLog(log)
         uiState = uiState.copy(dailyLog = log)
+    }
+
+    private fun updateExercise(index: Int, transform: (ExerciseEntry) -> ExerciseEntry) {
+        val session = uiState.dailyLog.trainingSession
+        val exercises = session.exercises.mapIndexed { exerciseIndex, exercise ->
+            if (exerciseIndex == index) transform(exercise) else exercise
+        }
+        updateLog(uiState.dailyLog.copy(trainingSession = session.copy(exercises = exercises)))
+    }
+
+    private fun startRestTimer(exerciseName: String, setNumber: Int, totalSeconds: Int) {
+        restTimerJob?.cancel()
+        restTimerJob = viewModelScope.launch {
+            val clampedTotal = totalSeconds.coerceIn(30, 600)
+            for (remaining in clampedTotal downTo 0) {
+                uiState = uiState.copy(
+                    restTimer = RestTimerState(
+                        exerciseName = exerciseName,
+                        setNumber = setNumber,
+                        remainingSeconds = remaining,
+                        totalSeconds = clampedTotal
+                    )
+                )
+                delay(1000)
+            }
+            uiState = uiState.copy(restTimer = null)
+        }
     }
 }
 

@@ -6,7 +6,13 @@ class DailySummaryBuilder {
     fun buildAiReviewContext(log: DailyLog, extraRequest: String = ""): String {
         val totals = log.nutritionTotals()
         val exercises = log.trainingSession.exercises.joinToString("\n") { exercise ->
-            "- ${exercise.name}: ${exercise.sets} sets x ${exercise.reps}, ${exercise.loadKg ?: "bodyweight"} kg, RIR ${exercise.rir ?: "unknown"}, target ${exercise.targetMuscle}, notes: ${exercise.notes}"
+            val setLog = exercise.trackedSets().joinToString("\n") { set ->
+                "  - Set ${set.setNumber}: target ${set.targetReps}, actual reps ${set.actualReps ?: "not logged"}, load ${set.loadKg ?: "not logged"} kg, RIR ${set.rir ?: "not logged"}, completed ${set.completed}, rest ${set.restSeconds}s, notes: ${set.notes.ifBlank { "none" }}"
+            }
+            """
+            - ${exercise.name}: target ${exercise.targetMuscle.ifBlank { "not logged" }}, plan ${exercise.sets} sets x ${exercise.reps}, default load ${exercise.loadKg ?: "bodyweight"} kg, default RIR ${exercise.rir ?: "unknown"}, completed sets ${exercise.completedSetCount()}/${exercise.trackedSets().size}, volume ${exercise.volumeKg()} kg, default rest ${exercise.restSeconds}s, notes: ${exercise.notes.ifBlank { "none" }}
+            $setLog
+            """.trimIndent()
         }.ifBlank { "- No exercises logged yet." }
         val meals = log.meals.joinToString("\n") { meal ->
             "- ${meal.name}: ${meal.calories} kcal, P ${meal.protein}g, C ${meal.carbs}g, F ${meal.fat}g, fiber ${meal.fiber}g, notes: ${meal.notes}"
@@ -32,6 +38,9 @@ class DailySummaryBuilder {
             Daily training:
             - Planned focus: ${log.trainingSession.plannedFocus}
             - Completed: ${log.trainingSession.completed}
+            - Planned hard sets: ${log.plannedHardSets()}
+            - Completed hard sets: ${log.completedHardSets()}
+            - Completed training volume: ${log.trainingVolumeKg()} kg
             - Session notes: ${log.trainingSession.sessionNotes}
             - Exercise log:
             $exercises
@@ -52,7 +61,13 @@ class DailySummaryBuilder {
             Extra request:
             ${extraRequest.ifBlank { "Perform an AI review and update recommendations for tomorrow." }}
 
-            Please perform an AI review: identify the limiting factor, compare training execution with nutrition adherence, recommend the smallest useful adjustment, and specify what to track tomorrow.
+            Please perform an AI review:
+            1. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals.
+            2. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
+            3. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            4. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            5. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            6. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 }

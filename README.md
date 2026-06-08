@@ -90,6 +90,8 @@ Recommended runtime behavior:
 
 A native Android companion app lives in [`android-app/`](android-app/). It packages the skill into Android assets and provides daily training, daily nutrition, metrics, photo analysis, and AI review workflows with a configurable AI API client.
 
+The app now supports set-level workout execution: record each set's weight, reps, RIR, completion state, rest time, and notes; tap a completed set to start a rest countdown; then send that log with meals, photos, body metrics, sleep, steps, hunger, fatigue, soreness, and stress into the AI review flow.
+
 The app keeps API credentials out of source code. Users enter an API key, base URL, and model in the app settings screen. See [`android-app/README.md`](android-app/README.md) for Android Studio, JDK 17, build, and API setup notes.
 
 ## Example Prompts

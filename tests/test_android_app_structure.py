@@ -96,9 +96,14 @@ class AndroidAppStructureTest(unittest.TestCase):
         expected_terms = [
             "TrainingSession",
             "ExerciseEntry",
+            "SetEntry",
             "MealEntry",
             "DailyMetrics",
             "DailyTargets",
+            "setEntries",
+            "completedHardSets",
+            "trainingVolumeKg",
+            "restSeconds",
             "calories",
             "protein",
             "carbs",
@@ -112,6 +117,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "daily training",
             "daily nutrition",
             "AI review",
+            "set-level performance",
+            "rest time",
         ]
         combined = f"{model}\n{store}\n{summary}"
         for term in expected_terms:
@@ -138,6 +145,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "runDailyReview",
             "hard sets",
             "meal photo",
+            "Rest timer",
+            "Complete",
+            "AI Data Map",
+            "Set load",
+            "Actual reps",
         ]
         combined = f"{ui}\n{view_model}"
         for term in expected_terms:
@@ -158,6 +170,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "daily training",
             "daily nutrition",
             "AI review",
+            "rest countdown",
+            "set-level",
+            "AI Data Map",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
