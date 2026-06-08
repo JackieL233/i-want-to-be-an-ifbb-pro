@@ -99,6 +99,8 @@ Substitute when equipment is unavailable, pain appears, technique is not stable,
 
 Preserve the intended pattern, muscle target, rep range, and fatigue cost.
 
+For Android app-linked plans, use the same `Exercise Substitution Coach` language that appears in the training screen and AI review context. A substitution should not be treated as a new goal; it is a same-intent execution fallback. When equipment is occupied, unavailable, painful, or technically unstable, recommend a `primaryOption` and 2-3 `secondaryOptions` that preserve the same target muscle, same movement pattern, planned rep range, planned RIR, and similar fatigue cost whenever possible. Include the reason for the swap, setup cue, load-adjustment cue, keep-intent cue, and the closest visual guide ID so the user can immediately recognize the new station. If pain changes mechanics, choose the lowest joint-cost option, start lighter, and do not use that set to justify progression.
+
 ## Exercise Selection by User Type
 
 - Beginners: stable lifts, fewer variations, moderate rep ranges, more technique practice.

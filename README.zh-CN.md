@@ -14,6 +14,7 @@
 - 将职业级体型目标拆成可执行的阶段：肌肉量、比例、对称性、体脂控制、动作执行、posing 和数据纪律。
 - 细化每次训练：动作、目标肌群、组数、次数、RIR/RPE、休息、技术要点、替代动作和记录字段。
 - 追踪训练质量：hard sets、tonnage、单组表现、目标肌肉刺激、疼痛标记、动作技术和进步决策。
+- 当器械被占、不可用、动作疼痛或技术不稳定时，提供 Exercise Substitution Coach：推荐同目标肌群、同动作模式的 primaryOption 和 secondaryOptions，同时尽量保持原计划次数范围、RIR 意图、疲劳成本和 visual guide ID 连续性，让用户不用因为器械问题中断训练。
 - 为动作名称提供新手友好的器械/动作上下文：例如 VG-01 Smith machine、VG-02 Cable station、VG-03 Dumbbells、VG-04 Barbell、VG-05 Machine、VG-10 Bodyweight/open station 等统一示意类别，并配套视觉图例编号、中文器械名、简洁统一实例图、quick visual cue、find-equipment cue、movement path cue、动作路径提示、新手识别提示、器械标志点、常见动作、示例动作和 look-for 识别提示，帮助用户知道这个动作大概对应哪种器械和动作路径。
 - 在计划日和今日训练中提供器械/动作 Visual Map 和动作卡片缩略图标题，让用户不用先懂专业动作名，也能一眼知道今天要找哪类器械、训练站、自由重量或动作路径。
 - 支持器械识别和动作质量分析：通过器械照片、动作照片或视频帧判断可能的器械/动作、目标肌群、常见错误、替代动作和安全注意点。
@@ -49,6 +50,7 @@
 - 单组记录：每一组都可以记录重量、次数、RIR、是否完成、休息时间和备注。
 - Exercise History：重复动作会对比上一次记录，显示上次/今天训练量、最佳重量、最佳次数、完成组数和平均 RIR，让用户知道这次是真进步、持平还是需要先稳住。
 - Progression Cue：每个训练动作会根据完成组数、实际次数、RIR 和疼痛/动作备注，提示下次应该加次数、加重量、保持、修改动作或先完成基础组数。
+- Exercise Substitution Coach：每个训练动作都会给出临场替代建议；如果器械被占、不可用、动作疼痛、动作技术不稳定或用户档案里的器械条件不匹配，App 会推荐一个 primaryOption 和多个 secondaryOptions，并标明 trigger reason、same target muscle、same movement pattern、preserve rep range、fatigue cost、keepIntentCue、loadAdjustmentCue 和 visual guide ID。它不会静默改掉训练日志，而是帮助用户在训练现场保持同样训练意图继续练，并让 AI 复盘知道这次替代为什么发生。
 - 休息倒计时：点击一组 `Complete` 后自动启动休息倒计时。
 - Nutrition Pacing：显示今天热量、蛋白质、碳水、脂肪、纤维还剩多少或已经超出多少，给出宏量营养执行分数和下一餐建议，让用户知道接下来该优先吃什么。
 - Next Meal Builder：把剩余热量、蛋白质、碳水、脂肪、纤维和训练需求转换成下一餐可执行目标，包含下一餐大概 P/C/F/纤维克数、meal timing cue、portion uncertainty cue 和照片/标签提示。
@@ -59,7 +61,7 @@
 - 饮食记录：设置热量和宏量营养目标，记录每餐热量、蛋白质、碳水、脂肪、纤维，并可上传食物照片让 AI 估算。
 - 身体与恢复指标：体重、体脂、瘦体重、腰围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
 - Health Connect 同步：用户授权后读取体重、体脂、瘦体重、步数、睡眠、静息心率和总消耗热量。
-- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、Next Set Coach、current exercise、next set target、load cue、reps cue、RIR cue、rest cue、stop cue、after-set logging cue、Tomorrow Coach Brief、Weekly Check-in、training completion、average calories/protein、weight trend、recovery average、weak-point focus、next-week action、tomorrow training focus、tomorrow nutrition target、tomorrow recovery gate、tomorrow tracking action、readiness gate、Session Quality Dashboard、completion rate、logged set rate、average RIR、muscle-volume distribution、pain/technique flags、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、quick visual cue、find-equipment cue、movement path cue、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
+- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、Next Set Coach、current exercise、next set target、load cue、reps cue、RIR cue、rest cue、stop cue、after-set logging cue、Tomorrow Coach Brief、Weekly Check-in、training completion、average calories/protein、weight trend、recovery average、weak-point focus、next-week action、tomorrow training focus、tomorrow nutrition target、tomorrow recovery gate、tomorrow tracking action、readiness gate、Session Quality Dashboard、completion rate、logged set rate、average RIR、muscle-volume distribution、pain/technique flags、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise Substitution Coach、equipment unavailable、trigger reason、primaryOption、secondaryOptions、same target muscle、same movement pattern、preserve rep range、fatigue cost、keepIntentCue、loadAdjustmentCue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、quick visual cue、find-equipment cue、movement path cue、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
 
 ## 小米、华为和手机健康数据
 

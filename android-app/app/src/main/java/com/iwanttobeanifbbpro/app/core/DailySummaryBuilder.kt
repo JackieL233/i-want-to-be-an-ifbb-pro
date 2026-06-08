@@ -43,7 +43,13 @@ class DailySummaryBuilder {
         val weeklyPlan = plan?.days?.joinToString("\n") { day ->
             val plannedExercises = day.exercises.joinToString("\n") { exercise ->
                 val visual = exerciseVisualSpec(exercise.name, exercise.targetMuscle)
-                "  - ${exercise.name}: ${exercise.sets} x ${exercise.reps}, load ${exercise.loadKg ?: "not specified"} kg, RIR ${exercise.rir ?: "not specified"}, rest ${exercise.restSeconds}s, target ${exercise.targetMuscle.ifBlank { "not specified" }}, notes: ${exercise.notes.ifBlank { "none" }}. ${visual.visualPromptLine()}"
+                val substitution = exerciseSubstitutionGuide(
+                    name = exercise.name,
+                    targetMuscle = exercise.targetMuscle,
+                    notes = exercise.notes,
+                    profile = profile
+                )
+                "  - ${exercise.name}: ${exercise.sets} x ${exercise.reps}, load ${exercise.loadKg ?: "not specified"} kg, RIR ${exercise.rir ?: "not specified"}, rest ${exercise.restSeconds}s, target ${exercise.targetMuscle.ifBlank { "not specified" }}, notes: ${exercise.notes.ifBlank { "none" }}. ${visual.visualPromptLine()} ${substitution.promptLine()}"
             }.ifBlank { "  - No planned exercises." }
             "- ${day.dayName}: focus ${day.focus.ifBlank { "not specified" }}, notes: ${day.notes.ifBlank { "none" }}\n$plannedExercises"
         } ?: "- No weekly plan loaded."
@@ -51,12 +57,14 @@ class DailySummaryBuilder {
             val cue = exercise.progressionCue()
             val history = exercise.exerciseHistorySummary(log, recentLogs)
             val visual = exerciseVisualSpec(exercise.name, exercise.targetMuscle)
+            val substitution = exercise.exerciseSubstitutionGuide(profile)
             val setLog = exercise.trackedSets().joinToString("\n") { set ->
                 "  - Set ${set.setNumber}: target ${set.targetReps}, actual reps ${set.actualReps ?: "not logged"}, load ${set.loadKg ?: "not logged"} kg, RIR ${set.rir ?: "not logged"}, completed ${set.completed}, rest ${set.restSeconds}s, notes: ${set.notes.ifBlank { "none" }}"
             }
             """
             - ${exercise.name}: target ${exercise.targetMuscle.ifBlank { "not logged" }}, plan ${exercise.sets} sets x ${exercise.reps}, default load ${exercise.loadKg ?: "bodyweight"} kg, default RIR ${exercise.rir ?: "unknown"}, completed sets ${exercise.completedSetCount()}/${exercise.trackedSets().size}, volume ${exercise.volumeKg()} kg, default rest ${exercise.restSeconds}s, notes: ${exercise.notes.ifBlank { "none" }}
               ${visual.visualPromptLine()}
+              ${substitution.promptLine()}
               Progression cue: ${cue.label}. ${cue.reason} ${cue.nextAction}
               Exercise history: ${history.statusLabel}. Previous date ${history.previousDate ?: "none"}, previous volume ${history.previousVolumeKg ?: "not available"} kg, current volume ${history.currentVolumeKg} kg, previous best load ${history.previousBestLoadKg ?: "not available"} kg, current best load ${history.currentBestLoadKg ?: "not logged"} kg, previous best reps ${history.previousBestReps ?: "not available"}, current best reps ${history.currentBestReps ?: "not logged"}, previous average RIR ${history.previousAverageRir ?: "not available"}, current average RIR ${history.currentAverageRir ?: "not logged"}. ${history.guidance}
             $setLog
@@ -166,12 +174,13 @@ class DailySummaryBuilder {
             9. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
             10. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
             11. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
-            12. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
-            13. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            14. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            15. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            16. Use Weekly Check-in before changing plan-wide volume or calorie targets: check days logged, training completion, average calories/protein, weight trend, recovery average, data quality gate, weak-point focus, and next-week action.
-            17. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
+            12. Use Exercise Substitution Coach before swapping: preserve same target muscle, same movement pattern, rep range, planned RIR, fatigue cost, and visual guide ID continuity unless pain, technique, or equipment constraints require a safer option.
+            13. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
+            14. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
+            15. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            16. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            17. Use Weekly Check-in before changing plan-wide volume or calorie targets: check days logged, training completion, average calories/protein, weight trend, recovery average, data quality gate, weak-point focus, and next-week action.
+            18. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
         """.trimIndent()
     }
 

@@ -61,6 +61,7 @@ import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.DailyExecutionPlan
 import com.iwanttobeanifbbpro.app.core.DailyExecutionRoute
 import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
+import com.iwanttobeanifbbpro.app.core.ExerciseSubstitutionGuide
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualType
 import com.iwanttobeanifbbpro.app.core.MealAssemblyGuide
@@ -76,6 +77,7 @@ import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
 import com.iwanttobeanifbbpro.app.core.exerciseVisualLibrarySpecs
 import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
+import com.iwanttobeanifbbpro.app.core.exerciseSubstitutionGuide
 import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.core.mealAssemblyGuide
 import com.iwanttobeanifbbpro.app.core.nextSetCoach
@@ -2357,6 +2359,7 @@ private fun TrainingPage(
                     exercise = exercise,
                     currentLog = state.dailyLog,
                     recentLogs = state.recentLogs,
+                    profile = state.athleteProfile,
                     onRemove = { onRemoveExercise(exerciseIndex) },
                     onUpdateSetEntry = onUpdateSetEntry,
                     onCompleteSet = onCompleteSet
@@ -2552,6 +2555,7 @@ private fun ExerciseExecutionCard(
     exercise: ExerciseEntry,
     currentLog: DailyLog,
     recentLogs: List<DailyLog>,
+    profile: AthleteProfile,
     onRemove: () -> Unit,
     onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
     onCompleteSet: (Int, Int) -> Unit
@@ -2586,6 +2590,7 @@ private fun ExerciseExecutionCard(
             )
             ExerciseHistoryCard(summary = exercise.exerciseHistorySummary(currentLog, recentLogs))
             ProgressionCueCard(cue = exercise.progressionCue())
+            ExerciseSubstitutionCard(guide = exercise.exerciseSubstitutionGuide(profile))
             exercise.trackedSets().forEachIndexed { setIndex, set ->
                 if (setIndex > 0) HorizontalDivider()
                 SetRow(
@@ -2658,6 +2663,71 @@ private fun ProgressionCueCard(cue: ProgressionCue) {
                 text = "${cue.reason} ${cue.nextAction}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ExerciseSubstitutionCard(guide: ExerciseSubstitutionGuide) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text("Exercise Substitution Coach", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = guide.statusLabel,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Text(
+                    text = guide.primaryOption.visualSpec.visualId,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Text(
+                text = guide.triggerReason,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            MetricGrid(
+                metrics = listOf(
+                    "Primary swap" to guide.primaryOption.name,
+                    "Same target" to guide.primaryOption.targetMuscle.ifBlank { "--" },
+                    "Pattern" to guide.primaryOption.pattern,
+                    "Fatigue cost" to guide.primaryOption.fatigueCost
+                )
+            )
+            ExerciseVisualHeader(
+                name = guide.primaryOption.name,
+                targetMuscle = guide.primaryOption.targetMuscle,
+                detail = "${guide.primaryOption.visualSpec.equipmentZh} | ${guide.primaryOption.visualSpec.lookFor}"
+            )
+            Text(
+                text = "Keep intent: ${guide.keepIntentCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Load adjustment: ${guide.loadAdjustmentCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            DataChipGrid(
+                items = listOf(
+                    "same target muscle",
+                    "same movement pattern",
+                    "preserve rep range",
+                    "fatigue cost",
+                    "visual guide ID ${guide.primaryOption.visualSpec.visualId}"
+                ) + guide.secondaryOptions.map { "${it.name} (${it.visualSpec.visualId})" }
             )
         }
     }
@@ -3247,6 +3317,17 @@ private fun AiCoachPage(
                     "Stop rule",
                     "Progression Cue",
                     "Exercise History",
+                    "Exercise Substitution Coach",
+                    "equipment unavailable",
+                    "trigger reason",
+                    "primaryOption",
+                    "secondaryOptions",
+                    "same target muscle",
+                    "same movement pattern",
+                    "preserve rep range",
+                    "fatigue cost",
+                    "keepIntentCue",
+                    "loadAdjustmentCue",
                     "Exercise visual guide",
                     "Visual guide ID",
                     "Equipment/action diagrams",

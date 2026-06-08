@@ -24,6 +24,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseSubstitutionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
@@ -97,6 +98,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "visual-analysis-and-food-estimation.md",
             "session-execution-and-volume.md",
             "nutrition-body-composition.md",
+            "Exercise Substitution Coach",
+            "same target muscle",
+            "same movement pattern",
+            "fatigue cost",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
@@ -383,6 +388,20 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Progression cue",
             "Use each Progression Cue",
             "progressionCue",
+            "Exercise Substitution Coach",
+            "ExerciseSubstitutionGuide",
+            "ExerciseSubstitutionOption",
+            "exerciseSubstitutionGuide",
+            "equipment unavailable",
+            "primaryOption",
+            "secondaryOptions",
+            "same target muscle",
+            "same movement pattern",
+            "preserve rep range",
+            "fatigue cost",
+            "keepIntentCue",
+            "loadAdjustmentCue",
+            "visual guide ID",
             "Exercise history",
             "Compare Exercise History",
             "exerciseHistorySummary",
@@ -425,10 +444,13 @@ class AndroidAppStructureTest(unittest.TestCase):
         weekly_checkin = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt"
         ).read_text(encoding="utf-8")
+        substitution = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseSubstitutionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -728,6 +750,20 @@ class AndroidAppStructureTest(unittest.TestCase):
             "adherenceScore",
             "ProgressionCue",
             "Progression Cue",
+            "ExerciseSubstitutionGuide",
+            "ExerciseSubstitutionCard",
+            "Exercise Substitution Coach",
+            "exerciseSubstitutionGuide",
+            "equipment unavailable",
+            "trigger reason",
+            "primaryOption",
+            "secondaryOptions",
+            "same target muscle",
+            "same movement pattern",
+            "preserve rep range",
+            "fatigue cost",
+            "keepIntentCue",
+            "loadAdjustmentCue",
             "ExerciseHistorySummary",
             "ExerciseHistoryCard",
             "Exercise History",
@@ -786,10 +822,13 @@ class AndroidAppStructureTest(unittest.TestCase):
         weekly_checkin = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt"
         ).read_text(encoding="utf-8")
+        substitution = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseSubstitutionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -965,6 +1004,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "reduce volume",
             "deload check",
             "Progression Cue",
+            "Exercise Substitution Coach",
+            "primaryOption",
+            "secondaryOptions",
+            "same target muscle",
+            "same movement pattern",
+            "preserve rep range",
+            "fatigue cost",
+            "keepIntentCue",
+            "loadAdjustmentCue",
+            "visual guide ID continuity",
             "Exercise History",
             "previous/current volume",
             "best load",
@@ -1130,6 +1179,17 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Body Composition Guidance",
             "Protein behind",
             "Progression Cue",
+            "Exercise Substitution Coach",
+            "equipment unavailable",
+            "trigger reason",
+            "primaryOption",
+            "secondaryOptions",
+            "same target muscle",
+            "same movement pattern",
+            "preserve rep range",
+            "fatigue cost",
+            "keepIntentCue",
+            "loadAdjustmentCue",
             "Exercise History",
             "Add reps first",
             "Last volume",
@@ -1213,6 +1273,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Map the visible setup to the Exercise Visual Guide",
             "closest VG visual guide ID",
             "quick visual cue, find-equipment cue, and movement path cue",
+            "Exercise Substitution Coach",
+            "primaryOption",
+            "secondaryOptions",
+            "same target muscle",
+            "same movement pattern",
+            "planned rep range",
+            "fatigue cost",
+            "load-adjustment cue",
+            "visual guide ID",
         ]
         combined = f"{skill_library}\n{app_library}\n{visual_analysis}\n{app_visual_analysis}"
         for term in expected_terms:
