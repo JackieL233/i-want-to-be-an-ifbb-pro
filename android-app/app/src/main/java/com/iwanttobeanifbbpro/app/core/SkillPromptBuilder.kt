@@ -11,7 +11,7 @@ enum class CoachMode(val title: String, val defaultPrompt: String) {
     ),
     TRAINING_VISUAL(
         "Training visual",
-        "Analyze the attached exercise photos/video frames for equipment identification, exercise form analysis, target muscle stimulus, pain flags, and session-log changes."
+        "Analyze the attached exercise photos/video frames for equipment identification, exercise form analysis, target muscle stimulus, pain flags, and session-log changes. Match the visible setup to the app's unified exercise visual guide when possible."
     ),
     FOOD_VISUAL(
         "Food visual",
@@ -63,6 +63,7 @@ class SkillPromptBuilder(private val repository: SkillAssetRepository) {
             - Briefly list assumptions and missing safety-critical data.
             - Give practical recommendations tied to this mode.
             - If photos are attached, separate visual observations from uncertain inferences.
+            - For exercise names or equipment photos, map the likely setup to the unified exercise visual guide category, Chinese equipment label, instance diagram cue, example movement, and look-for cue.
             - For linked training/nutrition analysis, compare training execution, session quality, food-photo nutrition estimate, recovery, and current goal before changing variables.
             - End with what to track before the next check-in.
         """.trimIndent()

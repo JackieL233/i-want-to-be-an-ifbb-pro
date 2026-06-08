@@ -1070,6 +1070,7 @@ private fun PlanPage(
                 label = { Text("Target muscle") },
                 singleLine = true
             )
+            ExerciseVisualRecognitionPreview(name = exerciseName, targetMuscle = targetMuscle)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField(value = sets, onChange = { sets = it }, label = "Sets", modifier = Modifier.weight(1f))
                 OutlinedTextField(
@@ -1175,20 +1176,25 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
         ) {
             Canvas(
                 modifier = Modifier
-                    .weight(0.9f)
+                    .weight(0.82f)
                     .height(92.dp)
             ) {
                 drawExerciseVisual(type = spec.type)
             }
-            Column(modifier = Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Exercise visual guide", fontWeight = FontWeight.SemiBold)
+            Column(modifier = Modifier.weight(1.18f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Exercise visual guide / 统一动作图例", fontWeight = FontWeight.SemiBold)
                 Text(
-                    text = "${spec.equipment} | ${spec.pattern}",
+                    text = "${spec.equipment} (${spec.equipmentZh}) | ${spec.pattern}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "Example: ${spec.example}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Instance cue: ${spec.instanceCue}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1202,8 +1208,13 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
 private fun ExerciseVisualGuideLibrary() {
     SectionCard(
         title = "Exercise Visual Library",
-        subtitle = "Unified equipment/action instance diagrams help non-pro users recognize what an exercise name refers to before adding it."
+        subtitle = "Unified equipment/action instance diagrams help non-pro users recognize what an exercise name refers to before adding it. 中文图例会把动作名翻译成大概该找哪种器械。"
     ) {
+        Text(
+            text = "When the app or AI sees an exercise name, it maps it to one of these shared visual categories: equipment name, simple instance diagram, example movement, look-for cue, and common movements.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         val examples = exerciseVisualLibrarySpecs()
         examples.forEachIndexed { index, spec ->
             ExerciseVisualGuideSample(spec = spec)
@@ -1220,6 +1231,55 @@ private fun ExerciseVisualGuideLibrary() {
 }
 
 @Composable
+private fun ExerciseVisualRecognitionPreview(name: String, targetMuscle: String) {
+    val trimmedName = name.trim()
+    val trimmedMuscle = targetMuscle.trim()
+    val spec = remember(trimmedName, trimmedMuscle) { exerciseVisualSpec(trimmedName, trimmedMuscle) }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier.padding(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .weight(0.55f)
+                    .height(64.dp)
+            ) {
+                drawExerciseVisual(type = spec.type)
+            }
+            Column(modifier = Modifier.weight(1.45f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("Live equipment/action preview", fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = if (trimmedName.isBlank()) {
+                        "Type an exercise name to preview the likely equipment or movement pattern."
+                    } else {
+                        "$trimmedName -> ${spec.equipment} (${spec.equipmentZh})"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "常见动作: ${spec.commonMovements.joinToString(", ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = spec.lookFor,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         Canvas(
@@ -1230,14 +1290,24 @@ private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
             drawExerciseVisual(type = spec.type)
         }
         Column(modifier = Modifier.weight(1.25f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(spec.equipment, fontWeight = FontWeight.SemiBold)
+            Text("${spec.equipment} (${spec.equipmentZh})", fontWeight = FontWeight.SemiBold)
             Text(
                 text = "${spec.pattern} | Example: ${spec.example}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = spec.lookFor,
+                text = "Instance: ${spec.instanceCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Common: ${spec.commonMovements.joinToString(", ")}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Look-for cue: ${spec.lookFor}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1493,6 +1563,7 @@ private fun TrainingPage(
                 label = { Text("Target muscle") },
                 singleLine = true
             )
+            ExerciseVisualRecognitionPreview(name = name, targetMuscle = muscle)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField(value = sets, onChange = { sets = it }, label = "Sets", modifier = Modifier.weight(1f))
                 OutlinedTextField(
@@ -2225,7 +2296,13 @@ private fun AiCoachPage(
                     "Exercise History",
                     "Exercise visual guide",
                     "Equipment/action diagrams",
+                    "Live equipment/action preview",
+                    "Chinese equipment labels",
+                    "Instance diagram cue",
+                    "Common movement examples",
                     "Look-for cue",
+                    "Equipment photo recognition",
+                    "Exercise name -> visual category",
                     "Technique notes",
                     "Pain flags",
                     "Meal macros",
