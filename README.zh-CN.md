@@ -122,7 +122,7 @@ skills/i-want-to-be-an-ifbb-pro/
 
 原生 Android companion app 位于 [`android-app/`](android-app/)。它会把这个 skill 打包进 Android assets，并提供日常训练、日常饮食、身体指标、照片分析和 AI 复盘工作流。
 
-当前 app 已支持训练执行级记录：每个动作可以拆成每一组，记录重量、次数、RIR、是否完成、休息时间和备注；点击一组 `Complete` 后会启动休息倒计时。AI 复盘会把这些单组表现和饮食、食物照片、动作/器械照片、体重、腰围、睡眠、步数、饥饿感、疲劳、酸痛、压力一起发送给模型，用于判断下一次训练是加重量、加次数、维持、减少容量、替换动作、deload，还是调整热量、碳水、蛋白质、脂肪、纤维、补水或餐次安排。
+当前 app 已支持每周训练计划和训练执行级记录：先在 `Plan` 里建立 weekly training plan，设置阶段目标、训练日、计划动作、组数、次数、RIR、休息时间和备注；再点击 `Apply today` 把某一天计划转成今天的 set-level 可执行训练。每个动作可以拆成每一组，记录重量、次数、RIR、是否完成、休息时间和备注；点击一组 `Complete` 后会启动休息倒计时。AI 复盘会把周计划、当天实际单组表现、饮食、食物照片、动作/器械照片、体重、腰围、睡眠、步数、饥饿感、疲劳、酸痛、压力一起发送给模型，用于判断下一次训练是加重量、加次数、维持、减少容量、替换动作、deload，还是调整热量、碳水、蛋白质、脂肪、纤维、补水或餐次安排。
 
 API key、base URL 和 model 都在 app 内配置，凭据只保存在本机 SharedPreferences，不写入源码。构建说明见 [`android-app/README.md`](android-app/README.md)。
 

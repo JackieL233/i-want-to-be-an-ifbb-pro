@@ -21,6 +21,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/network/OpenAiResponsesClient.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLog.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLogStore.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlan.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlanStore.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailySummaryBuilder.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/ui/CoachViewModel.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt",
@@ -90,6 +92,12 @@ class AndroidAppStructureTest(unittest.TestCase):
         store = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLogStore.kt").read_text(
             encoding="utf-8"
         )
+        plan_model = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlan.kt").read_text(
+            encoding="utf-8"
+        )
+        plan_store = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlanStore.kt").read_text(
+            encoding="utf-8"
+        )
         summary = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailySummaryBuilder.kt").read_text(
             encoding="utf-8"
         )
@@ -97,6 +105,13 @@ class AndroidAppStructureTest(unittest.TestCase):
             "TrainingSession",
             "ExerciseEntry",
             "SetEntry",
+            "WeeklyTrainingPlan",
+            "TrainingDay",
+            "PlannedExercise",
+            "TrainingPlanStore",
+            "readPlan",
+            "savePlan",
+            "toExerciseEntry",
             "MealEntry",
             "DailyMetrics",
             "DailyTargets",
@@ -119,8 +134,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI review",
             "set-level performance",
             "rest time",
+            "Current weekly training plan",
         ]
-        combined = f"{model}\n{store}\n{summary}"
+        combined = f"{model}\n{store}\n{plan_model}\n{plan_store}\n{summary}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -134,6 +150,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         )
         expected_terms = [
             "Today",
+            "Plan",
             "Training",
             "Nutrition",
             "Metrics",
@@ -150,6 +167,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI Data Map",
             "Set load",
             "Actual reps",
+            "Weekly Plan",
+            "Apply today",
+            "addPlannedExercise",
+            "applyPlanDayToToday",
         ]
         combined = f"{ui}\n{view_model}"
         for term in expected_terms:
@@ -173,6 +194,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "rest countdown",
             "set-level",
             "AI Data Map",
+            "weekly training plan",
+            "Apply today",
         ]
         for term in expected_terms:
             with self.subTest(term=term):

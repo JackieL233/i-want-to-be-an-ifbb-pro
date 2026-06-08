@@ -21,7 +21,10 @@ import com.iwanttobeanifbbpro.app.data.DailyMetrics
 import com.iwanttobeanifbbpro.app.data.DailyTargets
 import com.iwanttobeanifbbpro.app.data.ExerciseEntry
 import com.iwanttobeanifbbpro.app.data.MealEntry
+import com.iwanttobeanifbbpro.app.data.PlannedExercise
 import com.iwanttobeanifbbpro.app.data.SetEntry
+import com.iwanttobeanifbbpro.app.data.TrainingPlanStore
+import com.iwanttobeanifbbpro.app.data.WeeklyTrainingPlan
 import com.iwanttobeanifbbpro.app.network.OpenAiResponsesClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,6 +34,7 @@ import kotlinx.coroutines.withContext
 
 enum class AppTab(val title: String) {
     TODAY("Today"),
+    PLAN("Plan"),
     TRAINING("Training"),
     NUTRITION("Nutrition"),
     METRICS("Metrics"),
@@ -62,6 +66,8 @@ data class CoachUiState(
     val userInput: String = CoachMode.LINKED_TRAINING_NUTRITION.defaultPrompt,
     val settings: AiSettings = AiSettings(),
     val dailyLog: DailyLog = DailyLog(),
+    val trainingPlan: WeeklyTrainingPlan = WeeklyTrainingPlan(),
+    val selectedPlanDayIndex: Int = 0,
     val restTimer: RestTimerState? = null,
     val images: List<ImageAttachment> = emptyList(),
     val result: String = "",
@@ -72,6 +78,7 @@ data class CoachUiState(
 class CoachViewModel(application: Application) : AndroidViewModel(application) {
     private val settingsStore = SettingsStore(application)
     private val dailyLogStore = DailyLogStore(application)
+    private val trainingPlanStore = TrainingPlanStore(application)
     private val dailySummaryBuilder = DailySummaryBuilder()
     private val promptBuilder = SkillPromptBuilder(SkillAssetRepository(application))
     private val apiClient = OpenAiResponsesClient()
@@ -80,7 +87,8 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     var uiState by mutableStateOf(
         CoachUiState(
             settings = settingsStore.load(),
-            dailyLog = dailyLogStore.readLog()
+            dailyLog = dailyLogStore.readLog(),
+            trainingPlan = trainingPlanStore.readPlan()
         )
     )
         private set
@@ -100,6 +108,82 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     fun updateSettings(settings: AiSettings) {
         settingsStore.save(settings)
         uiState = uiState.copy(settings = settings)
+    }
+
+    fun selectPlanDay(index: Int) {
+        val safeIndex = index.coerceIn(0, (uiState.trainingPlan.days.size - 1).coerceAtLeast(0))
+        uiState = uiState.copy(selectedPlanDayIndex = safeIndex)
+    }
+
+    fun updateTrainingPlanName(name: String) {
+        updatePlan(uiState.trainingPlan.copy(name = name))
+    }
+
+    fun updateTrainingPlanGoal(goal: String) {
+        updatePlan(uiState.trainingPlan.copy(phaseGoal = goal))
+    }
+
+    fun updateTrainingDay(index: Int, focus: String, notes: String) {
+        val days = uiState.trainingPlan.days.mapIndexed { dayIndex, day ->
+            if (dayIndex == index) day.copy(focus = focus, notes = notes) else day
+        }
+        updatePlan(uiState.trainingPlan.copy(days = days))
+    }
+
+    fun addPlannedExercise(
+        dayIndex: Int,
+        name: String,
+        targetMuscle: String,
+        sets: Int,
+        reps: String,
+        loadKg: Double?,
+        rir: Double?,
+        restSeconds: Int,
+        notes: String
+    ) {
+        if (name.isBlank()) return
+        val exercise = PlannedExercise(
+            name = name.trim(),
+            targetMuscle = targetMuscle.trim(),
+            sets = sets.coerceAtLeast(0),
+            reps = reps.trim().ifBlank { "8-12" },
+            loadKg = loadKg,
+            rir = rir,
+            restSeconds = restSeconds.coerceIn(30, 600),
+            notes = notes.trim()
+        )
+        val days = uiState.trainingPlan.days.mapIndexed { index, day ->
+            if (index == dayIndex) day.copy(exercises = day.exercises + exercise) else day
+        }
+        updatePlan(uiState.trainingPlan.copy(days = days))
+    }
+
+    fun removePlannedExercise(dayIndex: Int, exerciseIndex: Int) {
+        val days = uiState.trainingPlan.days.mapIndexed { index, day ->
+            if (index == dayIndex) {
+                day.copy(exercises = day.exercises.filterIndexed { itemIndex, _ -> itemIndex != exerciseIndex })
+            } else {
+                day
+            }
+        }
+        updatePlan(uiState.trainingPlan.copy(days = days))
+    }
+
+    fun applyPlanDayToToday(dayIndex: Int) {
+        val day = uiState.trainingPlan.days.getOrNull(dayIndex) ?: return
+        val session = uiState.dailyLog.trainingSession.copy(
+            plannedFocus = day.focus.ifBlank { day.dayName },
+            completed = false,
+            exercises = day.exercises.map { it.toExerciseEntry() },
+            sessionNotes = day.notes
+        )
+        updateLog(uiState.dailyLog.copy(trainingSession = session))
+        uiState = uiState.copy(selectedTab = AppTab.TRAINING)
+    }
+
+    fun resetTrainingPlan() {
+        trainingPlanStore.resetPlan()
+        uiState = uiState.copy(trainingPlan = trainingPlanStore.readPlan(), selectedPlanDayIndex = 0)
     }
 
     fun updateTargets(targets: DailyTargets) {
@@ -268,6 +352,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     fun runDailyReview() {
         val context = dailySummaryBuilder.buildAiReviewContext(
             log = uiState.dailyLog,
+            plan = uiState.trainingPlan,
             extraRequest = uiState.userInput
         )
         runAi(mode = CoachMode.CHECK_IN, request = context)
@@ -295,6 +380,11 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     private fun updateLog(log: DailyLog) {
         dailyLogStore.saveLog(log)
         uiState = uiState.copy(dailyLog = log)
+    }
+
+    private fun updatePlan(plan: WeeklyTrainingPlan) {
+        trainingPlanStore.savePlan(plan)
+        uiState = uiState.copy(trainingPlan = plan)
     }
 
     private fun updateExercise(index: Int, transform: (ExerciseEntry) -> ExerciseEntry) {

@@ -47,7 +47,9 @@ import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.data.DailyMetrics
 import com.iwanttobeanifbbpro.app.data.DailyTargets
 import com.iwanttobeanifbbpro.app.data.ExerciseEntry
+import com.iwanttobeanifbbpro.app.data.PlannedExercise
 import com.iwanttobeanifbbpro.app.data.SetEntry
+import com.iwanttobeanifbbpro.app.data.TrainingDay
 import java.util.Locale
 
 @Composable
@@ -76,6 +78,22 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                         state = state,
                         onDailyReview = viewModel::runDailyReview,
                         onReset = viewModel::resetToday
+                    )
+                }
+            }
+
+            AppTab.PLAN -> {
+                item {
+                    PlanPage(
+                        state = state,
+                        onNameChange = viewModel::updateTrainingPlanName,
+                        onGoalChange = viewModel::updateTrainingPlanGoal,
+                        onSelectDay = viewModel::selectPlanDay,
+                        onUpdateDay = viewModel::updateTrainingDay,
+                        onAddPlannedExercise = viewModel::addPlannedExercise,
+                        onRemovePlannedExercise = viewModel::removePlannedExercise,
+                        onApplyDay = viewModel::applyPlanDayToToday,
+                        onResetPlan = viewModel::resetTrainingPlan
                     )
                 }
             }
@@ -252,6 +270,194 @@ private fun RestTimerBanner(timer: RestTimerState, onSkip: () -> Unit) {
             }
             TextButton(onClick = onSkip) {
                 Text("Skip")
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun PlanPage(
+    state: CoachUiState,
+    onNameChange: (String) -> Unit,
+    onGoalChange: (String) -> Unit,
+    onSelectDay: (Int) -> Unit,
+    onUpdateDay: (Int, String, String) -> Unit,
+    onAddPlannedExercise: (Int, String, String, Int, String, Double?, Double?, Int, String) -> Unit,
+    onRemovePlannedExercise: (Int, Int) -> Unit,
+    onApplyDay: (Int) -> Unit,
+    onResetPlan: () -> Unit
+) {
+    val plan = state.trainingPlan
+    val selectedIndex = state.selectedPlanDayIndex.coerceIn(0, (plan.days.size - 1).coerceAtLeast(0))
+    val selectedDay = plan.days.getOrNull(selectedIndex) ?: TrainingDay(dayName = "Day")
+
+    var exerciseName by remember(selectedIndex) { mutableStateOf("") }
+    var targetMuscle by remember(selectedIndex) { mutableStateOf("") }
+    var sets by remember(selectedIndex) { mutableStateOf("3") }
+    var reps by remember(selectedIndex) { mutableStateOf("8-12") }
+    var load by remember(selectedIndex) { mutableStateOf("") }
+    var rir by remember(selectedIndex) { mutableStateOf("2") }
+    var rest by remember(selectedIndex) { mutableStateOf("120") }
+    var notes by remember(selectedIndex) { mutableStateOf("") }
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionCard(title = "Weekly Plan", subtitle = "Build the plan first, then apply a training day to today's executable workout log.") {
+            OutlinedTextField(
+                value = plan.name,
+                onValueChange = onNameChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Plan name") },
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = plan.phaseGoal,
+                onValueChange = onGoalChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Phase goal") },
+                minLines = 2
+            )
+            MetricGrid(
+                metrics = listOf(
+                    "Training days" to plan.days.count { it.exercises.isNotEmpty() }.toString(),
+                    "Planned exercises" to plan.days.sumOf { it.exercises.size }.toString(),
+                    "Weekly hard sets" to plan.days.sumOf { day -> day.exercises.sumOf { it.sets } }.toString()
+                )
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { onApplyDay(selectedIndex) }, modifier = Modifier.weight(1f)) {
+                    Text("Apply today")
+                }
+                TextButton(onClick = onResetPlan) {
+                    Text("Reset plan")
+                }
+            }
+        }
+
+        SectionCard(title = "Training Days", subtitle = "Select the day you want to edit or apply.") {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                plan.days.forEachIndexed { index, day ->
+                    FilterChip(
+                        selected = selectedIndex == index,
+                        onClick = { onSelectDay(index) },
+                        label = { Text(day.dayName) }
+                    )
+                }
+            }
+            OutlinedTextField(
+                value = selectedDay.focus,
+                onValueChange = { onUpdateDay(selectedIndex, it, selectedDay.notes) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("${selectedDay.dayName} focus") },
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = selectedDay.notes,
+                onValueChange = { onUpdateDay(selectedIndex, selectedDay.focus, it) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Day notes") },
+                minLines = 2
+            )
+        }
+
+        SectionCard(title = "Add Planned Exercise", subtitle = "These planned movements become set-level rows when you apply the day.") {
+            OutlinedTextField(
+                value = exerciseName,
+                onValueChange = { exerciseName = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Exercise") },
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = targetMuscle,
+                onValueChange = { targetMuscle = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Target muscle") },
+                singleLine = true
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(value = sets, onChange = { sets = it }, label = "Sets", modifier = Modifier.weight(1f))
+                OutlinedTextField(
+                    value = reps,
+                    onValueChange = { reps = it },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Reps") },
+                    singleLine = true
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(value = load, onChange = { load = it }, label = "Load kg", modifier = Modifier.weight(1f))
+                DecimalField(value = rir, onChange = { rir = it }, label = "RIR", modifier = Modifier.weight(1f))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(value = rest, onChange = { rest = it }, label = "Rest sec", modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        onAddPlannedExercise(
+                            selectedIndex,
+                            exerciseName,
+                            targetMuscle,
+                            sets.toIntOrNull() ?: 3,
+                            reps,
+                            load.toDoubleOrNull(),
+                            rir.toDoubleOrNull(),
+                            rest.toIntOrNull() ?: 120,
+                            notes
+                        )
+                        exerciseName = ""
+                        targetMuscle = ""
+                        notes = ""
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Add")
+                }
+            }
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Technique, stimulus, substitution, progression note") },
+                minLines = 2
+            )
+        }
+
+        if (selectedDay.exercises.isEmpty()) {
+            EmptyState("No planned exercises for ${selectedDay.dayName}. Add movements before applying this day.")
+        } else {
+            selectedDay.exercises.forEachIndexed { exerciseIndex, exercise ->
+                PlannedExerciseCard(
+                    exercise = exercise,
+                    onRemove = { onRemovePlannedExercise(selectedIndex, exerciseIndex) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlannedExerciseCard(exercise: PlannedExercise, onRemove: () -> Unit) {
+    Card(shape = RoundedCornerShape(8.dp)) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(exercise.name, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "${exercise.targetMuscle.ifBlank { "Target muscle not set" }} | ${exercise.sets} x ${exercise.reps} | RIR ${exercise.rir?.let { formatDecimal(it) } ?: "--"} | rest ${exercise.restSeconds}s",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (exercise.notes.isNotBlank()) {
+                        Text(
+                            text = exercise.notes,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                TextButton(onClick = onRemove) {
+                    Text("Remove")
+                }
             }
         }
     }

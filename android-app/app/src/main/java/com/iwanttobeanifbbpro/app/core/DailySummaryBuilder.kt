@@ -1,10 +1,17 @@
 package com.iwanttobeanifbbpro.app.core
 
 import com.iwanttobeanifbbpro.app.data.DailyLog
+import com.iwanttobeanifbbpro.app.data.WeeklyTrainingPlan
 
 class DailySummaryBuilder {
-    fun buildAiReviewContext(log: DailyLog, extraRequest: String = ""): String {
+    fun buildAiReviewContext(log: DailyLog, plan: WeeklyTrainingPlan? = null, extraRequest: String = ""): String {
         val totals = log.nutritionTotals()
+        val weeklyPlan = plan?.days?.joinToString("\n") { day ->
+            val plannedExercises = day.exercises.joinToString("\n") { exercise ->
+                "  - ${exercise.name}: ${exercise.sets} x ${exercise.reps}, load ${exercise.loadKg ?: "not specified"} kg, RIR ${exercise.rir ?: "not specified"}, rest ${exercise.restSeconds}s, target ${exercise.targetMuscle.ifBlank { "not specified" }}, notes: ${exercise.notes.ifBlank { "none" }}"
+            }.ifBlank { "  - No planned exercises." }
+            "- ${day.dayName}: focus ${day.focus.ifBlank { "not specified" }}, notes: ${day.notes.ifBlank { "none" }}\n$plannedExercises"
+        } ?: "- No weekly plan loaded."
         val exercises = log.trainingSession.exercises.joinToString("\n") { exercise ->
             val setLog = exercise.trackedSets().joinToString("\n") { set ->
                 "  - Set ${set.setNumber}: target ${set.targetReps}, actual reps ${set.actualReps ?: "not logged"}, load ${set.loadKg ?: "not logged"} kg, RIR ${set.rir ?: "not logged"}, completed ${set.completed}, rest ${set.restSeconds}s, notes: ${set.notes.ifBlank { "none" }}"
@@ -25,6 +32,11 @@ class DailySummaryBuilder {
 
             Daily targets:
             - Calories ${log.targets.calories}, protein ${log.targets.protein}g, carbs ${log.targets.carbs}g, fat ${log.targets.fat}g, fiber ${log.targets.fiber}g.
+
+            Current weekly training plan:
+            - Plan name: ${plan?.name ?: "not loaded"}
+            - Phase goal: ${plan?.phaseGoal ?: "not loaded"}
+            $weeklyPlan
 
             Daily nutrition logged:
             - Calories ${totals.calories}/${log.targets.calories}
@@ -63,11 +75,12 @@ class DailySummaryBuilder {
 
             Please perform an AI review:
             1. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals.
-            2. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
-            3. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            4. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            5. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            6. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            2. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
+            3. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
+            4. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            5. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            6. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            7. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 }

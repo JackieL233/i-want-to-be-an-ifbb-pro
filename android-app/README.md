@@ -10,6 +10,8 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 - Configurable API key, base URL, and model from the app UI.
 - OpenAI Responses API request shape with text and photos.
 - Photo picker support for exercise frames, equipment photos, food photos, labels, and menus.
+- A weekly training plan workflow for phase goals, training days, planned exercises, sets, reps, RIR, rest time, and notes.
+- An `Apply today` workflow that turns a planned training day into today's set-level executable workout log.
 - A daily training workflow for planned focus, completed sessions, exercises, set-level load, reps, RIR, rest time, hard sets, target muscle, and form/pain notes.
 - A workout execution flow where tapping a set as complete starts a rest countdown for the next set.
 - A daily nutrition workflow for calorie and macro targets, meal logging, meal photo support, and food-photo estimate follow-up.
@@ -22,10 +24,11 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 Use the app as a daily training and daily nutrition cockpit:
 
 1. Open `Today` to see the current training, nutrition, metrics, and readiness summary.
-2. Use `Training` to log the session plan, exercises, set-by-set weight, reps, RIR, rest time, hard sets, target muscle, and pain/form notes. Tap `Complete` after a set to start the rest timer.
-3. Use `Nutrition` to set calorie/macronutrient targets, log meals, and attach a meal photo when you want food-photo analysis.
-4. Use `Metrics` for body weight, waist, sleep, steps, hunger, fatigue, soreness, stress, and daily reflection.
-5. Use `AI Coach` or the `Run AI review` button to send the day's log, set-level performance, photos, and your extra question to the model for adjustment guidance.
+2. Use `Plan` to build the weekly training plan, select a day, add planned exercises, and tap `Apply today`.
+3. Use `Training` to log the applied session, set-by-set weight, reps, RIR, rest time, hard sets, target muscle, and pain/form notes. Tap `Complete` after a set to start the rest timer.
+4. Use `Nutrition` to set calorie/macronutrient targets, log meals, and attach a meal photo when you want food-photo analysis.
+5. Use `Metrics` for body weight, waist, sleep, steps, hunger, fatigue, soreness, stress, and daily reflection.
+6. Use `AI Coach` or the `Run AI review` button to send the weekly training plan, day's log, set-level performance, photos, and your extra question to the model for adjustment guidance.
 
 ## Build
 
