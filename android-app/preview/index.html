@@ -598,6 +598,230 @@
       background: var(--green);
     }
 
+    .dumbbell .head,
+    .barbell .head,
+    .machine .head,
+    .bodyweight .head {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .dumbbell .head {
+      left: 47%;
+      top: 23%;
+    }
+
+    .dumbbell .torso {
+      left: 50%;
+      top: 34%;
+      width: 3px;
+      height: 25%;
+      background: var(--green);
+    }
+
+    .dumbbell .arm-left,
+    .dumbbell .arm-right {
+      top: 48%;
+      width: 22%;
+      height: 3px;
+      background: var(--green);
+    }
+
+    .dumbbell .arm-left {
+      left: 28%;
+      transform: rotate(-14deg);
+    }
+
+    .dumbbell .arm-right {
+      right: 28%;
+      transform: rotate(14deg);
+    }
+
+    .dumbbell .db-left,
+    .dumbbell .db-right {
+      top: 49%;
+      width: 16%;
+      height: 5px;
+      background: var(--blue);
+    }
+
+    .dumbbell .db-left {
+      left: 18%;
+    }
+
+    .dumbbell .db-right {
+      right: 18%;
+    }
+
+    .dumbbell .leg-left,
+    .dumbbell .leg-right {
+      top: 60%;
+      width: 18%;
+      height: 3px;
+      background: var(--green);
+    }
+
+    .dumbbell .leg-left {
+      left: 36%;
+      transform: rotate(112deg);
+    }
+
+    .dumbbell .leg-right {
+      right: 36%;
+      transform: rotate(68deg);
+    }
+
+    .barbell .rack-left,
+    .barbell .rack-right {
+      top: 18%;
+      bottom: 17%;
+      width: 3px;
+      background: rgba(110, 110, 115, 0.75);
+    }
+
+    .barbell .rack-left {
+      left: 30%;
+    }
+
+    .barbell .rack-right {
+      right: 30%;
+    }
+
+    .barbell .bar-line {
+      left: 16%;
+      right: 16%;
+      top: 35%;
+      height: 5px;
+      background: var(--blue);
+    }
+
+    .barbell .plate-left,
+    .barbell .plate-right {
+      top: 27%;
+      width: 5px;
+      height: 18%;
+      background: var(--blue);
+    }
+
+    .barbell .plate-left {
+      left: 17%;
+    }
+
+    .barbell .plate-right {
+      right: 17%;
+    }
+
+    .barbell .head {
+      left: 47%;
+      top: 45%;
+    }
+
+    .barbell .body {
+      left: 49%;
+      top: 56%;
+      width: 3px;
+      height: 20%;
+      background: var(--green);
+    }
+
+    .machine .frame {
+      left: 21%;
+      top: 18%;
+      bottom: 16%;
+      width: 5px;
+      background: var(--muted);
+    }
+
+    .machine .base {
+      left: 21%;
+      right: 21%;
+      top: 78%;
+      height: 5px;
+      background: var(--muted);
+    }
+
+    .machine .seat {
+      left: 36%;
+      top: 66%;
+      width: 24%;
+      height: 5px;
+      background: var(--muted);
+    }
+
+    .machine .lever {
+      left: 42%;
+      top: 60%;
+      width: 34%;
+      height: 5px;
+      transform: rotate(-32deg);
+      background: var(--blue);
+    }
+
+    .machine .head {
+      left: 47%;
+      top: 34%;
+    }
+
+    .machine .body {
+      left: 47%;
+      top: 46%;
+      width: 3px;
+      height: 20%;
+      transform: rotate(10deg);
+      background: var(--green);
+    }
+
+    .machine .arm {
+      left: 54%;
+      top: 50%;
+      width: 20%;
+      height: 3px;
+      transform: rotate(-28deg);
+      background: var(--green);
+    }
+
+    .bodyweight .floor {
+      left: 26%;
+      right: 14%;
+      top: 70%;
+      height: 5px;
+      background: var(--blue);
+    }
+
+    .bodyweight .head {
+      left: 29%;
+      top: 35%;
+    }
+
+    .bodyweight .body {
+      left: 36%;
+      top: 47%;
+      width: 32%;
+      height: 3px;
+      transform: rotate(13deg);
+      background: var(--green);
+    }
+
+    .bodyweight .arm {
+      left: 29%;
+      top: 62%;
+      width: 18%;
+      height: 3px;
+      transform: rotate(112deg);
+      background: var(--green);
+    }
+
+    .bodyweight .leg {
+      right: 17%;
+      top: 60%;
+      width: 18%;
+      height: 3px;
+      transform: rotate(48deg);
+      background: var(--green);
+    }
+
     .rest-banner {
       display: none;
       border: 1px solid #b8dcff;
@@ -899,7 +1123,8 @@
                 <div>
                   <strong>Exercise visual guide</strong>
                   <p class="subtle">Smith machine | Guided press path</p>
-                  <div class="chip-row"><span class="chip">Upper chest</span><span class="chip">Fixed bar path</span></div>
+                  <p class="subtle">Example: Incline Smith Press</p>
+                  <div class="chip-row"><span class="chip">Upper chest</span><span class="chip">Look for two rails and a fixed bar</span></div>
                 </div>
               </div>
               <strong>Incline Smith Press</strong>
@@ -913,7 +1138,8 @@
                 <div>
                   <strong>Exercise visual guide</strong>
                   <p class="subtle">Cable station | Pulley resistance</p>
-                  <div class="chip-row"><span class="chip">Side delt</span><span class="chip">Set pulley height</span></div>
+                  <p class="subtle">Example: Cable Lateral Raise</p>
+                  <div class="chip-row"><span class="chip">Side delt</span><span class="chip">Look for a cable, pulley, and handle</span></div>
                 </div>
               </div>
               <strong>Cable Lateral Raise</strong>
@@ -952,8 +1178,13 @@
               <div>
                 <strong>Exercise visual guide</strong>
                 <p class="subtle">Smith machine | Guided press path</p>
-                <div class="chip-row"><span class="chip">Upper chest</span><span class="chip">Align bench under bar</span></div>
+                <p class="subtle">Example: Incline Smith Press</p>
+                <div class="chip-row"><span class="chip">Upper chest</span><span class="chip">Align bench under bar</span><span class="chip">Look for two rails and a fixed bar</span></div>
               </div>
+            </div>
+            <div class="note">
+              <strong>Progression Cue: Add reps first.</strong>
+              Effort is still conservative based on logged RIR. Add 1-2 reps across sets before increasing load.
             </div>
             <table class="set-table">
               <thead>
@@ -1112,6 +1343,7 @@
               <span class="chip active">Athlete profile</span>
               <span class="chip active">Weekly plan</span>
               <span class="chip active">Set load/reps/RIR</span>
+              <span class="chip active">Progression Cue</span>
               <span class="chip active">Food photos/macros</span>
               <span class="chip active">Nutrition Pacing</span>
               <span class="chip active">Health Connect</span>
@@ -1170,6 +1402,73 @@
             <span class="chip active">Form photos</span>
             <span class="chip active">Health Connect</span>
             <span class="chip active">Trend window</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h2>Exercise Visual Library</h2>
+            <p class="subtle">Unified instance diagrams make exercise names easier to recognize before the user becomes fluent in gym language.</p>
+          </div>
+          <div class="visual-guide compact">
+            <div class="mini-figure compact smith" aria-hidden="true">
+              <span class="rail-left"></span><span class="rail-right"></span><span class="bar-line"></span><span class="bench"></span><span class="head"></span><span class="body"></span>
+            </div>
+            <div>
+              <strong>Smith machine</strong>
+              <p class="subtle">Guided press path | Example: Incline Smith Press</p>
+              <div class="chip-row"><span class="chip">Look for two rails and a fixed bar</span></div>
+            </div>
+          </div>
+          <div class="visual-guide compact">
+            <div class="mini-figure compact cable" aria-hidden="true">
+              <span class="tower"></span><span class="arm"></span><span class="pulley"></span><span class="line"></span><span class="head"></span><span class="body"></span>
+            </div>
+            <div>
+              <strong>Cable station</strong>
+              <p class="subtle">Pulley resistance | Example: Cable Lateral Raise</p>
+              <div class="chip-row"><span class="chip">Look for a cable, pulley, and handle</span></div>
+            </div>
+          </div>
+          <div class="visual-guide compact">
+            <div class="mini-figure compact dumbbell" aria-hidden="true">
+              <span class="head"></span><span class="torso"></span><span class="arm-left"></span><span class="arm-right"></span><span class="db-left"></span><span class="db-right"></span><span class="leg-left"></span><span class="leg-right"></span>
+            </div>
+            <div>
+              <strong>Dumbbells</strong>
+              <p class="subtle">Free-weight control | Example: Dumbbell Row</p>
+              <div class="chip-row"><span class="chip">Look for one or two handheld weights</span></div>
+            </div>
+          </div>
+          <div class="visual-guide compact">
+            <div class="mini-figure compact barbell" aria-hidden="true">
+              <span class="rack-left"></span><span class="rack-right"></span><span class="bar-line"></span><span class="plate-left"></span><span class="plate-right"></span><span class="head"></span><span class="body"></span>
+            </div>
+            <div>
+              <strong>Barbell</strong>
+              <p class="subtle">Free-weight compound lift | Example: Barbell Squat</p>
+              <div class="chip-row"><span class="chip">Look for a straight bar, plates, and rack</span></div>
+            </div>
+          </div>
+          <div class="visual-guide compact">
+            <div class="mini-figure compact machine" aria-hidden="true">
+              <span class="frame"></span><span class="base"></span><span class="seat"></span><span class="lever"></span><span class="head"></span><span class="body"></span><span class="arm"></span>
+            </div>
+            <div>
+              <strong>Machine</strong>
+              <p class="subtle">Guided resistance | Example: Machine Chest Press</p>
+              <div class="chip-row"><span class="chip">Look for a seat, pads, handles, or lever arms</span></div>
+            </div>
+          </div>
+          <div class="visual-guide compact">
+            <div class="mini-figure compact bodyweight" aria-hidden="true">
+              <span class="floor"></span><span class="head"></span><span class="body"></span><span class="arm"></span><span class="leg"></span>
+            </div>
+            <div>
+              <strong>Bodyweight or open station</strong>
+              <p class="subtle">Movement pattern demo | Example: Push-up</p>
+              <div class="chip-row"><span class="chip">Look for floor, bench, bar, bands, or open space</span></div>
+            </div>
           </div>
         </div>
       </div>

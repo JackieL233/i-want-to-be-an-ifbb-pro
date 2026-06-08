@@ -22,11 +22,13 @@ class DailySummaryBuilder {
             "- ${day.dayName}: focus ${day.focus.ifBlank { "not specified" }}, notes: ${day.notes.ifBlank { "none" }}\n$plannedExercises"
         } ?: "- No weekly plan loaded."
         val exercises = log.trainingSession.exercises.joinToString("\n") { exercise ->
+            val cue = exercise.progressionCue()
             val setLog = exercise.trackedSets().joinToString("\n") { set ->
                 "  - Set ${set.setNumber}: target ${set.targetReps}, actual reps ${set.actualReps ?: "not logged"}, load ${set.loadKg ?: "not logged"} kg, RIR ${set.rir ?: "not logged"}, completed ${set.completed}, rest ${set.restSeconds}s, notes: ${set.notes.ifBlank { "none" }}"
             }
             """
             - ${exercise.name}: target ${exercise.targetMuscle.ifBlank { "not logged" }}, plan ${exercise.sets} sets x ${exercise.reps}, default load ${exercise.loadKg ?: "bodyweight"} kg, default RIR ${exercise.rir ?: "unknown"}, completed sets ${exercise.completedSetCount()}/${exercise.trackedSets().size}, volume ${exercise.volumeKg()} kg, default rest ${exercise.restSeconds}s, notes: ${exercise.notes.ifBlank { "none" }}
+              Progression cue: ${cue.label}. ${cue.reason} ${cue.nextAction}
             $setLog
             """.trimIndent()
         }.ifBlank { "- No exercises logged yet." }
@@ -115,7 +117,7 @@ class DailySummaryBuilder {
             2. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
             3. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
             4. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
-            5. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            5. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
             6. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
             7. Compare food intake and Nutrition Pacing with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
             8. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.

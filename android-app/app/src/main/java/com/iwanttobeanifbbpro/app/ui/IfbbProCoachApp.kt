@@ -48,13 +48,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.CoachMode
+import com.iwanttobeanifbbpro.app.core.ProgressionCue
+import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
 import com.iwanttobeanifbbpro.app.data.DailyLog
@@ -901,6 +905,8 @@ private fun PlanPage(
             )
         }
 
+        ExerciseVisualGuideLibrary()
+
         SectionCard(title = "Add Planned Exercise", subtitle = "These planned movements become set-level rows when you apply the day.") {
             OutlinedTextField(
                 value = exerciseName,
@@ -1019,7 +1025,9 @@ private data class ExerciseVisualSpec(
     val equipment: String,
     val pattern: String,
     val primaryMuscle: String,
-    val setupCue: String
+    val setupCue: String,
+    val example: String,
+    val lookFor: String
 )
 
 @Composable
@@ -1041,77 +1049,7 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     .weight(0.9f)
                     .height(92.dp)
             ) {
-                val primary = Color(0xFF007AFF)
-                val secondary = Color(0xFF6E6E73)
-                val accent = Color(0xFF34C759)
-                val stroke = 4.dp.toPx()
-                val thin = 2.dp.toPx()
-                val w = size.width
-                val h = size.height
-
-                drawLine(secondary.copy(alpha = 0.35f), Offset(w * 0.08f, h * 0.82f), Offset(w * 0.92f, h * 0.82f), strokeWidth = thin)
-
-                when (spec.type) {
-                    ExerciseVisualType.SMITH_MACHINE -> {
-                        drawLine(secondary, Offset(w * 0.18f, h * 0.12f), Offset(w * 0.18f, h * 0.82f), strokeWidth = stroke)
-                        drawLine(secondary, Offset(w * 0.82f, h * 0.12f), Offset(w * 0.82f, h * 0.82f), strokeWidth = stroke)
-                        drawLine(primary, Offset(w * 0.22f, h * 0.34f), Offset(w * 0.78f, h * 0.34f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawLine(secondary, Offset(w * 0.32f, h * 0.70f), Offset(w * 0.70f, h * 0.58f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawCircle(accent, radius = 6.dp.toPx(), center = Offset(w * 0.46f, h * 0.43f))
-                        drawLine(accent, Offset(w * 0.47f, h * 0.48f), Offset(w * 0.59f, h * 0.61f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.52f, h * 0.50f), Offset(w * 0.38f, h * 0.34f), strokeWidth = thin, cap = StrokeCap.Round)
-                    }
-
-                    ExerciseVisualType.CABLE -> {
-                        drawLine(secondary, Offset(w * 0.16f, h * 0.12f), Offset(w * 0.16f, h * 0.82f), strokeWidth = stroke)
-                        drawLine(secondary, Offset(w * 0.16f, h * 0.12f), Offset(w * 0.46f, h * 0.12f), strokeWidth = stroke)
-                        drawCircle(primary, radius = 7.dp.toPx(), center = Offset(w * 0.44f, h * 0.18f))
-                        drawLine(primary, Offset(w * 0.44f, h * 0.18f), Offset(w * 0.64f, h * 0.46f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawCircle(accent, radius = 6.dp.toPx(), center = Offset(w * 0.72f, h * 0.34f))
-                        drawLine(accent, Offset(w * 0.70f, h * 0.40f), Offset(w * 0.62f, h * 0.62f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.66f, h * 0.46f), Offset(w * 0.52f, h * 0.56f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.66f, h * 0.46f), Offset(w * 0.78f, h * 0.56f), strokeWidth = thin, cap = StrokeCap.Round)
-                    }
-
-                    ExerciseVisualType.DUMBBELL -> {
-                        drawCircle(accent, radius = 7.dp.toPx(), center = Offset(w * 0.50f, h * 0.24f))
-                        drawLine(accent, Offset(w * 0.50f, h * 0.32f), Offset(w * 0.50f, h * 0.58f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.50f, h * 0.40f), Offset(w * 0.32f, h * 0.46f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.50f, h * 0.40f), Offset(w * 0.68f, h * 0.46f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(primary, Offset(w * 0.25f, h * 0.46f), Offset(w * 0.38f, h * 0.46f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawLine(primary, Offset(w * 0.62f, h * 0.46f), Offset(w * 0.75f, h * 0.46f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.50f, h * 0.58f), Offset(w * 0.38f, h * 0.78f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.50f, h * 0.58f), Offset(w * 0.62f, h * 0.78f), strokeWidth = thin, cap = StrokeCap.Round)
-                    }
-
-                    ExerciseVisualType.BARBELL -> {
-                        drawLine(primary, Offset(w * 0.16f, h * 0.34f), Offset(w * 0.84f, h * 0.34f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawLine(primary, Offset(w * 0.18f, h * 0.26f), Offset(w * 0.18f, h * 0.42f), strokeWidth = stroke)
-                        drawLine(primary, Offset(w * 0.82f, h * 0.26f), Offset(w * 0.82f, h * 0.42f), strokeWidth = stroke)
-                        drawCircle(accent, radius = 7.dp.toPx(), center = Offset(w * 0.50f, h * 0.45f))
-                        drawLine(accent, Offset(w * 0.50f, h * 0.53f), Offset(w * 0.50f, h * 0.70f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.50f, h * 0.56f), Offset(w * 0.38f, h * 0.36f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.50f, h * 0.56f), Offset(w * 0.62f, h * 0.36f), strokeWidth = thin, cap = StrokeCap.Round)
-                    }
-
-                    ExerciseVisualType.MACHINE -> {
-                        drawLine(secondary, Offset(w * 0.22f, h * 0.18f), Offset(w * 0.22f, h * 0.82f), strokeWidth = stroke)
-                        drawLine(secondary, Offset(w * 0.22f, h * 0.78f), Offset(w * 0.78f, h * 0.78f), strokeWidth = stroke)
-                        drawLine(primary, Offset(w * 0.40f, h * 0.62f), Offset(w * 0.70f, h * 0.42f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawLine(secondary, Offset(w * 0.36f, h * 0.66f), Offset(w * 0.58f, h * 0.66f), strokeWidth = stroke, cap = StrokeCap.Round)
-                        drawCircle(accent, radius = 7.dp.toPx(), center = Offset(w * 0.50f, h * 0.36f))
-                        drawLine(accent, Offset(w * 0.50f, h * 0.44f), Offset(w * 0.46f, h * 0.62f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.48f, h * 0.52f), Offset(w * 0.66f, h * 0.44f), strokeWidth = thin, cap = StrokeCap.Round)
-                    }
-
-                    ExerciseVisualType.BODYWEIGHT -> {
-                        drawCircle(accent, radius = 7.dp.toPx(), center = Offset(w * 0.30f, h * 0.36f))
-                        drawLine(accent, Offset(w * 0.36f, h * 0.42f), Offset(w * 0.66f, h * 0.50f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.46f, h * 0.45f), Offset(w * 0.32f, h * 0.68f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(accent, Offset(w * 0.58f, h * 0.48f), Offset(w * 0.78f, h * 0.70f), strokeWidth = thin, cap = StrokeCap.Round)
-                        drawLine(primary, Offset(w * 0.26f, h * 0.70f), Offset(w * 0.84f, h * 0.70f), strokeWidth = stroke, cap = StrokeCap.Round)
-                    }
-                }
+                drawExerciseVisual(type = spec.type)
             }
             Column(modifier = Modifier.weight(1.1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Exercise visual guide", fontWeight = FontWeight.SemiBold)
@@ -1120,8 +1058,192 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                DataChipGrid(items = listOf(spec.primaryMuscle, spec.setupCue))
+                Text(
+                    text = "Example: ${spec.example}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                DataChipGrid(items = listOf(spec.primaryMuscle, spec.setupCue, spec.lookFor))
             }
+        }
+    }
+}
+
+@Composable
+private fun ExerciseVisualGuideLibrary() {
+    SectionCard(
+        title = "Exercise Visual Library",
+        subtitle = "Use these unified instance diagrams to recognize the equipment or action before adding a movement."
+    ) {
+        val examples = listOf(
+            exerciseVisualSpec("Smith incline press", "Upper chest"),
+            exerciseVisualSpec("Cable lateral raise", "Side delt"),
+            exerciseVisualSpec("Dumbbell row", "Back"),
+            exerciseVisualSpec("Barbell squat", "Quads"),
+            exerciseVisualSpec("Machine chest press", "Chest"),
+            exerciseVisualSpec("Push-up", "Chest")
+        )
+        examples.forEachIndexed { index, spec ->
+            ExerciseVisualGuideSample(spec = spec)
+            if (index != examples.lastIndex) {
+                HorizontalDivider()
+            }
+        }
+        Text(
+            text = "For real gym equipment, attach an equipment photo or exercise frame in AI Coach so the multimodal model can identify the setup and connect it to your log.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Canvas(
+            modifier = Modifier
+                .weight(0.75f)
+                .height(70.dp)
+        ) {
+            drawExerciseVisual(type = spec.type)
+        }
+        Column(modifier = Modifier.weight(1.25f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(spec.equipment, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = "${spec.pattern} | Example: ${spec.example}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spec.lookFor,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawExerciseVisual(type: ExerciseVisualType) {
+    val primary = Color(0xFF007AFF)
+    val secondary = Color(0xFF6E6E73)
+    val accent = Color(0xFF34C759)
+    val stroke = 4.dp.toPx()
+    val thin = 2.dp.toPx()
+    val w = size.width
+    val h = size.height
+
+    drawLine(
+        secondary.copy(alpha = 0.35f),
+        Offset(w * 0.08f, h * 0.82f),
+        Offset(w * 0.92f, h * 0.82f),
+        strokeWidth = thin
+    )
+
+    fun drawPerson(head: Offset, hip: Offset, leftHand: Offset, rightHand: Offset, leftFoot: Offset, rightFoot: Offset) {
+        drawCircle(accent, radius = 6.dp.toPx(), center = head)
+        drawLine(accent, Offset(head.x, head.y + h * 0.07f), hip, strokeWidth = thin, cap = StrokeCap.Round)
+        drawLine(accent, Offset(head.x, head.y + h * 0.11f), leftHand, strokeWidth = thin, cap = StrokeCap.Round)
+        drawLine(accent, Offset(head.x, head.y + h * 0.11f), rightHand, strokeWidth = thin, cap = StrokeCap.Round)
+        drawLine(accent, hip, leftFoot, strokeWidth = thin, cap = StrokeCap.Round)
+        drawLine(accent, hip, rightFoot, strokeWidth = thin, cap = StrokeCap.Round)
+    }
+
+    when (type) {
+        ExerciseVisualType.SMITH_MACHINE -> {
+            drawLine(secondary, Offset(w * 0.18f, h * 0.12f), Offset(w * 0.18f, h * 0.82f), strokeWidth = stroke)
+            drawLine(secondary, Offset(w * 0.82f, h * 0.12f), Offset(w * 0.82f, h * 0.82f), strokeWidth = stroke)
+            drawLine(primary, Offset(w * 0.22f, h * 0.34f), Offset(w * 0.78f, h * 0.34f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawLine(secondary, Offset(w * 0.32f, h * 0.70f), Offset(w * 0.70f, h * 0.58f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawPerson(
+                head = Offset(w * 0.46f, h * 0.43f),
+                hip = Offset(w * 0.59f, h * 0.62f),
+                leftHand = Offset(w * 0.38f, h * 0.34f),
+                rightHand = Offset(w * 0.58f, h * 0.34f),
+                leftFoot = Offset(w * 0.50f, h * 0.72f),
+                rightFoot = Offset(w * 0.68f, h * 0.68f)
+            )
+        }
+
+        ExerciseVisualType.CABLE -> {
+            drawLine(secondary, Offset(w * 0.16f, h * 0.12f), Offset(w * 0.16f, h * 0.82f), strokeWidth = stroke)
+            drawLine(secondary, Offset(w * 0.16f, h * 0.12f), Offset(w * 0.46f, h * 0.12f), strokeWidth = stroke)
+            drawCircle(primary, radius = 7.dp.toPx(), center = Offset(w * 0.44f, h * 0.18f))
+            drawLine(primary, Offset(w * 0.44f, h * 0.18f), Offset(w * 0.64f, h * 0.46f), strokeWidth = thin, cap = StrokeCap.Round)
+            drawPerson(
+                head = Offset(w * 0.72f, h * 0.34f),
+                hip = Offset(w * 0.62f, h * 0.62f),
+                leftHand = Offset(w * 0.52f, h * 0.56f),
+                rightHand = Offset(w * 0.78f, h * 0.56f),
+                leftFoot = Offset(w * 0.56f, h * 0.80f),
+                rightFoot = Offset(w * 0.72f, h * 0.80f)
+            )
+            drawLine(primary, Offset(w * 0.64f, h * 0.46f), Offset(w * 0.52f, h * 0.56f), strokeWidth = thin, cap = StrokeCap.Round)
+        }
+
+        ExerciseVisualType.DUMBBELL -> {
+            drawPerson(
+                head = Offset(w * 0.50f, h * 0.24f),
+                hip = Offset(w * 0.50f, h * 0.58f),
+                leftHand = Offset(w * 0.32f, h * 0.46f),
+                rightHand = Offset(w * 0.68f, h * 0.46f),
+                leftFoot = Offset(w * 0.38f, h * 0.78f),
+                rightFoot = Offset(w * 0.62f, h * 0.78f)
+            )
+            drawLine(primary, Offset(w * 0.25f, h * 0.46f), Offset(w * 0.38f, h * 0.46f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawLine(primary, Offset(w * 0.62f, h * 0.46f), Offset(w * 0.75f, h * 0.46f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawCircle(primary, radius = 3.dp.toPx(), center = Offset(w * 0.24f, h * 0.46f))
+            drawCircle(primary, radius = 3.dp.toPx(), center = Offset(w * 0.76f, h * 0.46f))
+        }
+
+        ExerciseVisualType.BARBELL -> {
+            drawLine(primary, Offset(w * 0.16f, h * 0.34f), Offset(w * 0.84f, h * 0.34f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawLine(primary, Offset(w * 0.18f, h * 0.26f), Offset(w * 0.18f, h * 0.42f), strokeWidth = stroke)
+            drawLine(primary, Offset(w * 0.82f, h * 0.26f), Offset(w * 0.82f, h * 0.42f), strokeWidth = stroke)
+            drawPerson(
+                head = Offset(w * 0.50f, h * 0.45f),
+                hip = Offset(w * 0.50f, h * 0.70f),
+                leftHand = Offset(w * 0.38f, h * 0.36f),
+                rightHand = Offset(w * 0.62f, h * 0.36f),
+                leftFoot = Offset(w * 0.36f, h * 0.82f),
+                rightFoot = Offset(w * 0.64f, h * 0.82f)
+            )
+            drawLine(secondary.copy(alpha = 0.8f), Offset(w * 0.30f, h * 0.18f), Offset(w * 0.30f, h * 0.78f), strokeWidth = thin)
+            drawLine(secondary.copy(alpha = 0.8f), Offset(w * 0.70f, h * 0.18f), Offset(w * 0.70f, h * 0.78f), strokeWidth = thin)
+        }
+
+        ExerciseVisualType.MACHINE -> {
+            drawLine(secondary, Offset(w * 0.22f, h * 0.18f), Offset(w * 0.22f, h * 0.82f), strokeWidth = stroke)
+            drawLine(secondary, Offset(w * 0.22f, h * 0.78f), Offset(w * 0.78f, h * 0.78f), strokeWidth = stroke)
+            drawLine(primary, Offset(w * 0.40f, h * 0.62f), Offset(w * 0.70f, h * 0.42f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawLine(secondary, Offset(w * 0.36f, h * 0.66f), Offset(w * 0.58f, h * 0.66f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawPath(
+                path = Path().apply {
+                    moveTo(w * 0.70f, h * 0.42f)
+                    quadraticTo(w * 0.82f, h * 0.54f, w * 0.66f, h * 0.66f)
+                },
+                color = primary,
+                style = Stroke(width = thin, cap = StrokeCap.Round)
+            )
+            drawPerson(
+                head = Offset(w * 0.50f, h * 0.36f),
+                hip = Offset(w * 0.46f, h * 0.62f),
+                leftHand = Offset(w * 0.66f, h * 0.44f),
+                rightHand = Offset(w * 0.66f, h * 0.51f),
+                leftFoot = Offset(w * 0.36f, h * 0.74f),
+                rightFoot = Offset(w * 0.58f, h * 0.74f)
+            )
+        }
+
+        ExerciseVisualType.BODYWEIGHT -> {
+            drawLine(primary, Offset(w * 0.26f, h * 0.70f), Offset(w * 0.84f, h * 0.70f), strokeWidth = stroke, cap = StrokeCap.Round)
+            drawPerson(
+                head = Offset(w * 0.30f, h * 0.36f),
+                hip = Offset(w * 0.58f, h * 0.48f),
+                leftHand = Offset(w * 0.32f, h * 0.68f),
+                rightHand = Offset(w * 0.46f, h * 0.45f),
+                leftFoot = Offset(w * 0.78f, h * 0.70f),
+                rightFoot = Offset(w * 0.72f, h * 0.58f)
+            )
         }
     }
 }
@@ -1135,7 +1257,9 @@ private fun exerciseVisualSpec(name: String, targetMuscle: String): ExerciseVisu
             equipment = "Smith machine",
             pattern = "Guided press or squat path",
             primaryMuscle = primaryMuscle,
-            setupCue = "Align bench or stance under the fixed bar path"
+            setupCue = "Align bench or stance under the fixed bar path",
+            example = "Incline Smith Press",
+            lookFor = "Look for two rails and a fixed bar"
         )
 
         text.contains("cable") || text.contains("pulley") || text.contains("rope") || text.contains("pushdown") || text.contains("face pull") -> ExerciseVisualSpec(
@@ -1143,7 +1267,9 @@ private fun exerciseVisualSpec(name: String, targetMuscle: String): ExerciseVisu
             equipment = "Cable station",
             pattern = "Pulley resistance",
             primaryMuscle = primaryMuscle,
-            setupCue = "Set pulley height before choosing handle"
+            setupCue = "Set pulley height before choosing handle",
+            example = "Cable Lateral Raise",
+            lookFor = "Look for a cable, pulley, and handle"
         )
 
         text.contains("dumbbell") || text.contains("db ") || text.endsWith(" db") -> ExerciseVisualSpec(
@@ -1151,7 +1277,9 @@ private fun exerciseVisualSpec(name: String, targetMuscle: String): ExerciseVisu
             equipment = "Dumbbells",
             pattern = "Free-weight unilateral control",
             primaryMuscle = primaryMuscle,
-            setupCue = "Match both sides and control the path"
+            setupCue = "Match both sides and control the path",
+            example = "Dumbbell Row",
+            lookFor = "Look for one or two handheld weights"
         )
 
         text.contains("barbell") || text.contains("bench press") || text.contains("deadlift") || text.contains("squat") -> ExerciseVisualSpec(
@@ -1159,7 +1287,9 @@ private fun exerciseVisualSpec(name: String, targetMuscle: String): ExerciseVisu
             equipment = "Barbell",
             pattern = "Free-weight compound lift",
             primaryMuscle = primaryMuscle,
-            setupCue = "Set rack height, grip, stance, and safety pins"
+            setupCue = "Set rack height, grip, stance, and safety pins",
+            example = "Barbell Squat",
+            lookFor = "Look for a straight bar, plates, and rack"
         )
 
         text.contains("machine") || text.contains("press") || text.contains("extension") || text.contains("curl") || text.contains("pec deck") || text.contains("leg") -> ExerciseVisualSpec(
@@ -1167,7 +1297,9 @@ private fun exerciseVisualSpec(name: String, targetMuscle: String): ExerciseVisu
             equipment = "Machine",
             pattern = "Guided resistance",
             primaryMuscle = primaryMuscle,
-            setupCue = "Adjust seat and pads to match joint axis"
+            setupCue = "Adjust seat and pads to match joint axis",
+            example = "Machine Chest Press",
+            lookFor = "Look for a seat, pads, handles, or lever arms"
         )
 
         else -> ExerciseVisualSpec(
@@ -1175,7 +1307,9 @@ private fun exerciseVisualSpec(name: String, targetMuscle: String): ExerciseVisu
             equipment = "Bodyweight or open station",
             pattern = "Movement pattern demo",
             primaryMuscle = primaryMuscle,
-            setupCue = "Use notes or photos when the exact setup is unclear"
+            setupCue = "Use notes or photos when the exact setup is unclear",
+            example = "Push-up",
+            lookFor = "Look for floor, bench, bar, bands, or open space"
         )
     }
 }
@@ -1358,6 +1492,7 @@ private fun ExerciseExecutionCard(
                     "Default RIR" to (exercise.rir?.let { formatDecimal(it) } ?: "--")
                 )
             )
+            ProgressionCueCard(cue = exercise.progressionCue())
             exercise.trackedSets().forEachIndexed { setIndex, set ->
                 if (setIndex > 0) HorizontalDivider()
                 SetRow(
@@ -1368,6 +1503,26 @@ private fun ExerciseExecutionCard(
                     onCompleteSet = onCompleteSet
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ProgressionCueCard(cue: ProgressionCue) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text("Progression Cue", fontWeight = FontWeight.SemiBold)
+            Text(cue.label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = "${cue.reason} ${cue.nextAction}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

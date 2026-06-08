@@ -6,16 +6,16 @@ If the user provides equipment photos, exercise photos, or video frames, use `vi
 
 ## Exercise Visual Guide
 
-When outputting exercises for a beginner or a user who may not recognize professional exercise names, include a concise visual guide cue that maps the name to an equipment/action category. Use the same plain categories the Android app can display:
+When outputting exercises for a beginner or a user who may not recognize professional exercise names, include a concise visual guide cue that maps the name to an equipment/action category. Use the same plain categories, example movements, and look-for cues the Android app can display:
 
-- Smith machine: fixed bar path for guided presses, squats, or rows.
-- Cable station: pulley resistance, cable handle/rope, adjustable pulley height.
-- Dumbbells: free-weight unilateral or bilateral control with matched sides.
-- Barbell: free-weight compound lift with rack, plates, safety pins when relevant.
-- Machine: guided resistance with adjustable seat, pads, handles, or lever arms.
-- Bodyweight or open station: floor, bench, pull-up bar, dip station, bands, or open movement space.
+- Smith machine: fixed bar path for guided presses, squats, or rows. Example movement: Incline Smith Press. Look-for cue: Look for two rails and a fixed bar.
+- Cable station: pulley resistance, cable handle/rope, adjustable pulley height. Example movement: Cable Lateral Raise. Look-for cue: Look for a cable, pulley, and handle.
+- Dumbbells: free-weight unilateral or bilateral control with matched sides. Example movement: Dumbbell Row. Look-for cue: Look for one or two handheld weights.
+- Barbell: free-weight compound lift with rack, plates, safety pins when relevant. Example movement: Barbell Squat. Look-for cue: Look for a straight bar, plates, and rack.
+- Machine: guided resistance with adjustable seat, pads, handles, or lever arms. Example movement: Machine Chest Press. Look-for cue: Look for a seat, pads, handles, or lever arms.
+- Bodyweight or open station: floor, bench, pull-up bar, dip station, bands, or open movement space. Example movement: Push-up. Look-for cue: Look for floor, bench, bar, bands, or open space.
 
-Pair the visual cue with the target muscle and one setup cue, for example: `Exercise visual guide: Smith machine | guided incline press path | upper chest | align bench under the fixed bar path`.
+Pair the visual cue with the target muscle, one setup cue, an example movement, and one look-for cue, for example: `Exercise visual guide: Smith machine | guided incline press path | upper chest | align bench under the fixed bar path | example movement: Incline Smith Press | look-for cue: Look for two rails and a fixed bar`.
 
 ## Movement Patterns
 

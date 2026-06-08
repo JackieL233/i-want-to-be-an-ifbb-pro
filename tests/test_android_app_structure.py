@@ -18,6 +18,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/MainActivity.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SkillPromptBuilder.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SkillAssetRepository.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/network/OpenAiResponsesClient.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLog.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLogStore.kt",
@@ -179,8 +180,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Nutrition pacing",
             "adherence",
             "Next meal focus",
+            "Progression cue",
+            "Use each Progression Cue",
+            "progressionCue",
         ]
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}"
+        progression = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt").read_text(
+            encoding="utf-8"
+        )
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -249,14 +256,24 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Scale/watch/phone -> Health Connect",
             "Manual fallback",
             "ExerciseVisualGuide",
+            "ExerciseVisualGuideLibrary",
+            "ExerciseVisualGuideSample",
             "ExerciseVisualType",
+            "drawExerciseVisual",
             "Exercise visual guide",
+            "Exercise Visual Library",
             "Smith machine",
             "Cable station",
             "Dumbbells",
             "Barbell",
             "Machine",
             "Bodyweight or open station",
+            "Example: ${spec.example}",
+            "Look for two rails and a fixed bar",
+            "Look for a cable, pulley, and handle",
+            "Dumbbell Row",
+            "Barbell Squat",
+            "Machine Chest Press",
             "NutritionPacing",
             "Nutrition Pacing",
             "nextMealFocus",
@@ -265,10 +282,22 @@ class AndroidAppStructureTest(unittest.TestCase):
             "$unit left",
             "over",
             "adherenceScore",
+            "ProgressionCue",
+            "Progression Cue",
+            "Add reps first",
+            "Add load next time",
+            "Hold load",
+            "Modify or hold",
+            "Finish baseline",
+            "hasPainSignal",
+            "no pain",
         ]
         activity = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/MainActivity.kt").read_text(encoding="utf-8")
         theme = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/AppTheme.kt").read_text(encoding="utf-8")
-        combined = f"{ui}\n{view_model}\n{activity}\n{theme}"
+        progression = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt").read_text(
+            encoding="utf-8"
+        )
+        combined = f"{ui}\n{view_model}\n{activity}\n{theme}\n{progression}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -348,16 +377,24 @@ class AndroidAppStructureTest(unittest.TestCase):
             "weekly training days",
             "manual entry",
             "unified exercise visual guide",
+            "Exercise Visual Library",
             "Smith machine",
             "cable station",
             "dumbbells",
             "barbell",
             "machine",
             "bodyweight/open-station",
+            "example movement",
+            "look-for cue",
             "Nutrition Pacing",
             "remaining or over target",
             "macro adherence score",
             "next-meal focus",
+            "Progression Cue",
+            "add reps",
+            "add load",
+            "hold",
+            "modify",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
@@ -387,15 +424,24 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI Data Map",
             "Saved AI Reviews",
             "Exercise visual guide",
+            "Exercise Visual Library",
             "Smith machine",
             "Cable station",
+            "Dumbbells",
+            "Barbell",
+            "Machine",
+            "Bodyweight or open station",
             "Guided press path",
             "Pulley resistance",
+            "Example: Incline Smith Press",
+            "Look for two rails and a fixed bar",
             "Unified exercise visual guide",
             "Nutrition Pacing",
             "Next meal focus",
             "Nutrition totals + pacing",
             "Protein behind",
+            "Progression Cue",
+            "Add reps first",
             "data-tab",
             "complete-set",
             "setInterval",
@@ -423,6 +469,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Bodyweight or open station",
             "guided incline press path",
             "align bench under the fixed bar path",
+            "example movement",
+            "look-for cue",
+            "Look for two rails and a fixed bar",
         ]
         combined = f"{skill_library}\n{app_library}"
         for term in expected_terms:
