@@ -10,9 +10,9 @@ The preview mirrors the current Android app structure:
 - Daily Coach Checklist for plan, training, food, metrics, and AI review completion
 - Athlete profile and weekly plan
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
-- Unified exercise visual guide for equipment/action recognition
+- Unified exercise visual guide for equipment/action recognition, including stable visual guide IDs
 - Live equipment/action preview while adding planned or active exercises
-- Exercise Visual Library with Chinese equipment labels, simple instance diagrams, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
+- Exercise Visual Library with Chinese equipment labels, simple unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
 - Set-level training execution
 - Exercise History comparison for previous/current volume, best load, best reps, sets, and average RIR
 - Rest countdown after completing a set

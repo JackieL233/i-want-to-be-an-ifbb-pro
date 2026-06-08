@@ -132,7 +132,7 @@ class DailySummaryBuilder {
             4. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
             5. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
             6. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            7. Use Exercise visual guide lines to translate exercise names into equipment/action categories, Chinese equipment labels, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
+            7. Use Exercise visual guide lines to translate exercise names into visual IDs, equipment/action categories, Chinese equipment labels, unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
             8. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
             9. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
             10. Compare food intake, Nutrition Pacing, Next Meal Builder, Body Composition Guidance, and Recovery Guidance with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.

@@ -1430,9 +1430,14 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                 drawExerciseVisual(type = spec.type)
             }
             Column(modifier = Modifier.weight(1.18f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Exercise visual guide / 统一动作图例", fontWeight = FontWeight.SemiBold)
+                Text("${spec.visualId} Exercise visual guide / 统一动作图例", fontWeight = FontWeight.SemiBold)
                 Text(
                     text = "${spec.equipment} (${spec.equipmentZh}) | ${spec.pattern}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Unified instance diagram: ${spec.figureTitle}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1446,7 +1451,12 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                DataChipGrid(items = listOf(spec.primaryMuscle, spec.setupCue, spec.lookFor))
+                Text(
+                    text = "动作识别: ${spec.beginnerCue}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                DataChipGrid(items = listOf(spec.primaryMuscle, spec.setupCue, spec.actionPathCue, spec.lookFor))
             }
         }
     }
@@ -1459,7 +1469,7 @@ private fun ExerciseVisualGuideLibrary() {
         subtitle = "Unified equipment/action instance diagrams help non-pro users recognize what an exercise name refers to before adding it. 中文图例会把动作名翻译成大概该找哪种器械。"
     ) {
         Text(
-            text = "When the app or AI sees an exercise name, it maps it to one of these shared visual categories: equipment name, simple instance diagram, example movement, look-for cue, and common movements.",
+            text = "When the app or AI sees an exercise name, it maps it to one of these shared visual IDs: equipment name, Chinese label, simple instance diagram, action path cue, beginner recognition cue, example movement, look-for cue, equipment markers, and common movements.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1507,8 +1517,13 @@ private fun ExerciseVisualRecognitionPreview(name: String, targetMuscle: String)
                     text = if (trimmedName.isBlank()) {
                         "Type an exercise name to preview the likely equipment or movement pattern."
                     } else {
-                        "$trimmedName -> ${spec.equipment} (${spec.equipmentZh})"
+                        "$trimmedName -> ${spec.visualId} ${spec.equipment} (${spec.equipmentZh})"
                     },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Unified instance diagram: ${spec.figureTitle}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1538,14 +1553,34 @@ private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
             drawExerciseVisual(type = spec.type)
         }
         Column(modifier = Modifier.weight(1.25f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("${spec.equipment} (${spec.equipmentZh})", fontWeight = FontWeight.SemiBold)
+            Text("${spec.visualId} ${spec.equipment} (${spec.equipmentZh})", fontWeight = FontWeight.SemiBold)
             Text(
                 text = "${spec.pattern} | Example: ${spec.example}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
+                text = "Unified instance diagram: ${spec.figureTitle}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
                 text = "Instance: ${spec.instanceCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Action path: ${spec.actionPathCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Beginner cue: ${spec.beginnerCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Markers: ${spec.equipmentMarkers.joinToString(", ")}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -2544,9 +2579,14 @@ private fun AiCoachPage(
                     "Progression Cue",
                     "Exercise History",
                     "Exercise visual guide",
+                    "Visual guide ID",
                     "Equipment/action diagrams",
                     "Live equipment/action preview",
                     "Chinese equipment labels",
+                    "Unified instance diagram",
+                    "Action path cue",
+                    "Beginner recognition cue",
+                    "Equipment markers",
                     "Instance diagram cue",
                     "Common movement examples",
                     "Look-for cue",
