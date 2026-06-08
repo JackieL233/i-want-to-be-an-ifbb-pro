@@ -18,6 +18,7 @@ class DailySummaryBuilder {
         val mealAssembly = mealAssemblyGuide(log)
         val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val recoveryGuidance = recoveryGuidance(log, recentLogs)
+        val physiqueMeasurement = physiqueMeasurementSummary(log, recentLogs)
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
         val nextSet = nextSetCoach(log)
         val sessionQuality = sessionQualityDashboard(log)
@@ -121,6 +122,7 @@ class DailySummaryBuilder {
             - ${mealAssembly.promptLine()}
             - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             - Recovery guidance: ${recoveryGuidance.statusLabel}, readiness score ${recoveryGuidance.readinessScore}, training pressure ${recoveryGuidance.trainingPressure}, sleep signal ${recoveryGuidance.sleepSignal}, stress signal ${recoveryGuidance.stressSignal}, soreness signal ${recoveryGuidance.sorenessSignal}, HR signal ${recoveryGuidance.heartRateSignal}, recommended training action ${recoveryGuidance.recommendedTrainingAction}. ${recoveryGuidance.rationale} ${recoveryGuidance.nextAction}
+            - ${physiqueMeasurement.promptLine()}
             - ${dailyExecution.promptLine()}
             - ${weeklyCheckIn.promptLine()}
             - ${tomorrowBrief.promptLine()}
@@ -145,6 +147,14 @@ class DailySummaryBuilder {
             - bodyFatPercent: ${log.metrics.bodyFatPercent ?: "not logged"}
             - leanBodyMassKg: ${log.metrics.leanBodyMassKg ?: "not logged"}
             - waistCm: ${log.metrics.waistCm ?: "not logged"}
+            - chestCm: ${log.metrics.chestCm ?: "not logged"}
+            - shoulderCm: ${log.metrics.shoulderCm ?: "not logged"}
+            - hipCm: ${log.metrics.hipCm ?: "not logged"}
+            - leftArmCm: ${log.metrics.leftArmCm ?: "not logged"}
+            - rightArmCm: ${log.metrics.rightArmCm ?: "not logged"}
+            - leftThighCm: ${log.metrics.leftThighCm ?: "not logged"}
+            - rightThighCm: ${log.metrics.rightThighCm ?: "not logged"}
+            - neckCm: ${log.metrics.neckCm ?: "not logged"}
             - sleepHours: ${log.metrics.sleepHours ?: "not logged"}
             - steps: ${log.metrics.steps}
             - restingHeartRateBpm: ${log.metrics.restingHeartRateBpm ?: "not logged"}
@@ -166,6 +176,7 @@ class DailySummaryBuilder {
             1. Interpret today's data through the athlete profile: goal, phase, experience, equipment, schedule, weak points, and constraints.
             2. Start from Daily Execution Plan: confirm the priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal before recommending changes.
             3. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
+            3a. Compare physique measurements when available: waist, chest, shoulder, hip, left/right arm, left/right thigh, and neck trends; use them to judge bodybuilding proportion, symmetry, waist control, weak-point response, and whether weight changes reflect useful tissue gain or likely fat gain.
             4. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
             5. Use Training Readiness Builder before progression decisions: check warm-up quality, ramp-up quality, first working set choice, volume adjustment, stop rule, and whether recovery gates were respected.
             6. Use Next Set Coach to compare the current exercise, next set target, visual guide ID, equipment/action diagram, load cue, reps cue, RIR cue, rest cue, stop cue, and after-set logging cue against what the user actually logged.
@@ -194,6 +205,15 @@ class DailySummaryBuilder {
         } else {
             "not enough data"
         }
+        val waistChange = ordered.measurementChange { it.metrics.waistCm }
+        val chestChange = ordered.measurementChange { it.metrics.chestCm }
+        val shoulderChange = ordered.measurementChange { it.metrics.shoulderCm }
+        val hipChange = ordered.measurementChange { it.metrics.hipCm }
+        val leftArmChange = ordered.measurementChange { it.metrics.leftArmCm }
+        val rightArmChange = ordered.measurementChange { it.metrics.rightArmCm }
+        val leftThighChange = ordered.measurementChange { it.metrics.leftThighCm }
+        val rightThighChange = ordered.measurementChange { it.metrics.rightThighCm }
+        val neckChange = ordered.measurementChange { it.metrics.neckCm }
         val nutrition = ordered.map { it.nutritionTotals() }
         val avgCalories = nutrition.map { it.calories }.averageIntOrNull()
         val avgProtein = nutrition.map { it.protein }.averageIntOrNull()
@@ -205,11 +225,12 @@ class DailySummaryBuilder {
         val totalVolume = ordered.sumOf { it.trainingVolumeKg() }
         val days = ordered.joinToString("\n") { day ->
             val totals = day.nutritionTotals()
-            "- ${day.date}: weight ${day.metrics.bodyWeightKg ?: "not logged"} kg, bodyFat ${day.metrics.bodyFatPercent ?: "not logged"}%, sets ${day.completedHardSets()}/${day.plannedHardSets()}, volume ${day.trainingVolumeKg()} kg, calories ${totals.calories}, protein ${totals.protein}g, sleep ${day.metrics.sleepHours ?: "not logged"}h, steps ${day.metrics.steps}, fatigue ${day.metrics.fatigue}/5"
+            "- ${day.date}: weight ${day.metrics.bodyWeightKg ?: "not logged"} kg, bodyFat ${day.metrics.bodyFatPercent ?: "not logged"}%, waist ${day.metrics.waistCm ?: "not logged"} cm, chest ${day.metrics.chestCm ?: "not logged"} cm, shoulder ${day.metrics.shoulderCm ?: "not logged"} cm, arms L/R ${day.metrics.leftArmCm ?: "not logged"}/${day.metrics.rightArmCm ?: "not logged"} cm, thighs L/R ${day.metrics.leftThighCm ?: "not logged"}/${day.metrics.rightThighCm ?: "not logged"} cm, sets ${day.completedHardSets()}/${day.plannedHardSets()}, volume ${day.trainingVolumeKg()} kg, calories ${totals.calories}, protein ${totals.protein}g, sleep ${day.metrics.sleepHours ?: "not logged"}h, steps ${day.metrics.steps}, fatigue ${day.metrics.fatigue}/5"
         }
         return """
             - Days available: ${ordered.size}
             - Weight change in window: $weightChange
+            - Physique measurement changes: waist ${waistChange ?: "not enough data"} cm, chest ${chestChange ?: "not enough data"} cm, shoulder ${shoulderChange ?: "not enough data"} cm, hip ${hipChange ?: "not enough data"} cm, left arm ${leftArmChange ?: "not enough data"} cm, right arm ${rightArmChange ?: "not enough data"} cm, left thigh ${leftThighChange ?: "not enough data"} cm, right thigh ${rightThighChange ?: "not enough data"} cm, neck ${neckChange ?: "not enough data"} cm.
             - Average calories: ${avgCalories?.roundForPrompt() ?: "not enough data"}
             - Average protein: ${avgProtein?.roundForPrompt() ?: "not enough data"} g
             - Average sleep: ${avgSleep?.roundForPrompt() ?: "not enough data"} h
@@ -344,6 +365,13 @@ private fun DailyLog.nextMealBuilderSummary(): NextMealBuilderSummary {
 private fun List<Int>.averageIntOrNull(): Double? = takeIf { it.isNotEmpty() }?.map { it.toDouble() }?.average()
 
 private fun List<Double>.averageDoubleOrNull(): Double? = takeIf { it.isNotEmpty() }?.average()
+
+private fun List<DailyLog>.measurementChange(selector: (DailyLog) -> Double?): String? {
+    val first = firstNotNullOfOrNull(selector)
+    val last = asReversed().firstNotNullOfOrNull(selector)
+    if (first == null || last == null) return null
+    return (last - first).roundForPrompt()
+}
 
 private fun Double.roundForPrompt(): String {
     return if (this % 1.0 == 0.0) {

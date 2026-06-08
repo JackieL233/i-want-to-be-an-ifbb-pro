@@ -71,6 +71,8 @@ Avoid recommending unregulated fat burners, anabolic drugs, diuretics, dehydrati
 
 Use weekly average body weight, not single weigh-ins.
 
+Use physique measurements to interpret weight changes for bodybuilding-style goals. Track waistCm, chestCm, shoulderCm, hipCm, leftArmCm, rightArmCm, leftThighCm, rightThighCm, and neckCm under consistent conditions. Compare shoulder-to-waist ratio, waist change, chest/shoulder/hip changes, arm symmetry, thigh symmetry, progress photos, training volume, and calorie adherence before changing calories or weak-point volume. If weight rises while waist rises faster than chest/shoulder/limb measurements and performance is not improving, treat the surplus cautiously. If shoulder/chest/limb measurements improve while waist is stable, this supports the physique goal. If left/right differences exceed normal measurement noise, use unilateral training notes and photos before changing volume.
+
 If the user provides food photos, labels, menus, or plate images, use `visual-analysis-and-food-estimation.md`. Treat photo-based calorie and macro estimates as ranges, then compare them with the user's calorie, protein, fat, carbohydrate, fiber, and meal-timing targets. Ask for weighed portions, labels, recipes, and cooking oils/sauces when accuracy matters.
 
 For fat loss:

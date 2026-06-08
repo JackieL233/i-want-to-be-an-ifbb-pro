@@ -29,6 +29,7 @@ The preview mirrors the current Android app structure:
 - Next Meal Builder for practical next-meal macro targets, timing, portion uncertainty, and photo/label cues
 - Meal Assembly Guide for plate structure, protein/carb anchors, fat control, shopping/prep cues, and photo logging cues
 - Body Composition Guidance for trend-based calorie target checks
+- Physique Measurement Summary for waist, chest, shoulder, hip, left/right arms, left/right thighs, neck, shoulder-to-waist ratio, arm symmetry, thigh symmetry, and weekly tape-measure check-ins
 - Recovery Guidance for sleep, soreness, stress, resting HR, and training-pressure decisions
 - Health Connect and vendor-data boundary
 - AI Coach and AI Data Map

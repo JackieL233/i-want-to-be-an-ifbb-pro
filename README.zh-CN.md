@@ -22,6 +22,7 @@
 - 支持训练和饮食联动 check-in：把动作质量、训练容量、食物照片、营养估算、当天目标和恢复数据放在一起判断，再决定训练或饮食怎么调整。
 - 指导饮食：热量、蛋白质、脂肪、碳水、纤维、水分、餐次安排、补剂边界和调整规则。
 - 根据体重趋势、围度、照片、训练表现、睡眠、步数、饥饿感、疲劳和执行率做阶段化调整。
+- 记录 bodybuilding 相关体型维度：腰围、胸围、肩围、臀围、左右手臂、左右大腿、颈围，并用 Physique Measurement Summary 判断肩腰比、手臂/大腿左右对称、腰围控制、弱项响应和围度追踪质量。
 - 覆盖恢复与伤病风险控制：睡眠、疲劳、疼痛规则、热身、活动度、deload 和回归训练。
 - 在用户需要时提供比赛相关框架：contest prep、stage conditioning、posing practice、show logistics、peak week 边界和 post-show recovery。
 
@@ -59,9 +60,10 @@
 - Body Composition Guidance：根据当前阶段、体重趋势、平均热量、平均蛋白质和训练输出，判断热量目标应该保持、小幅上调还是小幅下调，避免只凭一天体重或一天饮食做过度调整。
 - Recovery Guidance：根据睡眠、疲劳、酸痛、压力、静息心率、计划/完成组数和近期趋势，判断今天训练应该继续推进、保持训练压力、减少容量，还是进入 deload 检查。
 - 饮食记录：设置热量和宏量营养目标，记录每餐热量、蛋白质、碳水、脂肪、纤维，并可上传食物照片让 AI 估算。
-- 身体与恢复指标：体重、体脂、瘦体重、腰围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
+- 身体与恢复指标：体重、体脂、瘦体重、腰围、胸围、肩围、臀围、左右手臂、左右大腿、颈围、睡眠、步数、静息心率、总消耗热量、饥饿感、疲劳、酸痛、压力和每日反思。
+- Physique Measurement Summary：把围度数据转换成体型比例与对称性提示，包括 shoulder-to-waist ratio、waist change、chest change、shoulder change、hip change、left/right arm、left/right thigh、arm symmetry、thigh symmetry、V-taper direction 和 weekly tape-measure check-in，帮助 AI 判断体重变化是更接近有效增肌、腰围失控，还是需要调整弱项训练。
 - Health Connect 同步：用户授权后读取体重、体脂、瘦体重、步数、睡眠、静息心率和总消耗热量。
-- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、Next Set Coach、current exercise、next set target、load cue、reps cue、RIR cue、rest cue、stop cue、after-set logging cue、Tomorrow Coach Brief、Weekly Check-in、training completion、average calories/protein、weight trend、recovery average、weak-point focus、next-week action、tomorrow training focus、tomorrow nutrition target、tomorrow recovery gate、tomorrow tracking action、readiness gate、Session Quality Dashboard、completion rate、logged set rate、average RIR、muscle-volume distribution、pain/technique flags、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise Substitution Coach、equipment unavailable、trigger reason、primaryOption、secondaryOptions、same target muscle、same movement pattern、preserve rep range、fatigue cost、keepIntentCue、loadAdjustmentCue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、quick visual cue、find-equipment cue、movement path cue、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
+- AI 复盘：把周计划、今日实际训练、Daily Execution Plan、priority focus、primary action、data quality gate、AI review gate、plan adjustment signal、Training Readiness Builder、Next Set Coach、current exercise、next set target、load cue、reps cue、RIR cue、rest cue、stop cue、after-set logging cue、Tomorrow Coach Brief、Weekly Check-in、training completion、average calories/protein、weight trend、recovery average、weak-point focus、next-week action、tomorrow training focus、tomorrow nutrition target、tomorrow recovery gate、tomorrow tracking action、readiness gate、Session Quality Dashboard、completion rate、logged set rate、average RIR、muscle-volume distribution、pain/technique flags、热身策略、第一组工作组、容量调整、停止规则、每组表现、Exercise History、Progression Cue、Exercise Substitution Coach、equipment unavailable、trigger reason、primaryOption、secondaryOptions、same target muscle、same movement pattern、preserve rep range、fatigue cost、keepIntentCue、loadAdjustmentCue、Exercise visual guide、视觉图例编号、中文器械名、统一实例图、quick visual cue、find-equipment cue、movement path cue、动作路径提示、新手识别提示、器械标志点、实例图提示、常见动作、Nutrition Pacing、Next Meal Builder、Meal Assembly Guide、plate structure、protein anchor、carb anchor、fat control、shopping/prep cue、Body Composition Guidance、Physique Measurement Summary、waistCm、chestCm、shoulderCm、hipCm、leftArmCm、rightArmCm、leftThighCm、rightThighCm、neckCm、shoulder-to-waist ratio、arm symmetry、thigh symmetry、Recovery Guidance、饮食、照片、健康数据和反思一起发送给模型，判断下一次训练是否加重量、加次数、保持、减少容量、替换动作、deload，或者调整热量、碳水、蛋白质、脂肪、纤维、水分和餐次安排。
 
 ## 小米、华为和手机健康数据
 

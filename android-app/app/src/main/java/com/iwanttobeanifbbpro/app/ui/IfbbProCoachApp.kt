@@ -66,6 +66,7 @@ import com.iwanttobeanifbbpro.app.core.ExerciseVisualSpec
 import com.iwanttobeanifbbpro.app.core.ExerciseVisualType
 import com.iwanttobeanifbbpro.app.core.MealAssemblyGuide
 import com.iwanttobeanifbbpro.app.core.NextSetCoach
+import com.iwanttobeanifbbpro.app.core.PhysiqueMeasurementSummary
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
 import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.SessionQualityDashboard
@@ -81,6 +82,7 @@ import com.iwanttobeanifbbpro.app.core.exerciseSubstitutionGuide
 import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.core.mealAssemblyGuide
 import com.iwanttobeanifbbpro.app.core.nextSetCoach
+import com.iwanttobeanifbbpro.app.core.physiqueMeasurementSummary
 import com.iwanttobeanifbbpro.app.core.recoveryGuidance
 import com.iwanttobeanifbbpro.app.core.sessionQualityDashboard
 import com.iwanttobeanifbbpro.app.core.tomorrowCoachBrief
@@ -3053,8 +3055,10 @@ private fun MetricsPage(
             guidance = recoveryGuidance(state.dailyLog, state.recentLogs),
             subtitle = "Conservative training-pressure guidance from logged recovery and health signals."
         )
+        PhysiqueMeasurementSummaryCard(summary = physiqueMeasurementSummary(state.dailyLog, state.recentLogs))
         TrendOverviewCard(logs = state.recentLogs)
         SectionCard(title = "Metrics", subtitle = "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.") {
+            Text("Body composition", fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DecimalField(
                     value = metrics.bodyWeightKg?.toString().orEmpty(),
@@ -3083,6 +3087,79 @@ private fun MetricsPage(
                     modifier = Modifier.weight(1f)
                 )
             }
+            Text("Physique Measurements", fontWeight = FontWeight.SemiBold)
+            Text(
+                text = "Track bodybuilding-relevant dimensions in cm so AI can compare waist control, shoulder/chest growth, arm/thigh symmetry, and physique proportion trends.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.chestCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(chestCm = it.toDoubleOrNull())) },
+                    label = "Chest cm",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.shoulderCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(shoulderCm = it.toDoubleOrNull())) },
+                    label = "Shoulder cm",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.hipCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(hipCm = it.toDoubleOrNull())) },
+                    label = "Hip cm",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.neckCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(neckCm = it.toDoubleOrNull())) },
+                    label = "Neck cm",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.leftArmCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(leftArmCm = it.toDoubleOrNull())) },
+                    label = "Left arm cm",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.rightArmCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(rightArmCm = it.toDoubleOrNull())) },
+                    label = "Right arm cm",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.leftThighCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(leftThighCm = it.toDoubleOrNull())) },
+                    label = "Left thigh cm",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.rightThighCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(rightThighCm = it.toDoubleOrNull())) },
+                    label = "Right thigh cm",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            DataChipGrid(
+                items = listOf(
+                    "waist-to-shoulder trend",
+                    "arm symmetry",
+                    "thigh symmetry",
+                    "chest/shoulder growth",
+                    "hip and waist control",
+                    "weekly tape-measure check-in"
+                )
+            )
+            Text("Recovery inputs", fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DecimalField(
                     value = metrics.sleepHours?.toString().orEmpty(),
@@ -3224,6 +3301,51 @@ private fun HealthConnectCard(
 }
 
 @Composable
+private fun PhysiqueMeasurementSummaryCard(summary: PhysiqueMeasurementSummary) {
+    SectionCard(
+        title = "Physique Measurement Summary",
+        subtitle = "Tape-measure trend, proportion, and symmetry signals for bodybuilding-style physique goals."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to summary.statusLabel,
+                "Score" to summary.measurementScore.toString(),
+                "Shoulder/Waist" to (summary.shoulderWaistRatio?.let { formatDecimal(it) } ?: "--"),
+                "Arm diff" to (summary.armDifferenceCm?.let { "${formatDecimal(it)} cm" } ?: "--"),
+                "Thigh diff" to (summary.thighDifferenceCm?.let { "${formatDecimal(it)} cm" } ?: "--"),
+                "Waist change" to (summary.waistChangeCm?.let { "${formatSigned(it)} cm" } ?: "--")
+            )
+        )
+        Text(
+            text = "Proportion cue: ${summary.proportionCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Symmetry cue: ${summary.symmetryCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Tracking cue: ${summary.trackingCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                "waist change",
+                "chest change",
+                "shoulder change",
+                "hip change",
+                "left/right arm",
+                "left/right thigh",
+                "V-taper direction"
+            )
+        )
+    }
+}
+
+@Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun AiCoachPage(
     state: CoachUiState,
@@ -3360,6 +3482,19 @@ private fun AiCoachPage(
                     "Meal timing cue",
                     "Portion uncertainty cue",
                     "Body Composition Guidance",
+                    "Physique Measurement Summary",
+                    "waistCm",
+                    "chestCm",
+                    "shoulderCm",
+                    "hipCm",
+                    "leftArmCm",
+                    "rightArmCm",
+                    "leftThighCm",
+                    "rightThighCm",
+                    "neckCm",
+                    "shoulder-to-waist ratio",
+                    "arm symmetry",
+                    "thigh symmetry",
                     "Recovery Guidance",
                     "Food photos",
                     "Equipment photos",

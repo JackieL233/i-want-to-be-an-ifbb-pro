@@ -174,6 +174,14 @@ data class DailyMetrics(
     val bodyFatPercent: Double? = null,
     val leanBodyMassKg: Double? = null,
     val waistCm: Double? = null,
+    val chestCm: Double? = null,
+    val shoulderCm: Double? = null,
+    val hipCm: Double? = null,
+    val leftArmCm: Double? = null,
+    val rightArmCm: Double? = null,
+    val leftThighCm: Double? = null,
+    val rightThighCm: Double? = null,
+    val neckCm: Double? = null,
     val sleepHours: Double? = null,
     val steps: Int = 0,
     val restingHeartRateBpm: Double? = null,
@@ -298,6 +306,14 @@ private fun DailyMetrics.toJson(): JSONObject {
         .put("bodyFatPercent", bodyFatPercent)
         .put("leanBodyMassKg", leanBodyMassKg)
         .put("waistCm", waistCm)
+        .put("chestCm", chestCm)
+        .put("shoulderCm", shoulderCm)
+        .put("hipCm", hipCm)
+        .put("leftArmCm", leftArmCm)
+        .put("rightArmCm", rightArmCm)
+        .put("leftThighCm", leftThighCm)
+        .put("rightThighCm", rightThighCm)
+        .put("neckCm", neckCm)
         .put("sleepHours", sleepHours)
         .put("steps", steps)
         .put("restingHeartRateBpm", restingHeartRateBpm)
@@ -400,6 +416,14 @@ fun DailyMetrics.Companion.fromJson(json: JSONObject): DailyMetrics {
         bodyFatPercent = json.nullableDouble("bodyFatPercent"),
         leanBodyMassKg = json.nullableDouble("leanBodyMassKg"),
         waistCm = json.nullableDouble("waistCm"),
+        chestCm = json.nullableDouble("chestCm"),
+        shoulderCm = json.nullableDouble("shoulderCm"),
+        hipCm = json.nullableDouble("hipCm"),
+        leftArmCm = json.nullableDouble("leftArmCm"),
+        rightArmCm = json.nullableDouble("rightArmCm"),
+        leftThighCm = json.nullableDouble("leftThighCm"),
+        rightThighCm = json.nullableDouble("rightThighCm"),
+        neckCm = json.nullableDouble("neckCm"),
         sleepHours = json.nullableDouble("sleepHours"),
         steps = json.safeInt("steps", 0),
         restingHeartRateBpm = json.nullableDouble("restingHeartRateBpm"),

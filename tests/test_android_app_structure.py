@@ -28,6 +28,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/PhysiqueMeasurementAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingReadinessAdvisor.kt",
@@ -209,6 +210,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "bodyFatPercent",
             "leanBodyMassKg",
             "waistCm",
+            "chestCm",
+            "shoulderCm",
+            "hipCm",
+            "leftArmCm",
+            "rightArmCm",
+            "leftThighCm",
+            "rightThighCm",
+            "neckCm",
             "sleepHours",
             "restingHeartRateBpm",
             "totalCaloriesBurnedKcal",
@@ -263,6 +272,19 @@ class AndroidAppStructureTest(unittest.TestCase):
             "calorie adjustment",
             "target calories",
             "phaseGoal",
+            "Physique Measurement Summary",
+            "PhysiqueMeasurementSummary",
+            "physiqueMeasurementSummary",
+            "shoulder-to-waist ratio",
+            "arm difference",
+            "thigh difference",
+            "Proportion cue",
+            "Symmetry cue",
+            "Tracking cue",
+            "waist change",
+            "chest change",
+            "shoulder change",
+            "hip change",
             "Recovery guidance",
             "RecoveryGuidance",
             "recoveryGuidance",
@@ -420,6 +442,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         body_composition = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        physique_measurement = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/PhysiqueMeasurementAdvisor.kt"
+        ).read_text(encoding="utf-8")
         daily_execution = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -450,7 +475,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -665,6 +690,23 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Body Composition Guidance",
             "BodyCompositionCard",
             "bodyCompositionGuidance",
+            "PhysiqueMeasurementSummary",
+            "Physique Measurement Summary",
+            "PhysiqueMeasurementSummaryCard",
+            "physiqueMeasurementSummary",
+            "Physique Measurements",
+            "Chest cm",
+            "Shoulder cm",
+            "Hip cm",
+            "Left arm cm",
+            "Right arm cm",
+            "Left thigh cm",
+            "Right thigh cm",
+            "Neck cm",
+            "shoulder-to-waist ratio",
+            "arm symmetry",
+            "thigh symmetry",
+            "V-taper direction",
             "Small calorie increase",
             "Small calorie decrease",
             "Hold targets",
@@ -798,6 +840,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         body_composition = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        physique_measurement = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/PhysiqueMeasurementAdvisor.kt"
+        ).read_text(encoding="utf-8")
         daily_execution = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -828,7 +873,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -959,6 +1004,19 @@ class AndroidAppStructureTest(unittest.TestCase):
             "next-meal focus",
             "Body Composition Guidance",
             "small calorie adjustment",
+            "Physique Measurement Summary",
+            "waistCm",
+            "chestCm",
+            "shoulderCm",
+            "hipCm",
+            "leftArmCm",
+            "rightArmCm",
+            "leftThighCm",
+            "rightThighCm",
+            "neckCm",
+            "shoulder-to-waist ratio",
+            "arm symmetry",
+            "thigh symmetry",
             "Recovery Guidance",
             "training-pressure guidance",
             "Daily Execution Plan",
@@ -1161,6 +1219,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Portion uncertainty cue",
             "Meal Templates",
             "Body Composition Guidance",
+            "Physique Measurement Summary",
+            "Physique Measurements",
+            "Chest cm",
+            "Shoulder cm",
+            "Left arm cm",
+            "Right thigh cm",
+            "shoulder-to-waist ratio",
+            "arm symmetry",
+            "thigh symmetry",
             "Recovery Guidance",
             "Training Readiness Builder",
             "Warm-up cue",
@@ -1220,6 +1287,12 @@ class AndroidAppStructureTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         app_visual_analysis = (
             APP / "app/src/main/assets/skill/references/visual-analysis-and-food-estimation.md"
+        ).read_text(encoding="utf-8")
+        nutrition_body_composition = (
+            ROOT / "skills/i-want-to-be-an-ifbb-pro/references/nutrition-body-composition.md"
+        ).read_text(encoding="utf-8")
+        app_nutrition_body_composition = (
+            APP / "app/src/main/assets/skill/references/nutrition-body-composition.md"
         ).read_text(encoding="utf-8")
         expected_terms = [
             "Exercise Visual Guide",
@@ -1282,8 +1355,20 @@ class AndroidAppStructureTest(unittest.TestCase):
             "fatigue cost",
             "load-adjustment cue",
             "visual guide ID",
+            "waistCm",
+            "chestCm",
+            "shoulderCm",
+            "hipCm",
+            "leftArmCm",
+            "rightArmCm",
+            "leftThighCm",
+            "rightThighCm",
+            "neckCm",
+            "shoulder-to-waist ratio",
+            "arm symmetry",
+            "thigh symmetry",
         ]
-        combined = f"{skill_library}\n{app_library}\n{visual_analysis}\n{app_visual_analysis}"
+        combined = f"{skill_library}\n{app_library}\n{visual_analysis}\n{app_visual_analysis}\n{nutrition_body_composition}\n{app_nutrition_body_composition}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
