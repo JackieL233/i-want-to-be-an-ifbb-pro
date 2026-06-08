@@ -18,6 +18,7 @@ The preview mirrors the current Android app structure:
 - Rest countdown after completing a set
 - Daily nutrition tracking
 - Meal Templates for quick-add high-protein meals
+- Next Meal Builder for practical next-meal macro targets, timing, portion uncertainty, and photo/label cues
 - Body Composition Guidance for trend-based calorie target checks
 - Recovery Guidance for sleep, soreness, stress, resting HR, and training-pressure decisions
 - Health Connect and vendor-data boundary

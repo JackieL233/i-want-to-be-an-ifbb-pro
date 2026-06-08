@@ -306,6 +306,18 @@ private data class DailyCoachTask(
     val onAction: () -> Unit
 )
 
+private data class NextMealBuilder(
+    val title: String,
+    val summary: String,
+    val proteinGrams: Int,
+    val carbsGrams: Int,
+    val fatGrams: Int,
+    val fiberGrams: Int,
+    val timingCue: String,
+    val portionCue: String,
+    val photoCue: String
+)
+
 private fun DailyLog.nutritionPacing(): NutritionPacing {
     val totals = nutritionTotals()
     val caloriesRemaining = targets.calories - totals.calories
@@ -346,6 +358,58 @@ private fun DailyLog.nutritionPacing(): NutritionPacing {
         adherenceScore = adherenceScore,
         statusLabel = statusLabel,
         nextMealFocus = nextMealFocus
+    )
+}
+
+private fun DailyLog.nextMealBuilder(): NextMealBuilder {
+    val pacing = nutritionPacing()
+    val remainingMeals = meals.size.let { logged ->
+        when {
+            logged <= 0 -> 3
+            logged == 1 -> 2
+            else -> 1
+        }
+    }
+    val proteinTarget = (pacing.proteinRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(25, 65)
+    val carbsTarget = (pacing.carbsRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(20, 95)
+    val fatTarget = (pacing.fatRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(5, 25)
+    val fiberTarget = (pacing.fiberRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(4, 14)
+    val hasTrainingDemand = plannedHardSets() > 0 && completedHardSets() < plannedHardSets()
+    val title = when {
+        pacing.caloriesRemaining < -150 -> "Lean recovery meal"
+        pacing.proteinRemaining > 35 -> "Protein-first meal"
+        hasTrainingDemand && pacing.carbsRemaining > 60 -> "Training-fuel meal"
+        pacing.fiberRemaining > 10 -> "Fiber + micronutrient meal"
+        else -> "Balanced target meal"
+    }
+    val summary = when (title) {
+        "Lean recovery meal" -> "Keep calories controlled: lean protein, vegetables, minimal added fats."
+        "Protein-first meal" -> "Close the protein gap before adding extra carbs or fats."
+        "Training-fuel meal" -> "Place carbs around the remaining training work or post-workout window."
+        "Fiber + micronutrient meal" -> "Add fruit, vegetables, oats, beans, or potatoes with a lean protein base."
+        else -> "Stay close to targets with a simple protein, carb, vegetable, and fat structure."
+    }
+    val timingCue = when {
+        hasTrainingDemand -> "Use this 60-120 min pre-workout or within the post-workout meal window."
+        trainingSession.completed -> "Use this as the next recovery meal after today's completed session."
+        else -> "Use this as the next logged meal; keep portions measurable."
+    }
+    val portionCue = "Aim near P $proteinTarget g, C $carbsTarget g, F $fatTarget g, fiber $fiberTarget g."
+    val photoCue = if (meals.isEmpty()) {
+        "Attach a food photo if this is your first meal and portions are uncertain."
+    } else {
+        "Use a label/photo when oil, sauce, or restaurant portions are uncertain."
+    }
+    return NextMealBuilder(
+        title = title,
+        summary = summary,
+        proteinGrams = proteinTarget,
+        carbsGrams = carbsTarget,
+        fatGrams = fatTarget,
+        fiberGrams = fiberTarget,
+        timingCue = timingCue,
+        portionCue = portionCue,
+        photoCue = photoCue
     )
 }
 
@@ -828,6 +892,42 @@ private fun NutritionPacingCard(log: DailyLog) {
         )
         Text(
             text = "Negative remaining values mean the target is already exceeded; AI review uses this with training demand and recent trends before changing tomorrow's targets.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun NextMealBuilderCard(log: DailyLog) {
+    val builder = log.nextMealBuilder()
+    SectionCard(title = "Next Meal Builder", subtitle = "Turn remaining macros and training demand into the next practical meal.") {
+        Text(builder.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            text = builder.summary,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        MetricGrid(
+            metrics = listOf(
+                "Protein" to "${builder.proteinGrams} g",
+                "Carbs" to "${builder.carbsGrams} g",
+                "Fat" to "${builder.fatGrams} g",
+                "Fiber" to "${builder.fiberGrams} g"
+            )
+        )
+        Text(
+            text = builder.timingCue,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = builder.portionCue,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = builder.photoCue,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -2072,6 +2172,7 @@ private fun NutritionPage(
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         NutritionPacingCard(log = state.dailyLog)
+        NextMealBuilderCard(log = state.dailyLog)
         BodyCompositionCard(
             guidance = bodyCompositionGuidance(state.dailyLog, state.recentLogs, state.athleteProfile),
             subtitle = "Use body-weight trend, average intake, and phase goal before changing targets."
@@ -2455,6 +2556,10 @@ private fun AiCoachPage(
                     "Pain flags",
                     "Meal macros",
                     "Nutrition Pacing",
+                    "Next Meal Builder",
+                    "Next meal macro targets",
+                    "Meal timing cue",
+                    "Portion uncertainty cue",
                     "Body Composition Guidance",
                     "Recovery Guidance",
                     "Food photos",

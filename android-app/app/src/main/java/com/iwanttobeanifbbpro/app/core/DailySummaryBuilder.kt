@@ -14,6 +14,7 @@ class DailySummaryBuilder {
     ): String {
         val totals = log.nutritionTotals()
         val nutritionPacing = log.nutritionPacingSummary()
+        val nextMealBuilder = log.nextMealBuilderSummary()
         val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val recoveryGuidance = recoveryGuidance(log, recentLogs)
         val trend = buildTrendSummary(recentLogs.ifEmpty { listOf(log) })
@@ -86,6 +87,7 @@ class DailySummaryBuilder {
             - Meal template context: app Meal Templates are quick-add estimates for reliable logging; adjust for actual portion weight, cooking oil, sauces, labels, and food photos when precision matters.
             - Nutrition pacing: ${nutritionPacing.statusLabel}, adherence ${nutritionPacing.adherenceScore}%, calories ${nutritionPacing.caloriesRemaining} kcal remaining, protein ${nutritionPacing.proteinRemaining}g remaining, carbs ${nutritionPacing.carbsRemaining}g remaining, fat ${nutritionPacing.fatRemaining}g remaining, fiber ${nutritionPacing.fiberRemaining}g remaining.
             - Next meal focus: ${nutritionPacing.nextMealFocus}
+            - Next Meal Builder: ${nextMealBuilder.title}. ${nextMealBuilder.summary} Macro target P ${nextMealBuilder.proteinGrams}g, C ${nextMealBuilder.carbsGrams}g, F ${nextMealBuilder.fatGrams}g, fiber ${nextMealBuilder.fiberGrams}g. Timing cue: ${nextMealBuilder.timingCue} Portion cue: ${nextMealBuilder.portionCue} Photo/label cue: ${nextMealBuilder.photoCue}
             - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             - Recovery guidance: ${recoveryGuidance.statusLabel}, readiness score ${recoveryGuidance.readinessScore}, training pressure ${recoveryGuidance.trainingPressure}, sleep signal ${recoveryGuidance.sleepSignal}, stress signal ${recoveryGuidance.stressSignal}, soreness signal ${recoveryGuidance.sorenessSignal}, HR signal ${recoveryGuidance.heartRateSignal}, recommended training action ${recoveryGuidance.recommendedTrainingAction}. ${recoveryGuidance.rationale} ${recoveryGuidance.nextAction}
             Meals:
@@ -133,7 +135,7 @@ class DailySummaryBuilder {
             7. Use Exercise visual guide lines to translate exercise names into equipment/action categories, Chinese equipment labels, instance diagram cues, setup cues, example movements, common movements, and look-for cues for non-pro users.
             8. Compare Recovery Guidance before recommending push, hold, reduce volume, swap, rest, or deload choices.
             9. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            10. Compare food intake, Nutrition Pacing, Body Composition Guidance, and Recovery Guidance with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            10. Compare food intake, Nutrition Pacing, Next Meal Builder, Body Composition Guidance, and Recovery Guidance with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
             11. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
             12. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
@@ -189,6 +191,18 @@ private data class NutritionPacingSummary(
     val nextMealFocus: String
 )
 
+private data class NextMealBuilderSummary(
+    val title: String,
+    val summary: String,
+    val proteinGrams: Int,
+    val carbsGrams: Int,
+    val fatGrams: Int,
+    val fiberGrams: Int,
+    val timingCue: String,
+    val portionCue: String,
+    val photoCue: String
+)
+
 private fun DailyLog.nutritionPacingSummary(): NutritionPacingSummary {
     val totals = nutritionTotals()
     val caloriesRemaining = targets.calories - totals.calories
@@ -229,6 +243,58 @@ private fun DailyLog.nutritionPacingSummary(): NutritionPacingSummary {
         adherenceScore = adherenceScore,
         statusLabel = statusLabel,
         nextMealFocus = nextMealFocus
+    )
+}
+
+private fun DailyLog.nextMealBuilderSummary(): NextMealBuilderSummary {
+    val pacing = nutritionPacingSummary()
+    val remainingMeals = meals.size.let { logged ->
+        when {
+            logged <= 0 -> 3
+            logged == 1 -> 2
+            else -> 1
+        }
+    }
+    val proteinTarget = (pacing.proteinRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(25, 65)
+    val carbsTarget = (pacing.carbsRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(20, 95)
+    val fatTarget = (pacing.fatRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(5, 25)
+    val fiberTarget = (pacing.fiberRemaining.coerceAtLeast(0) / remainingMeals).coerceIn(4, 14)
+    val hasTrainingDemand = plannedHardSets() > 0 && completedHardSets() < plannedHardSets()
+    val title = when {
+        pacing.caloriesRemaining < -150 -> "Lean recovery meal"
+        pacing.proteinRemaining > 35 -> "Protein-first meal"
+        hasTrainingDemand && pacing.carbsRemaining > 60 -> "Training-fuel meal"
+        pacing.fiberRemaining > 10 -> "Fiber + micronutrient meal"
+        else -> "Balanced target meal"
+    }
+    val summary = when (title) {
+        "Lean recovery meal" -> "Keep calories controlled: lean protein, vegetables, minimal added fats."
+        "Protein-first meal" -> "Close the protein gap before adding extra carbs or fats."
+        "Training-fuel meal" -> "Place carbs around the remaining training work or post-workout window."
+        "Fiber + micronutrient meal" -> "Add fruit, vegetables, oats, beans, or potatoes with a lean protein base."
+        else -> "Stay close to targets with a simple protein, carb, vegetable, and fat structure."
+    }
+    val timingCue = when {
+        hasTrainingDemand -> "Use this 60-120 min pre-workout or within the post-workout meal window."
+        trainingSession.completed -> "Use this as the next recovery meal after today's completed session."
+        else -> "Use this as the next logged meal; keep portions measurable."
+    }
+    val portionCue = "Aim near P $proteinTarget g, C $carbsTarget g, F $fatTarget g, fiber $fiberTarget g."
+    val photoCue = if (meals.isEmpty()) {
+        "Attach a food photo if this is your first meal and portions are uncertain."
+    } else {
+        "Use a label/photo when oil, sauce, or restaurant portions are uncertain."
+    }
+    return NextMealBuilderSummary(
+        title = title,
+        summary = summary,
+        proteinGrams = proteinTarget,
+        carbsGrams = carbsTarget,
+        fatGrams = fatTarget,
+        fiberGrams = fiberTarget,
+        timingCue = timingCue,
+        portionCue = portionCue,
+        photoCue = photoCue
     )
 }
 
