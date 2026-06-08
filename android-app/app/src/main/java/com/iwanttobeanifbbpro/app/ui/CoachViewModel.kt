@@ -29,6 +29,7 @@ import com.iwanttobeanifbbpro.app.data.PlannedExercise
 import com.iwanttobeanifbbpro.app.data.SetEntry
 import com.iwanttobeanifbbpro.app.data.TrainingPlanStore
 import com.iwanttobeanifbbpro.app.data.WeeklyTrainingPlan
+import com.iwanttobeanifbbpro.app.data.trainingPlanTemplates
 import com.iwanttobeanifbbpro.app.health.HealthConnectRepository
 import com.iwanttobeanifbbpro.app.health.HealthSnapshot
 import com.iwanttobeanifbbpro.app.network.OpenAiResponsesClient
@@ -207,6 +208,12 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     fun resetTrainingPlan() {
         trainingPlanStore.resetPlan()
         uiState = uiState.copy(trainingPlan = trainingPlanStore.readPlan(), selectedPlanDayIndex = 0)
+    }
+
+    fun applyTrainingPlanTemplate(templateId: String) {
+        val template = trainingPlanTemplates().firstOrNull { it.id == templateId } ?: return
+        updatePlan(template.plan)
+        uiState = uiState.copy(selectedPlanDayIndex = 0)
     }
 
     fun updateTargets(targets: DailyTargets) {

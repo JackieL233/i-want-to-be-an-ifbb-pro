@@ -71,6 +71,7 @@ class DailySummaryBuilder {
             Current weekly training plan:
             - Plan name: ${plan?.name ?: "not loaded"}
             - Phase goal: ${plan?.phaseGoal ?: "not loaded"}
+            - Template context: if this plan matches an app Plan Template, treat it as a ready-to-train starting structure that can still be edited for equipment, weak points, recovery, and exercise preference.
             $weeklyPlan
 
             Recent trend window:

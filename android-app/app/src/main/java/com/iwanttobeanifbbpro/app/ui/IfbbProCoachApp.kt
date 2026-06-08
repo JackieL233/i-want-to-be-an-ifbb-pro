@@ -77,7 +77,9 @@ import com.iwanttobeanifbbpro.app.data.DailyTargets
 import com.iwanttobeanifbbpro.app.data.ExerciseEntry
 import com.iwanttobeanifbbpro.app.data.PlannedExercise
 import com.iwanttobeanifbbpro.app.data.SetEntry
+import com.iwanttobeanifbbpro.app.data.TrainingPlanTemplate
 import com.iwanttobeanifbbpro.app.data.TrainingDay
+import com.iwanttobeanifbbpro.app.data.trainingPlanTemplates
 import com.iwanttobeanifbbpro.app.health.HealthConnectRepository
 import java.util.Locale
 
@@ -145,6 +147,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                             onAddPlannedExercise = viewModel::addPlannedExercise,
                             onRemovePlannedExercise = viewModel::removePlannedExercise,
                             onApplyDay = viewModel::applyPlanDayToToday,
+                            onApplyTemplate = viewModel::applyTrainingPlanTemplate,
                             onResetPlan = viewModel::resetTrainingPlan
                         )
                     }
@@ -893,6 +896,69 @@ private fun AthleteProfileCard(profile: AthleteProfile, onProfileChange: (Athlet
 }
 
 @Composable
+private fun PlanTemplateLibrary(
+    currentPlanName: String,
+    onApplyTemplate: (String) -> Unit
+) {
+    SectionCard(
+        title = "Plan Templates",
+        subtitle = "Pick a ready-to-train weekly structure, then edit exercises, sets, RIR, rest, or weak-point emphasis."
+    ) {
+        trainingPlanTemplates().forEach { template ->
+            PlanTemplateCard(
+                template = template,
+                isCurrent = currentPlanName == template.plan.name,
+                onApplyTemplate = onApplyTemplate
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlanTemplateCard(
+    template: TrainingPlanTemplate,
+    isCurrent: Boolean,
+    onApplyTemplate: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = if (isCurrent) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(template.title, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = template.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                TextButton(onClick = { onApplyTemplate(template.id) }) {
+                    Text(if (isCurrent) "Current" else "Use")
+                }
+            }
+            MetricGrid(
+                metrics = listOf(
+                    "Days/wk" to template.weeklyDays.toString(),
+                    "Hard sets" to template.plan.days.sumOf { day -> day.exercises.sumOf { it.sets } }.toString(),
+                    "Exercises" to template.plan.days.sumOf { it.exercises.size }.toString(),
+                    "Best for" to template.bestFor
+                )
+            )
+            val activeDays = template.plan.days.filter { it.exercises.isNotEmpty() }
+            Text(
+                text = activeDays.joinToString(" | ") { "${it.dayName} ${it.focus}" },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun PlanPage(
     state: CoachUiState,
@@ -904,6 +970,7 @@ private fun PlanPage(
     onAddPlannedExercise: (Int, String, String, Int, String, Double?, Double?, Int, String) -> Unit,
     onRemovePlannedExercise: (Int, Int) -> Unit,
     onApplyDay: (Int) -> Unit,
+    onApplyTemplate: (String) -> Unit,
     onResetPlan: () -> Unit
 ) {
     val plan = state.trainingPlan
@@ -921,6 +988,10 @@ private fun PlanPage(
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AthleteProfileCard(profile = state.athleteProfile, onProfileChange = onProfileChange)
+        PlanTemplateLibrary(
+            currentPlanName = plan.name,
+            onApplyTemplate = onApplyTemplate
+        )
         SectionCard(title = "Weekly Plan", subtitle = "Build the plan first, then apply a training day to today's executable workout log.") {
             OutlinedTextField(
                 value = plan.name,

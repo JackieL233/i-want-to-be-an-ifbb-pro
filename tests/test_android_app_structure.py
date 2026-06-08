@@ -134,6 +134,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "WeeklyTrainingPlan",
             "TrainingDay",
             "PlannedExercise",
+            "TrainingPlanTemplate",
+            "trainingPlanTemplates",
+            "Beginner Full Body",
+            "4-Day Hypertrophy",
+            "5-Day Physique Priority",
+            "Beginner Full Body Foundation",
+            "4-Day Hypertrophy Builder",
+            "5-Day Physique Priority",
+            "fillWeek",
+            "planned(",
             "TrainingPlanStore",
             "readPlan",
             "savePlan",
@@ -177,6 +187,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "set-level performance",
             "rest time",
             "Current weekly training plan",
+            "Template context",
             "Health Connect-derived data",
             "Recent trend window",
             "Weight change in window",
@@ -252,6 +263,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         view_model = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/CoachViewModel.kt").read_text(
             encoding="utf-8"
         )
+        plan_model = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlan.kt").read_text(
+            encoding="utf-8"
+        )
         expected_terms = [
             "Today",
             "Plan",
@@ -272,6 +286,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Set load",
             "Actual reps",
             "Weekly Plan",
+            "Plan Templates",
+            "PlanTemplateLibrary",
+            "PlanTemplateCard",
+            "applyTrainingPlanTemplate",
+            "trainingPlanTemplates",
+            "Beginner Full Body",
+            "4-Day Hypertrophy",
+            "5-Day Physique Priority",
+            "Use",
+            "Current",
             "Athlete Profile",
             "Primary physique goal",
             "Weak points or physique priorities",
@@ -410,7 +434,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{recovery}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{recovery}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -477,6 +501,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "set-level",
             "AI Data Map",
             "weekly training plan",
+            "Plan Templates",
+            "Beginner Full Body",
+            "4-Day Hypertrophy",
+            "5-Day Physique Priority",
             "Apply today",
             "Health Connect",
             "Xiaomi",
@@ -541,6 +569,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Today",
             "Command Center",
             "Athlete Profile",
+            "Plan Templates",
+            "Beginner Full Body",
+            "4-Day Hypertrophy",
+            "5-Day Physique Priority",
             "Weekly Plan",
             "Training Execution",
             "Rest timer",

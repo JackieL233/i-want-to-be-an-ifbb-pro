@@ -15,6 +15,7 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 - Configurable API key, base URL, and model from the app UI.
 - OpenAI Responses API request shape with text and photos.
 - Photo picker support for exercise frames, equipment photos, food photos, labels, and menus.
+- Plan Templates for `Beginner Full Body`, `4-Day Hypertrophy`, and `5-Day Physique Priority`, giving a ready-to-train weekly structure before manual editing.
 - A weekly training plan workflow for phase goals, training days, planned exercises, sets, reps, RIR, rest time, and notes.
 - An `Apply today` workflow that turns a planned training day into today's set-level executable workout log.
 - A daily training workflow for planned focus, completed sessions, exercises, set-level load, reps, RIR, rest time, hard sets, target muscle, form/pain notes, and Exercise History comparison against previous logged sessions.
@@ -42,7 +43,7 @@ Use the app as a daily training and daily nutrition cockpit:
 2. Open `Today` to see the current training, nutrition, metrics, and readiness summary.
    The Command Center shows the next best action and a beginner-friendly daily loop: plan, train, log food, sync health data, then run AI review.
    The 7-day trend card shows whether body weight, food intake, hard sets, sleep, and activity are moving in the right direction.
-3. Use `Plan` to build the weekly training plan, select a day, add planned exercises, and tap `Apply today`.
+3. Use `Plan` to pick a Plan Template or build the weekly training plan manually, select a day, add planned exercises, and tap `Apply today`.
 4. Use `Training` to log the applied session, set-by-set weight, reps, RIR, rest time, hard sets, target muscle, and pain/form notes. Exercise History compares repeated movements against the previous logged session, the exercise visual guide and Exercise Visual Library help identify the equipment/action through unified instance diagrams, example movements, and look-for cues, while Progression Cue tells whether to add reps, add load, hold, modify, or finish baseline work. Tap `Complete` after a set to start the rest timer.
 5. Use `Nutrition` to set calorie/macronutrient targets, follow Nutrition Pacing for remaining calories/macros and next-meal focus, check Body Composition Guidance before changing targets, log meals, and attach a meal photo when you want food-photo analysis.
 6. Use `Metrics` for body weight, body fat, lean mass, waist, sleep, steps, resting heart rate, calorie burn, hunger, fatigue, soreness, stress, and daily reflection. Recovery Guidance turns those signals into conservative training-pressure guidance. Tap `Connect health data` and `Sync today` to import supported Health Connect records.
