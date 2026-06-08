@@ -87,9 +87,15 @@ data class MealEntry(
 
 data class DailyMetrics(
     val bodyWeightKg: Double? = null,
+    val bodyFatPercent: Double? = null,
+    val leanBodyMassKg: Double? = null,
     val waistCm: Double? = null,
     val sleepHours: Double? = null,
     val steps: Int = 0,
+    val restingHeartRateBpm: Double? = null,
+    val totalCaloriesBurnedKcal: Double? = null,
+    val healthDataSource: String = "",
+    val healthSyncedAt: String = "",
     val hunger: Int = 3,
     val fatigue: Int = 3,
     val soreness: Int = 3,
@@ -205,9 +211,15 @@ private fun MealEntry.toJson(): JSONObject {
 private fun DailyMetrics.toJson(): JSONObject {
     return JSONObject()
         .put("bodyWeightKg", bodyWeightKg)
+        .put("bodyFatPercent", bodyFatPercent)
+        .put("leanBodyMassKg", leanBodyMassKg)
         .put("waistCm", waistCm)
         .put("sleepHours", sleepHours)
         .put("steps", steps)
+        .put("restingHeartRateBpm", restingHeartRateBpm)
+        .put("totalCaloriesBurnedKcal", totalCaloriesBurnedKcal)
+        .put("healthDataSource", healthDataSource)
+        .put("healthSyncedAt", healthSyncedAt)
         .put("hunger", hunger)
         .put("fatigue", fatigue)
         .put("soreness", soreness)
@@ -301,9 +313,15 @@ fun MealEntry.Companion.fromJson(json: JSONObject): MealEntry {
 fun DailyMetrics.Companion.fromJson(json: JSONObject): DailyMetrics {
     return DailyMetrics(
         bodyWeightKg = json.nullableDouble("bodyWeightKg"),
+        bodyFatPercent = json.nullableDouble("bodyFatPercent"),
+        leanBodyMassKg = json.nullableDouble("leanBodyMassKg"),
         waistCm = json.nullableDouble("waistCm"),
         sleepHours = json.nullableDouble("sleepHours"),
         steps = json.safeInt("steps", 0),
+        restingHeartRateBpm = json.nullableDouble("restingHeartRateBpm"),
+        totalCaloriesBurnedKcal = json.nullableDouble("totalCaloriesBurnedKcal"),
+        healthDataSource = json.optString("healthDataSource", ""),
+        healthSyncedAt = json.optString("healthSyncedAt", ""),
         hunger = json.safeInt("hunger", 3),
         fatigue = json.safeInt("fatigue", 3),
         soreness = json.safeInt("soreness", 3),

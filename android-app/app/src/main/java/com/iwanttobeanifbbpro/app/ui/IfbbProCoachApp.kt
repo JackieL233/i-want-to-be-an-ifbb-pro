@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import com.iwanttobeanifbbpro.app.data.ExerciseEntry
 import com.iwanttobeanifbbpro.app.data.PlannedExercise
 import com.iwanttobeanifbbpro.app.data.SetEntry
 import com.iwanttobeanifbbpro.app.data.TrainingDay
+import com.iwanttobeanifbbpro.app.health.HealthConnectRepository
 import java.util.Locale
 
 @Composable
@@ -59,6 +61,14 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
         contract = ActivityResultContracts.PickMultipleVisualMedia(6),
         onResult = viewModel::addImages
     )
+    val healthPermissionLauncher = rememberLauncherForActivityResult(
+        contract = HealthConnectRepository.permissionContract(),
+        onResult = viewModel::onHealthPermissionsResult
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshHealthStatus()
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -132,7 +142,9 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                     MetricsPage(
                         state = state,
                         onMetricsChange = viewModel::updateMetrics,
-                        onReflectionChange = viewModel::updateReflection
+                        onReflectionChange = viewModel::updateReflection,
+                        onConnectHealthData = { healthPermissionLauncher.launch(viewModel.healthPermissions()) },
+                        onSyncHealthData = viewModel::syncHealthData
                     )
                 }
             }
@@ -210,6 +222,7 @@ private fun TodayDashboard(
                 "Calories" to "${totals.calories}/${log.targets.calories}",
                 "Protein" to "${totals.protein}/${log.targets.protein} g",
                 "Weight" to formatOptional(log.metrics.bodyWeightKg, "kg"),
+                "Body fat" to formatOptional(log.metrics.bodyFatPercent, "%"),
                 "Sleep" to formatOptional(log.metrics.sleepHours, "h")
             )
         )
@@ -223,7 +236,7 @@ private fun TodayDashboard(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Recovery: waist ${formatOptional(log.metrics.waistCm, "cm")}, steps ${log.metrics.steps}, hunger ${log.metrics.hunger}/5, fatigue ${log.metrics.fatigue}/5, soreness ${log.metrics.soreness}/5.",
+            text = "Recovery: waist ${formatOptional(log.metrics.waistCm, "cm")}, steps ${log.metrics.steps}, resting HR ${formatOptional(log.metrics.restingHeartRateBpm, "bpm")}, hunger ${log.metrics.hunger}/5, fatigue ${log.metrics.fatigue}/5, soreness ${log.metrics.soreness}/5.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -862,73 +875,174 @@ private fun NutritionPage(
 private fun MetricsPage(
     state: CoachUiState,
     onMetricsChange: (DailyMetrics) -> Unit,
-    onReflectionChange: (String) -> Unit
+    onReflectionChange: (String) -> Unit,
+    onConnectHealthData: () -> Unit,
+    onSyncHealthData: () -> Unit
 ) {
     val metrics = state.dailyLog.metrics
-    SectionCard(title = "Metrics", subtitle = "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.") {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DecimalField(
-                value = metrics.bodyWeightKg?.toString().orEmpty(),
-                onChange = { onMetricsChange(metrics.copy(bodyWeightKg = it.toDoubleOrNull())) },
-                label = "Weight kg",
-                modifier = Modifier.weight(1f)
-            )
-            DecimalField(
-                value = metrics.waistCm?.toString().orEmpty(),
-                onChange = { onMetricsChange(metrics.copy(waistCm = it.toDoubleOrNull())) },
-                label = "Waist cm",
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DecimalField(
-                value = metrics.sleepHours?.toString().orEmpty(),
-                onChange = { onMetricsChange(metrics.copy(sleepHours = it.toDoubleOrNull())) },
-                label = "Sleep h",
-                modifier = Modifier.weight(1f)
-            )
-            NumberField(
-                value = metrics.steps.toString(),
-                onChange = { onMetricsChange(metrics.copy(steps = it.toIntOrNull() ?: metrics.steps)) },
-                label = "Steps",
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(
-                value = metrics.hunger.toString(),
-                onChange = { onMetricsChange(metrics.copy(hunger = it.toIntOrNull() ?: metrics.hunger)) },
-                label = "Hunger 1-5",
-                modifier = Modifier.weight(1f)
-            )
-            NumberField(
-                value = metrics.fatigue.toString(),
-                onChange = { onMetricsChange(metrics.copy(fatigue = it.toIntOrNull() ?: metrics.fatigue)) },
-                label = "Fatigue 1-5",
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NumberField(
-                value = metrics.soreness.toString(),
-                onChange = { onMetricsChange(metrics.copy(soreness = it.toIntOrNull() ?: metrics.soreness)) },
-                label = "Soreness 1-5",
-                modifier = Modifier.weight(1f)
-            )
-            NumberField(
-                value = metrics.stress.toString(),
-                onChange = { onMetricsChange(metrics.copy(stress = it.toIntOrNull() ?: metrics.stress)) },
-                label = "Stress 1-5",
-                modifier = Modifier.weight(1f)
-            )
-        }
-        OutlinedTextField(
-            value = state.dailyLog.reflection,
-            onValueChange = onReflectionChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Daily reflection") },
-            minLines = 3
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        HealthConnectCard(
+            state = state,
+            onConnectHealthData = onConnectHealthData,
+            onSyncHealthData = onSyncHealthData
         )
+        SectionCard(title = "Metrics", subtitle = "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.") {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.bodyWeightKg?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(bodyWeightKg = it.toDoubleOrNull())) },
+                    label = "Weight kg",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.bodyFatPercent?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(bodyFatPercent = it.toDoubleOrNull())) },
+                    label = "Body fat %",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.leanBodyMassKg?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(leanBodyMassKg = it.toDoubleOrNull())) },
+                    label = "Lean mass kg",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.waistCm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(waistCm = it.toDoubleOrNull())) },
+                    label = "Waist cm",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.sleepHours?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(sleepHours = it.toDoubleOrNull())) },
+                    label = "Sleep h",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = metrics.steps.toString(),
+                    onChange = { onMetricsChange(metrics.copy(steps = it.toIntOrNull() ?: metrics.steps)) },
+                    label = "Steps",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = metrics.restingHeartRateBpm?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(restingHeartRateBpm = it.toDoubleOrNull())) },
+                    label = "Resting HR",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = metrics.totalCaloriesBurnedKcal?.toString().orEmpty(),
+                    onChange = { onMetricsChange(metrics.copy(totalCaloriesBurnedKcal = it.toDoubleOrNull())) },
+                    label = "Burned kcal",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(
+                    value = metrics.hunger.toString(),
+                    onChange = { onMetricsChange(metrics.copy(hunger = it.toIntOrNull() ?: metrics.hunger)) },
+                    label = "Hunger 1-5",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = metrics.fatigue.toString(),
+                    onChange = { onMetricsChange(metrics.copy(fatigue = it.toIntOrNull() ?: metrics.fatigue)) },
+                    label = "Fatigue 1-5",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(
+                    value = metrics.soreness.toString(),
+                    onChange = { onMetricsChange(metrics.copy(soreness = it.toIntOrNull() ?: metrics.soreness)) },
+                    label = "Soreness 1-5",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = metrics.stress.toString(),
+                    onChange = { onMetricsChange(metrics.copy(stress = it.toIntOrNull() ?: metrics.stress)) },
+                    label = "Stress 1-5",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            if (metrics.healthDataSource.isNotBlank()) {
+                Text(
+                    text = "Last health sync: ${metrics.healthDataSource} at ${metrics.healthSyncedAt.ifBlank { "--" }}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            OutlinedTextField(
+                value = state.dailyLog.reflection,
+                onValueChange = onReflectionChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Daily reflection") },
+                minLines = 3
+            )
+        }
+    }
+}
+
+@Composable
+private fun HealthConnectCard(
+    state: CoachUiState,
+    onConnectHealthData: () -> Unit,
+    onSyncHealthData: () -> Unit
+) {
+    val snapshot = state.healthSnapshot
+    SectionCard(
+        title = "Health Connect",
+        subtitle = "Sync body weight, body fat, lean mass, sleep, steps, resting heart rate, and total calories from supported phone, scale, watch, Xiaomi, Huawei, or other health apps."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to when {
+                    snapshot.permissionsGranted -> "Authorized"
+                    snapshot.available -> "Needs access"
+                    else -> "Unavailable"
+                },
+                "Weight" to formatOptional(snapshot.bodyWeightKg, "kg"),
+                "Body fat" to formatOptional(snapshot.bodyFatPercent, "%"),
+                "Steps" to (snapshot.steps?.toString() ?: "--"),
+                "Sleep" to formatOptional(snapshot.sleepHours, "h"),
+                "Resting HR" to formatOptional(snapshot.restingHeartRateBpm, "bpm")
+            )
+        )
+        Text(
+            text = snapshot.message.ifBlank { "Connect Health Connect to import metrics into the AI review." },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Vendor data is readable when the source app writes it into Health Connect and you approve permissions; dedicated Huawei Health Kit or Xiaomi-specific connectors can be added as later provider modules.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = onConnectHealthData,
+                enabled = !state.isHealthSyncing,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Connect health data")
+            }
+            ElevatedButton(
+                onClick = onSyncHealthData,
+                enabled = !state.isHealthSyncing,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(if (state.isHealthSyncing) "Syncing" else "Sync today")
+            }
+        }
+        if (state.isHealthSyncing) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
     }
 }
 

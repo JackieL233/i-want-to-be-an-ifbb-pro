@@ -90,7 +90,9 @@ Recommended runtime behavior:
 
 A native Android companion app lives in [`android-app/`](android-app/). It packages the skill into Android assets and provides daily training, daily nutrition, metrics, photo analysis, and AI review workflows with a configurable AI API client.
 
-The app now supports weekly training plans and set-level workout execution: build a weekly plan, apply a planned day to today's workout, record each set's weight, reps, RIR, completion state, rest time, and notes; tap a completed set to start a rest countdown; then send the weekly plan, actual session log, meals, photos, body metrics, sleep, steps, hunger, fatigue, soreness, and stress into the AI review flow.
+The app now supports weekly training plans, set-level workout execution, and Health Connect metric sync: build a weekly plan, apply a planned day to today's workout, record each set's weight, reps, RIR, completion state, rest time, and notes; tap a completed set to start a rest countdown; sync user-authorized body weight, body fat, lean mass, steps, sleep, resting heart rate, and calorie burn from Health Connect when Xiaomi, Huawei, scale, watch, or phone apps expose those records; then send the weekly plan, actual session log, meals, photos, body metrics, sleep, steps, hunger, fatigue, soreness, and stress into the AI review flow.
+
+Health Connect is the first Android health-data integration layer. It can read compatible Xiaomi/Huawei/phone/scale data only when the source app writes to Health Connect and the user grants permissions. Huawei Health Kit is documented as a future optional dedicated provider for deeper Huawei-specific syncing; manual entry remains the fallback.
 
 The app keeps API credentials out of source code. Users enter an API key, base URL, and model in the app settings screen. See [`android-app/README.md`](android-app/README.md) for Android Studio, JDK 17, build, and API setup notes.
 

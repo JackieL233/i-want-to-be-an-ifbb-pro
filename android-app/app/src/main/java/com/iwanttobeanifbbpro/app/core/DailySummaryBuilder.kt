@@ -59,9 +59,15 @@ class DailySummaryBuilder {
 
             Daily metrics:
             - bodyWeightKg: ${log.metrics.bodyWeightKg ?: "not logged"}
+            - bodyFatPercent: ${log.metrics.bodyFatPercent ?: "not logged"}
+            - leanBodyMassKg: ${log.metrics.leanBodyMassKg ?: "not logged"}
             - waistCm: ${log.metrics.waistCm ?: "not logged"}
             - sleepHours: ${log.metrics.sleepHours ?: "not logged"}
             - steps: ${log.metrics.steps}
+            - restingHeartRateBpm: ${log.metrics.restingHeartRateBpm ?: "not logged"}
+            - totalCaloriesBurnedKcal: ${log.metrics.totalCaloriesBurnedKcal ?: "not logged"}
+            - healthDataSource: ${log.metrics.healthDataSource.ifBlank { "manual or not logged" }}
+            - healthSyncedAt: ${log.metrics.healthSyncedAt.ifBlank { "not synced" }}
             - hunger: ${log.metrics.hunger}/5
             - fatigue: ${log.metrics.fatigue}/5
             - soreness: ${log.metrics.soreness}/5
@@ -78,9 +84,10 @@ class DailySummaryBuilder {
             2. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
             3. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
             4. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            5. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            6. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            7. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            5. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
+            6. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            7. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            8. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 }

@@ -16,8 +16,9 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 - A workout execution flow where tapping a set as complete starts a rest countdown for the next set.
 - A daily nutrition workflow for calorie and macro targets, meal logging, meal photo support, and food-photo estimate follow-up.
 - A daily metrics workflow for body weight, waist, sleep, steps, hunger, fatigue, soreness, stress, and reflection.
+- Health Connect sync for user-authorized body weight, body fat, lean body mass, steps, sleep, resting heart rate, and total calories burned. Xiaomi, Huawei, scale, watch, and phone data can be imported when the source app writes those records into Health Connect.
 - An AI review workflow that summarizes the day and asks the model what to adjust tomorrow.
-- An AI Data Map that makes the connected analysis surface explicit: exercise selection, set load, actual reps, RIR, rest time, hard sets, tonnage, technique notes, pain flags, meal macros, food photos, equipment/form photos, body weight, waist, sleep, steps, hunger, fatigue, soreness, and stress.
+- An AI Data Map that makes the connected analysis surface explicit: exercise selection, set load, actual reps, RIR, rest time, hard sets, tonnage, technique notes, pain flags, meal macros, food photos, equipment/form photos, body weight, body fat, lean mass, waist, sleep, steps, resting heart rate, calorie burn, hunger, fatigue, soreness, and stress.
 
 ## Daily workflow
 
@@ -27,8 +28,24 @@ Use the app as a daily training and daily nutrition cockpit:
 2. Use `Plan` to build the weekly training plan, select a day, add planned exercises, and tap `Apply today`.
 3. Use `Training` to log the applied session, set-by-set weight, reps, RIR, rest time, hard sets, target muscle, and pain/form notes. Tap `Complete` after a set to start the rest timer.
 4. Use `Nutrition` to set calorie/macronutrient targets, log meals, and attach a meal photo when you want food-photo analysis.
-5. Use `Metrics` for body weight, waist, sleep, steps, hunger, fatigue, soreness, stress, and daily reflection.
+5. Use `Metrics` for body weight, body fat, lean mass, waist, sleep, steps, resting heart rate, calorie burn, hunger, fatigue, soreness, stress, and daily reflection. Tap `Connect health data` and `Sync today` to import supported Health Connect records.
 6. Use `AI Coach` or the `Run AI review` button to send the weekly training plan, day's log, set-level performance, photos, and your extra question to the model for adjustment guidance.
+
+## Health data sync
+
+The first health-data layer is Android Health Connect. The app requests read-only access to:
+
+- Body weight
+- Body fat
+- Lean body mass
+- Steps
+- Sleep sessions
+- Resting heart rate
+- Total calories burned
+
+This can support Xiaomi, Huawei, smart-scale, watch, and phone health data when those vendor apps sync or expose records through Health Connect and the user grants permission. The app does not bypass vendor privacy controls or read private manufacturer databases directly.
+
+For deeper vendor-specific support, Huawei Health Kit can be added later as a dedicated provider module. Manual metrics remain available when Health Connect is unavailable, permissions are denied, or a vendor app does not export the needed records.
 
 ## Build
 

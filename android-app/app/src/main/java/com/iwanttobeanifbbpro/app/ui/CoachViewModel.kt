@@ -25,12 +25,15 @@ import com.iwanttobeanifbbpro.app.data.PlannedExercise
 import com.iwanttobeanifbbpro.app.data.SetEntry
 import com.iwanttobeanifbbpro.app.data.TrainingPlanStore
 import com.iwanttobeanifbbpro.app.data.WeeklyTrainingPlan
+import com.iwanttobeanifbbpro.app.health.HealthConnectRepository
+import com.iwanttobeanifbbpro.app.health.HealthSnapshot
 import com.iwanttobeanifbbpro.app.network.OpenAiResponsesClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 enum class AppTab(val title: String) {
     TODAY("Today"),
@@ -69,6 +72,8 @@ data class CoachUiState(
     val trainingPlan: WeeklyTrainingPlan = WeeklyTrainingPlan(),
     val selectedPlanDayIndex: Int = 0,
     val restTimer: RestTimerState? = null,
+    val healthSnapshot: HealthSnapshot = HealthSnapshot(message = "Health Connect not checked yet."),
+    val isHealthSyncing: Boolean = false,
     val images: List<ImageAttachment> = emptyList(),
     val result: String = "",
     val isLoading: Boolean = false,
@@ -82,6 +87,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     private val dailySummaryBuilder = DailySummaryBuilder()
     private val promptBuilder = SkillPromptBuilder(SkillAssetRepository(application))
     private val apiClient = OpenAiResponsesClient()
+    private val healthRepository = HealthConnectRepository(application)
     private var restTimerJob: Job? = null
 
     var uiState by mutableStateOf(
@@ -192,6 +198,54 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateMetrics(metrics: DailyMetrics) {
         updateLog(uiState.dailyLog.copy(metrics = metrics))
+    }
+
+    fun healthPermissions(): Set<String> = healthRepository.permissions()
+
+    fun refreshHealthStatus() {
+        uiState = uiState.copy(isHealthSyncing = true)
+        viewModelScope.launch {
+            val snapshot = withContext(Dispatchers.IO) { healthRepository.permissionSnapshot() }
+            uiState = uiState.copy(healthSnapshot = snapshot, isHealthSyncing = false)
+        }
+    }
+
+    fun onHealthPermissionsResult(granted: Set<String>) {
+        val permissionsGranted = healthRepository.permissions().all { it in granted }
+        uiState = uiState.copy(
+            healthSnapshot = uiState.healthSnapshot.copy(
+                available = true,
+                permissionsGranted = permissionsGranted,
+                message = if (permissionsGranted) {
+                    "Health Connect permissions granted. Sync today's metrics next."
+                } else {
+                    "Some Health Connect permissions were not granted; manual metrics still work."
+                }
+            )
+        )
+        if (permissionsGranted) {
+            syncHealthData()
+        }
+    }
+
+    fun syncHealthData() {
+        uiState = uiState.copy(isHealthSyncing = true)
+        viewModelScope.launch {
+            val snapshot = withContext(Dispatchers.IO) { healthRepository.readTodaySnapshot() }
+            val log = if (snapshot.hasImportableMetrics()) {
+                uiState.dailyLog.copy(metrics = uiState.dailyLog.metrics.mergeHealthSnapshot(snapshot))
+            } else {
+                uiState.dailyLog
+            }
+            if (snapshot.hasImportableMetrics()) {
+                dailyLogStore.saveLog(log)
+            }
+            uiState = uiState.copy(
+                dailyLog = log,
+                healthSnapshot = snapshot,
+                isHealthSyncing = false
+            )
+        }
     }
 
     fun updateTrainingFocus(focus: String) {
@@ -413,6 +467,20 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
             uiState = uiState.copy(restTimer = null)
         }
     }
+}
+
+private fun DailyMetrics.mergeHealthSnapshot(snapshot: HealthSnapshot): DailyMetrics {
+    return copy(
+        bodyWeightKg = snapshot.bodyWeightKg ?: bodyWeightKg,
+        bodyFatPercent = snapshot.bodyFatPercent ?: bodyFatPercent,
+        leanBodyMassKg = snapshot.leanBodyMassKg ?: leanBodyMassKg,
+        sleepHours = snapshot.sleepHours ?: sleepHours,
+        steps = snapshot.steps?.let { min(it, Int.MAX_VALUE.toLong()).toInt() } ?: steps,
+        restingHeartRateBpm = snapshot.restingHeartRateBpm ?: restingHeartRateBpm,
+        totalCaloriesBurnedKcal = snapshot.totalCaloriesBurnedKcal ?: totalCaloriesBurnedKcal,
+        healthDataSource = snapshot.source,
+        healthSyncedAt = snapshot.syncedAt
+    )
 }
 
 private class SettingsStore(context: Context) {

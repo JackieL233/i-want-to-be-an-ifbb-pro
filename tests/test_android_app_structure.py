@@ -24,6 +24,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlan.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlanStore.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailySummaryBuilder.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/health/HealthSnapshot.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/health/HealthConnectRepository.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/ui/CoachViewModel.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt",
         ]
@@ -124,8 +126,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "carbs",
             "fat",
             "bodyWeightKg",
+            "bodyFatPercent",
+            "leanBodyMassKg",
             "waistCm",
             "sleepHours",
+            "restingHeartRateBpm",
+            "totalCaloriesBurnedKcal",
+            "healthDataSource",
+            "healthSyncedAt",
             "readLog",
             "saveLog",
             "buildAiReviewContext",
@@ -135,6 +143,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "set-level performance",
             "rest time",
             "Current weekly training plan",
+            "Health Connect-derived data",
         ]
         combined = f"{model}\n{store}\n{plan_model}\n{plan_store}\n{summary}"
         for term in expected_terms:
@@ -171,8 +180,56 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Apply today",
             "addPlannedExercise",
             "applyPlanDayToToday",
+            "Health Connect",
+            "Connect health data",
+            "Sync today",
+            "Body fat",
+            "Resting HR",
+            "healthPermissions",
+            "syncHealthData",
         ]
         combined = f"{ui}\n{view_model}"
+        for term in expected_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, combined)
+
+    def test_health_connect_integration_is_structured_and_permissioned(self) -> None:
+        gradle = (APP / "app/build.gradle.kts").read_text(encoding="utf-8")
+        manifest = (APP / "app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
+        repository = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/health/HealthConnectRepository.kt"
+        ).read_text(encoding="utf-8")
+        snapshot = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/health/HealthSnapshot.kt").read_text(
+            encoding="utf-8"
+        )
+        expected_terms = [
+            "androidx.health.connect:connect-client",
+            "android.permission.health.READ_WEIGHT",
+            "android.permission.health.READ_BODY_FAT",
+            "android.permission.health.READ_STEPS",
+            "android.permission.health.READ_SLEEP",
+            "android.permission.health.READ_RESTING_HEART_RATE",
+            "com.google.android.apps.healthdata",
+            "android.permission.START_VIEW_PERMISSION_USAGE",
+            "android.intent.action.VIEW_PERMISSION_USAGE",
+            "android.intent.category.HEALTH_PERMISSIONS",
+            "HealthConnectClient",
+            "import androidx.health.connect.client.PermissionController",
+            "PermissionController.createRequestPermissionResultContract",
+            "HealthPermission.getReadPermission",
+            "WeightRecord",
+            "BodyFatRecord",
+            "LeanBodyMassRecord",
+            "StepsRecord",
+            "SleepSessionRecord",
+            "RestingHeartRateRecord",
+            "TotalCaloriesBurnedRecord",
+            "AggregateRequest",
+            "ReadRecordsRequest",
+            "HealthSnapshot",
+            "hasImportableMetrics",
+        ]
+        combined = f"{gradle}\n{manifest}\n{repository}\n{snapshot}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -196,6 +253,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI Data Map",
             "weekly training plan",
             "Apply today",
+            "Health Connect",
+            "Xiaomi",
+            "Huawei",
+            "body fat",
+            "resting heart rate",
+            "Huawei Health Kit",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
