@@ -73,6 +73,7 @@ import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.SessionQualityDashboard
 import com.iwanttobeanifbbpro.app.core.TomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
+import com.iwanttobeanifbbpro.app.core.WarmUpRampPlan
 import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.conditioningHydrationGuidance
@@ -89,6 +90,7 @@ import com.iwanttobeanifbbpro.app.core.recoveryGuidance
 import com.iwanttobeanifbbpro.app.core.sessionQualityDashboard
 import com.iwanttobeanifbbpro.app.core.tomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
+import com.iwanttobeanifbbpro.app.core.warmUpRampPlan
 import com.iwanttobeanifbbpro.app.core.weeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
@@ -2510,10 +2512,12 @@ private fun TrainingPage(
     val recovery = recoveryGuidance(state.dailyLog, state.recentLogs)
     val readinessBuilder = trainingReadinessBuilder(state.dailyLog, recovery)
     val nextSet = nextSetCoach(state.dailyLog)
+    val rampPlan = warmUpRampPlan(state.dailyLog, readinessBuilder, nextSet)
     val qualityDashboard = sessionQualityDashboard(state.dailyLog)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TrainingReadinessBuilderCard(builder = readinessBuilder)
+        WarmUpRampPlanCard(plan = rampPlan)
         NextSetCoachCard(coach = nextSet)
         SessionQualityDashboardCard(dashboard = qualityDashboard)
         SectionCard(title = "Training Execution", subtitle = "Log every working set, hard sets, rest time, and effort so AI can compare performance, pain, and recovery.") {
@@ -2709,6 +2713,93 @@ private fun NextSetCoachCard(coach: NextSetCoach) {
                 coach.visualSpec.findEquipmentCue,
                 coach.visualSpec.movementPathCue,
                 "Look-for cue: ${coach.visualSpec.lookFor}"
+            )
+        )
+    }
+}
+
+@Composable
+private fun WarmUpRampPlanCard(plan: WarmUpRampPlan) {
+    SectionCard(
+        title = "Warm-up Ramp Plan",
+        subtitle = "Turn readiness and the next set target into exact warm-up and ramp-up sets before the first working set."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to plan.statusLabel,
+                "Exercise" to plan.currentExerciseName.ifBlank { "--" },
+                "Target reps" to plan.targetReps.ifBlank { "--" },
+                "Work load" to (plan.plannedLoadKg?.let { "${formatDecimal(it)} kg" } ?: "bodyweight/plan"),
+                "Work RIR" to (plan.plannedRir?.let { formatDecimal(it) } ?: "--"),
+                "Visual guide" to plan.visualSpec.visualId
+            )
+        )
+        if (plan.currentExerciseName.isNotBlank()) {
+            NextSetVisualGuide(spec = plan.visualSpec)
+        }
+        Text(
+            text = "Readiness gate: ${plan.readinessGate}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Ramp strategy: ${plan.rampStrategy}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (plan.rampSets.isEmpty()) {
+            EmptyState("Apply a plan day or add an exercise to generate the warm-up ramp set checklist.")
+        } else {
+            plan.rampSets.forEach { rampSet ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                            Text(rampSet.label, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                text = rampSet.effortCue,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        MetricGrid(
+                            metrics = listOf(
+                                "Load" to rampSet.loadCue,
+                                "Reps" to rampSet.repsCue
+                            )
+                        )
+                        Text(
+                            text = rampSet.purpose,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+        Text(
+            text = "First working set gate: ${plan.firstWorkingSetGate}",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Stop rule: ${plan.stopRule}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                "Warm-up Ramp Plan",
+                "Ramp set checklist",
+                "final ramp set quality",
+                "first working set gate",
+                "planned load percentage",
+                plan.visualSpec.visualId,
+                plan.visualSpec.equipmentZh
             )
         )
     }
@@ -3805,6 +3896,7 @@ private fun AiCoachPage(
                     "AI review gate",
                     "Plan adjustment signal",
                     "Training Readiness Builder",
+                    "Warm-up Ramp Plan",
                     "Next Set Coach",
                     "Tomorrow Coach Brief",
                     "Tomorrow training focus",
@@ -3830,6 +3922,10 @@ private fun AiCoachPage(
                     "Technique flags",
                     "Warm-up cue",
                     "Ramp-up cue",
+                    "Ramp set checklist",
+                    "planned load percentage",
+                    "final ramp set quality",
+                    "first working set gate",
                     "First working set",
                     "Volume adjustment",
                     "Stop rule",

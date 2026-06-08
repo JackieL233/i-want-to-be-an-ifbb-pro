@@ -23,6 +23,7 @@ class DailySummaryBuilder {
         val visualAtlas = exerciseVisualAtlas()
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
         val nextSet = nextSetCoach(log)
+        val warmUpRamp = warmUpRampPlan(log, trainingReadiness, nextSet)
         val sessionQuality = sessionQualityDashboard(log)
         val weeklyCheckIn = weeklyCheckInSummary(
             log = log,
@@ -146,6 +147,7 @@ class DailySummaryBuilder {
             - Completed hard sets: ${log.completedHardSets()}
             - Completed training volume: ${log.trainingVolumeKg()} kg
             - ${trainingReadiness.promptLine()}
+            - ${warmUpRamp.promptLine()}
             - ${nextSet.promptLine()}
             - ${sessionQuality.promptLine()}
             - Session notes: ${log.trainingSession.sessionNotes}
@@ -202,6 +204,7 @@ class DailySummaryBuilder {
             3a. Compare physique measurements when available: waist, chest, shoulder, hip, left/right arm, left/right thigh, and neck trends; use them to judge bodybuilding proportion, symmetry, waist control, weak-point response, and whether weight changes reflect useful tissue gain or likely fat gain.
             4. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
             5. Use Training Readiness Builder before progression decisions: check warm-up quality, ramp-up quality, first working set choice, volume adjustment, stop rule, and whether recovery gates were respected.
+            5a. Use Warm-up Ramp Plan before judging the first working set: compare the ramp set checklist, planned load percentage, final ramp set quality, visual guide ID, first working set gate, and stop rule against what the user logged.
             6. Use Next Set Coach to compare the current exercise, next set target, visual guide ID, equipment/action diagram, load cue, reps cue, RIR cue, rest cue, stop cue, and after-set logging cue against what the user actually logged.
             7. Use Session Quality Dashboard to judge completion rate, logged set rate, average RIR, muscle-volume distribution, pain flags, technique flags, and whether the session is valid for progression.
             8. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.

@@ -24,6 +24,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/WarmUpRampAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseSubstitutionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt",
@@ -340,6 +341,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Training Readiness Builder",
             "TrainingReadinessBuilder",
             "trainingReadinessBuilder",
+            "Warm-up Ramp Plan",
+            "WarmUpRampPlan",
+            "WarmUpRampSet",
+            "warmUpRampPlan",
+            "ramp set checklist",
+            "planned load percentage",
+            "final ramp set quality",
+            "first working set gate",
+            "working-load gate",
             "Next Set Coach",
             "NextSetCoach",
             "nextSetCoach",
@@ -512,6 +522,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         next_set = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt"
         ).read_text(encoding="utf-8")
+        warm_ramp = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/WarmUpRampAdvisor.kt"
+        ).read_text(encoding="utf-8")
         tomorrow = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -524,7 +537,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -816,6 +829,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "TrainingReadinessBuilderCard",
             "trainingReadinessBuilder",
             "Training Readiness Builder",
+            "WarmUpRampPlan",
+            "WarmUpRampSet",
+            "WarmUpRampPlanCard",
+            "warmUpRampPlan",
+            "Warm-up Ramp Plan",
+            "Ramp set checklist",
+            "planned load percentage",
+            "final ramp set quality",
+            "first working set gate",
             "NextSetCoach",
             "NextSetCoachCard",
             "nextSetCoach",
@@ -952,6 +974,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         next_set = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt"
         ).read_text(encoding="utf-8")
+        warm_ramp = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/WarmUpRampAdvisor.kt"
+        ).read_text(encoding="utf-8")
         tomorrow = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -964,7 +989,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -1124,6 +1149,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI review gate",
             "plan adjustment signal",
             "Training Readiness Builder",
+            "Warm-up Ramp Plan",
+            "ramp set checklist",
+            "planned load percentages",
+            "final ramp set quality",
+            "first working set gate",
             "Next Set Coach",
             "current exercise",
             "next set target",
@@ -1210,6 +1240,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Weekly Plan",
             "Training Execution",
             "Training Readiness Builder",
+            "Warm-up Ramp Plan",
+            "ramp set checklist",
+            "planned load percentages",
+            "final ramp set quality",
+            "first working set gate",
             "Next Set Coach",
             "Current exercise",
             "Next set target",
@@ -1348,8 +1383,13 @@ class AndroidAppStructureTest(unittest.TestCase):
             "thigh symmetry",
             "Recovery Guidance",
             "Training Readiness Builder",
+            "Warm-up Ramp Plan",
             "Warm-up cue",
             "Ramp-up cue",
+            "Ramp set checklist",
+            "planned load percentage",
+            "final ramp set quality",
+            "first working set gate",
             "First working set",
             "Volume adjustment",
             "Stop rule",
@@ -1411,6 +1451,12 @@ class AndroidAppStructureTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         app_nutrition_body_composition = (
             APP / "app/src/main/assets/skill/references/nutrition-body-composition.md"
+        ).read_text(encoding="utf-8")
+        session_execution = (
+            ROOT / "skills/i-want-to-be-an-ifbb-pro/references/session-execution-and-volume.md"
+        ).read_text(encoding="utf-8")
+        app_session_execution = (
+            APP / "app/src/main/assets/skill/references/session-execution-and-volume.md"
         ).read_text(encoding="utf-8")
         expected_terms = [
             "Exercise Visual Guide",
@@ -1478,6 +1524,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "fatigue cost",
             "load-adjustment cue",
             "visual guide ID",
+            "Warm-up Ramp Plan",
+            "warm-up ramp set checklist",
+            "planned working load",
+            "final ramp set",
+            "first working set gate",
+            "Do not count warm-up ramp sets as hard sets",
             "waistCm",
             "chestCm",
             "shoulderCm",
@@ -1491,7 +1543,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "arm symmetry",
             "thigh symmetry",
         ]
-        combined = f"{skill_library}\n{app_library}\n{visual_analysis}\n{app_visual_analysis}\n{nutrition_body_composition}\n{app_nutrition_body_composition}"
+        combined = f"{skill_library}\n{app_library}\n{visual_analysis}\n{app_visual_analysis}\n{nutrition_body_composition}\n{app_nutrition_body_composition}\n{session_execution}\n{app_session_execution}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)

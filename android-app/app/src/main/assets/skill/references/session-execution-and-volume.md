@@ -17,6 +17,19 @@ Track at exercise-level and set-level when possible:
 
 This session log is the source of truth for exercise-level decisions.
 
+## Warm-up Ramp Plan
+
+Before judging the first working set, translate the next exercise, planned load, target reps, target RIR, readiness status, and exercise visual guide ID into a warm-up ramp set checklist.
+
+- Start with general prep, then use light, moderate, and near-work ramp sets for the first main movement.
+- For loaded exercises, express ramp loads as approximate percentages of the planned working load and round to practical plates or machine-stack jumps.
+- For bodyweight or machine settings without a known load, use easier variations, assistance, partial-effort sets, or lower settings before the first working set.
+- Use an extra near-work checkpoint when readiness is only moderate, soreness is elevated, technique is uncertain, or the user is returning after missed training.
+- The final ramp set should confirm speed, control, target-muscle feel, visual-guide setup match, pain-free range, and whether the first working set gate is passed.
+- Do not count warm-up ramp sets as hard sets unless the user explicitly pushed them near failure by mistake; if that happens, note it as fatigue leakage before progression decisions.
+
+If the final ramp set is unstable, painful, much harder than expected, or does not match the intended movement path, start the first working set lighter, repeat a lighter ramp set, reduce volume, or use Exercise Substitution Coach before changing the long-term plan.
+
 ## Key Metrics
 
 - **Hard sets:** sets close enough to failure to count for the target muscle.
