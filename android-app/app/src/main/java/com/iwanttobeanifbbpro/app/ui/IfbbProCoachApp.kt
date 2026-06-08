@@ -56,9 +56,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
+import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.exerciseHistorySummary
 import com.iwanttobeanifbbpro.app.core.progressionCue
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
@@ -627,6 +629,10 @@ private fun TodayDashboard(
                 }
             }
         }
+        BodyCompositionCard(
+            guidance = bodyCompositionGuidance(log, state.recentLogs, state.athleteProfile),
+            subtitle = "Trend-based target check before changing calories."
+        )
         TrendOverviewCard(logs = state.recentLogs)
         BeginnerGuideCard(onOpenPlan = onOpenPlan, onOpenNutrition = onOpenNutrition, onOpenMetrics = onOpenMetrics)
     }
@@ -658,6 +664,34 @@ private fun NutritionPacingCard(log: DailyLog) {
         )
         Text(
             text = "Negative remaining values mean the target is already exceeded; AI review uses this with training demand and recent trends before changing tomorrow's targets.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun BodyCompositionCard(guidance: BodyCompositionGuidance, subtitle: String) {
+    SectionCard(title = "Body Composition Guidance", subtitle = subtitle) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to guidance.statusLabel,
+                "Phase" to guidance.phaseGoal,
+                "Weight trend" to guidance.weightChangeKg.formatSignedHistoryValue("kg"),
+                "Avg kcal" to guidance.averageCalories.formatHistoryValue("kcal"),
+                "Avg protein" to guidance.averageProtein.formatHistoryValue("g"),
+                "Set avg" to guidance.averageCompletedSets.formatHistoryValue("sets"),
+                "Kcal adjust" to guidance.calorieAdjustmentKcal.formatSignedInt("kcal"),
+                "Target" to "${guidance.targetCalories} kcal"
+            )
+        )
+        Text(
+            text = guidance.rationale,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Next action: ${guidance.nextAction}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1583,6 +1617,22 @@ private fun Double?.formatHistoryValue(unit: String): String {
     return if (unit.isBlank()) value else "$value $unit"
 }
 
+private fun Double?.formatSignedHistoryValue(unit: String): String {
+    if (this == null) return "--"
+    val value = formatDecimal(kotlin.math.abs(this))
+    val prefix = when {
+        this > 0.0 -> "+"
+        this < 0.0 -> "-"
+        else -> ""
+    }
+    return if (unit.isBlank()) "$prefix$value" else "$prefix$value $unit"
+}
+
+private fun Int.formatSignedInt(unit: String): String {
+    val prefix = if (this > 0) "+" else ""
+    return if (unit.isBlank()) "$prefix$this" else "$prefix$this $unit"
+}
+
 @Composable
 private fun SetRow(
     exerciseIndex: Int,
@@ -1685,6 +1735,10 @@ private fun NutritionPage(
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         NutritionPacingCard(log = state.dailyLog)
+        BodyCompositionCard(
+            guidance = bodyCompositionGuidance(state.dailyLog, state.recentLogs, state.athleteProfile),
+            subtitle = "Use body-weight trend, average intake, and phase goal before changing targets."
+        )
         SectionCard(title = "Nutrition Targets", subtitle = "Use weighed food when possible; use photos for AI estimates when weighing is not practical.") {
             MacroLine("Calories", totals.calories.toString(), targets.calories.toString(), "kcal")
             MacroLine("Protein", totals.protein.toString(), targets.protein.toString(), "g")

@@ -14,6 +14,7 @@ The preview mirrors the current Android app structure:
 - Exercise History comparison for previous/current volume, best load, best reps, sets, and average RIR
 - Rest countdown after completing a set
 - Daily nutrition tracking
+- Body Composition Guidance for trend-based calorie target checks
 - Health Connect and vendor-data boundary
 - AI Coach and AI Data Map
 

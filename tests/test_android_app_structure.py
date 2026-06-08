@@ -20,6 +20,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SkillAssetRepository.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/network/OpenAiResponsesClient.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLog.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLogStore.kt",
@@ -181,6 +182,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Nutrition pacing",
             "adherence",
             "Next meal focus",
+            "Body composition guidance",
+            "BodyCompositionGuidance",
+            "bodyCompositionGuidance",
+            "calorie adjustment",
+            "target calories",
+            "phaseGoal",
             "Progression cue",
             "Use each Progression Cue",
             "progressionCue",
@@ -199,7 +206,10 @@ class AndroidAppStructureTest(unittest.TestCase):
         history = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}"
+        body_composition = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt"
+        ).read_text(encoding="utf-8")
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -288,6 +298,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Machine Chest Press",
             "NutritionPacing",
             "Nutrition Pacing",
+            "BodyCompositionGuidance",
+            "Body Composition Guidance",
+            "BodyCompositionCard",
+            "bodyCompositionGuidance",
+            "Small calorie increase",
+            "Small calorie decrease",
+            "Hold targets",
+            "Need trend data",
+            "Kcal adjust",
+            "Weight trend",
             "nextMealFocus",
             "Next meal focus",
             "formatRemaining",
@@ -327,7 +347,10 @@ class AndroidAppStructureTest(unittest.TestCase):
         history = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{activity}\n{theme}\n{progression}\n{history}"
+        body_composition = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt"
+        ).read_text(encoding="utf-8")
+        combined = f"{ui}\n{view_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -420,6 +443,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "remaining or over target",
             "macro adherence score",
             "next-meal focus",
+            "Body Composition Guidance",
+            "small calorie adjustment",
             "Progression Cue",
             "Exercise History",
             "previous/current volume",
@@ -472,8 +497,13 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Look for two rails and a fixed bar",
             "Unified exercise visual guide",
             "Nutrition Pacing",
+            "Body Composition Guidance",
+            "Hold targets",
+            "Kcal adjust",
+            "Weight trend",
             "Next meal focus",
             "Nutrition totals + pacing",
+            "Body Composition Guidance",
             "Protein behind",
             "Progression Cue",
             "Exercise History",

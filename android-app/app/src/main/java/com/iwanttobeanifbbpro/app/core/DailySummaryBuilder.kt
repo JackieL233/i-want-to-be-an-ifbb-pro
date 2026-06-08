@@ -14,6 +14,7 @@ class DailySummaryBuilder {
     ): String {
         val totals = log.nutritionTotals()
         val nutritionPacing = log.nutritionPacingSummary()
+        val bodyCompositionGuidance = bodyCompositionGuidance(log, recentLogs, profile)
         val trend = buildTrendSummary(recentLogs.ifEmpty { listOf(log) })
         val weeklyPlan = plan?.days?.joinToString("\n") { day ->
             val plannedExercises = day.exercises.joinToString("\n") { exercise ->
@@ -79,6 +80,7 @@ class DailySummaryBuilder {
             - Fiber ${totals.fiber}/${log.targets.fiber}g
             - Nutrition pacing: ${nutritionPacing.statusLabel}, adherence ${nutritionPacing.adherenceScore}%, calories ${nutritionPacing.caloriesRemaining} kcal remaining, protein ${nutritionPacing.proteinRemaining}g remaining, carbs ${nutritionPacing.carbsRemaining}g remaining, fat ${nutritionPacing.fatRemaining}g remaining, fiber ${nutritionPacing.fiberRemaining}g remaining.
             - Next meal focus: ${nutritionPacing.nextMealFocus}
+            - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             Meals:
             $meals
 
@@ -122,7 +124,7 @@ class DailySummaryBuilder {
             5. Compare Exercise History for repeated movements: previous date, previous volume, current volume, best load, best reps, completed sets, and average RIR.
             6. Use each Progression Cue as a deterministic starting point, then decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
             7. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            8. Compare food intake and Nutrition Pacing with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            8. Compare food intake, Nutrition Pacing, and Body Composition Guidance with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
             9. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
             10. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
