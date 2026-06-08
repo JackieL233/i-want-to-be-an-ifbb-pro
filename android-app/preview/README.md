@@ -9,13 +9,14 @@ The preview mirrors the current Android app structure:
 - Today command center
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
 - Tomorrow Coach Brief for next-day training focus, calorie/protein targets, readiness gate, recovery action, and tracking action
+- Weekly Check-in for 7-14 day training completion, average calories/protein, weight trend, recovery average, weak-point focus, data quality, and next-week action
 - Daily Coach Checklist for plan, training, food, metrics, and AI review completion
 - Athlete profile and weekly plan
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
 - Unified exercise visual guide for equipment/action recognition, including stable visual guide IDs
 - Selected Day Visual Map, Today's Exercise Visual Map, visual-map thumbnails, and exercise thumbnail headers for quick equipment/action scanning
 - Live equipment/action preview while adding planned or active exercises
-- Exercise Visual Library with Chinese equipment labels, simple unified instance diagrams, action path cues, beginner recognition cues, equipment markers, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
+- Exercise Visual Library with Chinese equipment labels, simple unified instance diagrams, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
 - Set-level training execution
 - Training Readiness Builder for warm-up strategy, ramp-up cue, first working set, volume adjustment, and stop rule
 - Next Set Coach for the current exercise, next set target, load cue, reps cue, RIR cue, rest cue, stop cue, After-set logging cue, and the matching equipment/action instance diagram

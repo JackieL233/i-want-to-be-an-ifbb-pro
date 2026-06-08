@@ -24,6 +24,7 @@ For a food photo or meal estimate, ask for:
 When identifying equipment:
 
 - Name the likely machine, implement, or station and note confidence.
+- Map the visible setup to the Exercise Visual Guide in `exercise-library.md` when possible: visual guide ID, Chinese equipment label, quick visual cue, find-equipment cue, movement path cue, action path cue, equipment markers, and look-for cue.
 - Explain what it is commonly used for, target muscles, setup points, and common substitutions.
 - Ask the user to confirm brand, labels, cable path, seat angle, handles, or weight stack if uncertain.
 - Do not infer exact load or resistance curve from a photo unless the image clearly shows it.
@@ -75,7 +76,7 @@ Example linked logic:
 For visual training analysis, include:
 
 - What the image appears to show and confidence.
-- Equipment/action identification.
+- Equipment/action identification, including the closest VG visual guide ID and the beginner-facing quick visual cue, find-equipment cue, and movement path cue when possible.
 - Form observations and uncertainty.
 - One or two corrections, substitutions, or progression decisions.
 - How to log it in `session-log.csv`.

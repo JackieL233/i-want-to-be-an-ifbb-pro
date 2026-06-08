@@ -70,6 +70,7 @@ import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.SessionQualityDashboard
 import com.iwanttobeanifbbpro.app.core.TomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
+import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
 import com.iwanttobeanifbbpro.app.core.exerciseVisualLibrarySpecs
@@ -82,6 +83,7 @@ import com.iwanttobeanifbbpro.app.core.recoveryGuidance
 import com.iwanttobeanifbbpro.app.core.sessionQualityDashboard
 import com.iwanttobeanifbbpro.app.core.tomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
+import com.iwanttobeanifbbpro.app.core.weeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
 import com.iwanttobeanifbbpro.app.data.DailyLog
@@ -755,6 +757,59 @@ private fun TomorrowCoachBriefCard(brief: TomorrowCoachBrief, onOpenPlan: () -> 
 }
 
 @Composable
+private fun WeeklyCheckInCard(summary: WeeklyCheckInSummary, onOpenPlan: () -> Unit, onOpenNutrition: () -> Unit, onOpenMetrics: () -> Unit) {
+    SectionCard(
+        title = "Weekly Check-in",
+        subtitle = "Use 7-14 day execution before changing weekly volume, calories, or recovery pressure."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to summary.statusLabel,
+                "Days" to summary.daysLogged.toString(),
+                "Training completion" to "${summary.trainingCompletionPercent}%",
+                "Avg kcal" to (summary.averageCalories?.let { formatDecimal(it) } ?: "--"),
+                "Avg protein" to (summary.averageProtein?.let { "${formatDecimal(it)} g" } ?: "--"),
+                "Weight" to (summary.weightChangeKg?.let { "${formatSigned(it)} kg" } ?: "--"),
+                "Recovery" to (summary.recoveryScoreAverage?.toString() ?: "--")
+            )
+        )
+        Text(
+            text = "Next week action: ${summary.nextWeekAction}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Plan adjustment: ${summary.planAdjustment}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Nutrition adjustment: ${summary.nutritionAdjustment}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                "Weak point: ${summary.weakPointFocus}",
+                summary.dataQualityGate,
+                summary.aiReviewFocus
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onOpenPlan, modifier = Modifier.weight(1f)) {
+                Text("Plan")
+            }
+            TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
+                Text("Food")
+            }
+            TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
+                Text("Metrics")
+            }
+        }
+    }
+}
+
+@Composable
 private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>) {
     val completed = tasks.count { it.done }
     SectionCard(
@@ -938,6 +993,12 @@ private fun TodayDashboard(
         profile = state.athleteProfile,
         plan = state.trainingPlan
     )
+    val weeklyCheckIn = weeklyCheckInSummary(
+        log = log,
+        recentLogs = state.recentLogs,
+        profile = state.athleteProfile,
+        plan = state.trainingPlan
+    )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         CommandCenterCard(
             readiness = readiness,
@@ -958,6 +1019,12 @@ private fun TodayDashboard(
         )
         TomorrowCoachBriefCard(
             brief = tomorrowBrief,
+            onOpenPlan = onOpenPlan,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics
+        )
+        WeeklyCheckInCard(
+            summary = weeklyCheckIn,
             onOpenPlan = onOpenPlan,
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics
@@ -1683,6 +1750,11 @@ private fun ExerciseVisualMapRow(item: ExerciseVisualMapItem) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
+                text = "识别步骤: ${spec.quickVisualCue}; ${spec.findEquipmentCue}; ${spec.movementPathCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
                 text = "动作识别: ${spec.lookFor}; ${spec.beginnerCue}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1716,6 +1788,11 @@ private fun ExerciseVisualHeader(
             )
             Text(
                 text = spec.lookFor,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spec.quickVisualCue,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1756,6 +1833,7 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                ExerciseVisualCueSteps(spec = spec)
                 Text(
                     text = "Example: ${spec.example}",
                     style = MaterialTheme.typography.bodySmall,
@@ -1785,6 +1863,11 @@ private fun ExerciseVisualGuideLibrary() {
     ) {
         Text(
             text = "When the app or AI sees an exercise name, it maps it to one of these shared visual IDs: equipment name, Chinese label, simple instance diagram, action path cue, beginner recognition cue, example movement, look-for cue, equipment markers, and common movements.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Each card uses the same three beginner steps: see the simplified instance diagram, find the matching gym equipment, then follow the intended movement path.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -1842,6 +1925,7 @@ private fun ExerciseVisualRecognitionPreview(name: String, targetMuscle: String)
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                ExerciseVisualCueSteps(spec = spec)
                 Text(
                     text = "常见动作: ${spec.commonMovements.joinToString(", ")}",
                     style = MaterialTheme.typography.bodySmall,
@@ -1880,6 +1964,21 @@ private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
+                text = "Quick visual cue: ${spec.quickVisualCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Find equipment cue: ${spec.findEquipmentCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Movement path cue: ${spec.movementPathCue}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
                 text = "Instance: ${spec.instanceCue}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1910,6 +2009,27 @@ private fun ExerciseVisualGuideSample(spec: ExerciseVisualSpec) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+@Composable
+private fun ExerciseVisualCueSteps(spec: ExerciseVisualSpec) {
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Text(
+            text = "Quick visual cue: ${spec.quickVisualCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Find equipment cue: ${spec.findEquipmentCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Movement path cue: ${spec.movementPathCue}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -2290,6 +2410,9 @@ private fun NextSetCoachCard(coach: NextSetCoach) {
                 coach.visualSpec.visualId,
                 coach.visualSpec.equipmentZh,
                 coach.visualSpec.equipment,
+                coach.visualSpec.quickVisualCue,
+                coach.visualSpec.findEquipmentCue,
+                coach.visualSpec.movementPathCue,
                 "Look-for cue: ${coach.visualSpec.lookFor}"
             )
         )
@@ -2323,6 +2446,7 @@ private fun NextSetVisualGuide(spec: ExerciseVisualSpec) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                ExerciseVisualCueSteps(spec = spec)
                 Text(
                     text = "Look-for cue: ${spec.lookFor}",
                     style = MaterialTheme.typography.bodySmall,

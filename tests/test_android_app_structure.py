@@ -25,6 +25,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt",
@@ -306,6 +307,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "tomorrow recovery gate",
             "tomorrow tracking action",
             "promptLine",
+            "Weekly Check-in",
+            "WeeklyCheckInSummary",
+            "weeklyCheckInSummary",
+            "trainingCompletionPercent",
+            "planAdjustment",
+            "nutritionAdjustment",
+            "weakPointFocus",
+            "dataQualityGate",
+            "nextWeekAction",
+            "Use Weekly Check-in before changing plan-wide volume or calorie targets",
             "Session Quality Dashboard",
             "SessionQualityDashboard",
             "sessionQualityDashboard",
@@ -342,6 +353,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Chinese equipment labels",
             "unified instance diagrams",
             "action path cues",
+            "quick visual cues",
+            "find-equipment cues",
+            "movement path cues",
             "beginner recognition cues",
             "equipment markers",
             "instance diagram cues",
@@ -352,6 +366,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "visualId",
             "figureTitle",
             "actionPathCue",
+            "quickVisualCue",
+            "findEquipmentCue",
+            "movementPathCue",
             "beginnerCue",
             "equipmentMarkers",
             "VG-01",
@@ -405,10 +422,13 @@ class AndroidAppStructureTest(unittest.TestCase):
         tomorrow = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt"
         ).read_text(encoding="utf-8")
+        weekly_checkin = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt"
+        ).read_text(encoding="utf-8")
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -532,6 +552,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Visual guide ID",
             "Unified instance diagram",
             "Action path cue",
+            "Quick visual cue",
+            "Find equipment cue",
+            "Movement path cue",
             "Beginner recognition cue",
             "Equipment markers",
             "Exercise Visual Library",
@@ -541,6 +564,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "visualId",
             "figureTitle",
             "actionPathCue",
+            "quickVisualCue",
+            "findEquipmentCue",
+            "movementPathCue",
             "beginnerCue",
             "equipmentMarkers",
             "VG-01",
@@ -661,6 +687,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Plan tomorrow",
             "Food targets",
             "Readiness gate",
+            "WeeklyCheckInSummary",
+            "WeeklyCheckInCard",
+            "weeklyCheckInSummary",
+            "Weekly Check-in",
+            "Training completion",
+            "Plan adjustment",
+            "Nutrition adjustment",
+            "Weak point",
+            "Next week action",
             "SessionQualityDashboard",
             "SessionQualityDashboardCard",
             "sessionQualityDashboard",
@@ -748,10 +783,13 @@ class AndroidAppStructureTest(unittest.TestCase):
         tomorrow = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt"
         ).read_text(encoding="utf-8")
+        weekly_checkin = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt"
+        ).read_text(encoding="utf-8")
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -851,6 +889,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "visual guide IDs",
             "unified instance diagrams",
             "action path cues",
+            "quick visual cues",
+            "find-equipment cues",
+            "movement path cues",
             "beginner recognition cues",
             "equipment markers",
             "common movement examples",
@@ -898,6 +939,13 @@ class AndroidAppStructureTest(unittest.TestCase):
             "stop cue",
             "after-set logging cue",
             "Tomorrow Coach Brief",
+            "Weekly Check-in",
+            "training completion",
+            "average calories/protein",
+            "weight change",
+            "recovery average",
+            "weak-point focus",
+            "next-week action",
             "tomorrow training focus",
             "tomorrow nutrition target",
             "tomorrow recovery gate",
@@ -966,6 +1014,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Stop cue",
             "After-set logging cue",
             "Tomorrow Coach Brief",
+            "Weekly Check-in",
+            "Training completion",
+            "Recovery average",
+            "Weak-point focus",
+            "Next week action",
             "Tomorrow training focus",
             "Tomorrow nutrition target",
             "Tomorrow recovery gate",
@@ -1011,6 +1064,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Visual guide ID",
             "Unified instance diagram",
             "Action path cue",
+            "Quick visual cue",
+            "Find equipment cue",
+            "Movement path cue",
             "Beginner recognition cue",
             "Equipment markers",
             "Instance diagram cue",
@@ -1099,10 +1155,19 @@ class AndroidAppStructureTest(unittest.TestCase):
         app_library = (APP / "app/src/main/assets/skill/references/exercise-library.md").read_text(
             encoding="utf-8"
         )
+        visual_analysis = (
+            ROOT / "skills/i-want-to-be-an-ifbb-pro/references/visual-analysis-and-food-estimation.md"
+        ).read_text(encoding="utf-8")
+        app_visual_analysis = (
+            APP / "app/src/main/assets/skill/references/visual-analysis-and-food-estimation.md"
+        ).read_text(encoding="utf-8")
         expected_terms = [
             "Exercise Visual Guide",
             "Chinese equipment labels",
             "simple instance diagrams",
+            "quick visual cues",
+            "find-equipment cues",
+            "movement path cues",
             "visual IDs",
             "VG-01",
             "VG-10",
@@ -1145,8 +1210,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Look for an overhead bar, dip handles, or assist platform",
             "Look for a band anchored to a rack, door, or post",
             "Look for a sled platform, seat, and safety handles",
+            "Map the visible setup to the Exercise Visual Guide",
+            "closest VG visual guide ID",
+            "quick visual cue, find-equipment cue, and movement path cue",
         ]
-        combined = f"{skill_library}\n{app_library}"
+        combined = f"{skill_library}\n{app_library}\n{visual_analysis}\n{app_visual_analysis}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
