@@ -68,6 +68,7 @@ import com.iwanttobeanifbbpro.app.core.NextSetCoach
 import com.iwanttobeanifbbpro.app.core.ProgressionCue
 import com.iwanttobeanifbbpro.app.core.RecoveryGuidance
 import com.iwanttobeanifbbpro.app.core.SessionQualityDashboard
+import com.iwanttobeanifbbpro.app.core.TomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
@@ -79,6 +80,7 @@ import com.iwanttobeanifbbpro.app.core.mealAssemblyGuide
 import com.iwanttobeanifbbpro.app.core.nextSetCoach
 import com.iwanttobeanifbbpro.app.core.recoveryGuidance
 import com.iwanttobeanifbbpro.app.core.sessionQualityDashboard
+import com.iwanttobeanifbbpro.app.core.tomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
@@ -692,6 +694,67 @@ private fun DailyExecutionPlanCard(
 }
 
 @Composable
+private fun TomorrowCoachBriefCard(brief: TomorrowCoachBrief, onOpenPlan: () -> Unit, onOpenNutrition: () -> Unit, onOpenMetrics: () -> Unit) {
+    SectionCard(
+        title = "Tomorrow Coach Brief",
+        subtitle = "Lock the next-day training, food, recovery, and tracking priorities after today's review."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to brief.statusLabel,
+                "Date" to brief.tomorrowDate,
+                "Plan day" to brief.planDayName,
+                "Focus" to brief.planFocus,
+                "Calories" to brief.targetCalories.toString(),
+                "Protein" to "${brief.targetProtein} g"
+            )
+        )
+        Text(
+            text = brief.primaryAction,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Training: ${brief.trainingAction}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Nutrition: ${brief.nutritionAction}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Recovery: ${brief.recoveryAction}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "Tracking: ${brief.trackingAction}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                "Readiness gate: ${brief.readinessGate}",
+                "AI review focus: ${brief.aiReviewFocus}"
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = onOpenPlan, modifier = Modifier.weight(1f)) {
+                Text("Plan tomorrow")
+            }
+            TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
+                Text("Food targets")
+            }
+            TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
+                Text("Metrics")
+            }
+        }
+    }
+}
+
+@Composable
 private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>) {
     val completed = tasks.count { it.done }
     SectionCard(
@@ -869,6 +932,12 @@ private fun TodayDashboard(
         hasWeeklyPlan = state.trainingPlan.days.any { it.exercises.isNotEmpty() },
         hasAiReviewToday = state.reviewHistory.any { it.logDate == log.date }
     )
+    val tomorrowBrief = tomorrowCoachBrief(
+        log = log,
+        recentLogs = state.recentLogs,
+        profile = state.athleteProfile,
+        plan = state.trainingPlan
+    )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         CommandCenterCard(
             readiness = readiness,
@@ -886,6 +955,12 @@ private fun TodayDashboard(
             onOpenMetrics = onOpenMetrics,
             onDailyReview = onDailyReview,
             onOpenAi = onOpenAi
+        )
+        TomorrowCoachBriefCard(
+            brief = tomorrowBrief,
+            onOpenPlan = onOpenPlan,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics
         )
         DailyCoachChecklistCard(
             tasks = state.dailyCoachTasks(
@@ -2902,6 +2977,13 @@ private fun AiCoachPage(
                     "Plan adjustment signal",
                     "Training Readiness Builder",
                     "Next Set Coach",
+                    "Tomorrow Coach Brief",
+                    "Tomorrow training focus",
+                    "Tomorrow nutrition target",
+                    "Tomorrow recovery gate",
+                    "Tomorrow tracking action",
+                    "Plan tomorrow",
+                    "Readiness gate",
                     "Current exercise",
                     "Next set target",
                     "Load cue",

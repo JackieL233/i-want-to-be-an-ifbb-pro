@@ -8,6 +8,7 @@ The preview mirrors the current Android app structure:
 
 - Today command center
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
+- Tomorrow Coach Brief for next-day training focus, calorie/protein targets, readiness gate, recovery action, and tracking action
 - Daily Coach Checklist for plan, training, food, metrics, and AI review completion
 - Athlete profile and weekly plan
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority

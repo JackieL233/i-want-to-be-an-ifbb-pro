@@ -21,6 +21,12 @@ class DailySummaryBuilder {
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
         val nextSet = nextSetCoach(log)
         val sessionQuality = sessionQualityDashboard(log)
+        val tomorrowBrief = tomorrowCoachBrief(
+            log = log,
+            recentLogs = recentLogs,
+            profile = profile,
+            plan = plan ?: WeeklyTrainingPlan()
+        )
         val dailyExecution = dailyExecutionPlan(
             log = log,
             recentLogs = recentLogs,
@@ -102,6 +108,7 @@ class DailySummaryBuilder {
             - Body composition guidance: ${bodyCompositionGuidance.statusLabel}, phase ${bodyCompositionGuidance.phaseGoal}, weight change ${bodyCompositionGuidance.weightChangeKg ?: "not enough data"} kg, average calories ${bodyCompositionGuidance.averageCalories?.roundForPrompt() ?: "not enough data"}, average protein ${bodyCompositionGuidance.averageProtein?.roundForPrompt() ?: "not enough data"} g, average completed sets ${bodyCompositionGuidance.averageCompletedSets?.roundForPrompt() ?: "not enough data"}, calorie adjustment ${bodyCompositionGuidance.calorieAdjustmentKcal} kcal, target calories ${bodyCompositionGuidance.targetCalories}, target protein ${bodyCompositionGuidance.targetProtein} g. ${bodyCompositionGuidance.rationale} ${bodyCompositionGuidance.nextAction}
             - Recovery guidance: ${recoveryGuidance.statusLabel}, readiness score ${recoveryGuidance.readinessScore}, training pressure ${recoveryGuidance.trainingPressure}, sleep signal ${recoveryGuidance.sleepSignal}, stress signal ${recoveryGuidance.stressSignal}, soreness signal ${recoveryGuidance.sorenessSignal}, HR signal ${recoveryGuidance.heartRateSignal}, recommended training action ${recoveryGuidance.recommendedTrainingAction}. ${recoveryGuidance.rationale} ${recoveryGuidance.nextAction}
             - ${dailyExecution.promptLine()}
+            - ${tomorrowBrief.promptLine()}
             Meals:
             $meals
 
@@ -156,7 +163,7 @@ class DailySummaryBuilder {
             13. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
             14. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
             15. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            16. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            16. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
         """.trimIndent()
     }
 
