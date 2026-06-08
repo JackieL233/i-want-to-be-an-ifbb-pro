@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
+import com.iwanttobeanifbbpro.app.data.AthleteProfile
 import com.iwanttobeanifbbpro.app.data.DailyLog
 import com.iwanttobeanifbbpro.app.data.DailyMetrics
 import com.iwanttobeanifbbpro.app.data.DailyTargets
@@ -118,6 +119,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                     item {
                         PlanPage(
                             state = state,
+                            onProfileChange = viewModel::updateAthleteProfile,
                             onNameChange = viewModel::updateTrainingPlanName,
                             onGoalChange = viewModel::updateTrainingPlanGoal,
                             onSelectDay = viewModel::selectPlanDay,
@@ -326,9 +328,15 @@ private fun CommandCenterCard(
             metrics = listOf(
                 "Readiness" to "${readiness.score}",
                 "State" to readiness.label,
+                "Phase" to state.athleteProfile.currentPhase,
                 "Sets" to "${state.dailyLog.completedHardSets()}/${state.dailyLog.plannedHardSets()}",
                 "Meals" to state.dailyLog.meals.size.toString()
             )
+        )
+        Text(
+            text = "Goal: ${state.athleteProfile.primaryGoal}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = readiness.nextAction,
@@ -579,9 +587,139 @@ private fun RestTimerBanner(timer: RestTimerState, onSkip: () -> Unit) {
 }
 
 @Composable
+private fun AthleteProfileCard(profile: AthleteProfile, onProfileChange: (AthleteProfile) -> Unit) {
+    SectionCard(title = "Athlete Profile", subtitle = "Set the long-term target once so plans, nutrition, and AI reviews stay personal.") {
+        MetricGrid(
+            metrics = listOf(
+                "Phase" to profile.currentPhase,
+                "Experience" to profile.trainingExperience,
+                "Training days" to profile.weeklyTrainingDays.toString(),
+                "Target BF" to formatOptional(profile.targetBodyFatPercent, "%")
+            )
+        )
+        OutlinedTextField(
+            value = profile.displayName,
+            onValueChange = { onProfileChange(profile.copy(displayName = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Name") },
+            singleLine = true
+        )
+        OutlinedTextField(
+            value = profile.primaryGoal,
+            onValueChange = { onProfileChange(profile.copy(primaryGoal = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Primary physique goal") },
+            minLines = 2
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = profile.currentPhase,
+                onValueChange = { onProfileChange(profile.copy(currentPhase = it)) },
+                modifier = Modifier.weight(1f),
+                label = { Text("Phase") },
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = profile.trainingExperience,
+                onValueChange = { onProfileChange(profile.copy(trainingExperience = it)) },
+                modifier = Modifier.weight(1f),
+                label = { Text("Experience") },
+                singleLine = true
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = profile.sex,
+                onValueChange = { onProfileChange(profile.copy(sex = it)) },
+                modifier = Modifier.weight(1f),
+                label = { Text("Sex") },
+                singleLine = true
+            )
+            NumberField(
+                value = profile.age?.toString().orEmpty(),
+                onChange = { onProfileChange(profile.copy(age = it.toIntOrNull())) },
+                label = "Age",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DecimalField(
+                value = profile.heightCm?.toString().orEmpty(),
+                onChange = { onProfileChange(profile.copy(heightCm = it.toDoubleOrNull())) },
+                label = "Height cm",
+                modifier = Modifier.weight(1f)
+            )
+            NumberField(
+                value = profile.weeklyTrainingDays.toString(),
+                onChange = {
+                    onProfileChange(
+                        profile.copy(
+                            weeklyTrainingDays = (it.toIntOrNull() ?: profile.weeklyTrainingDays).coerceIn(1, 7)
+                        )
+                    )
+                },
+                label = "Days/wk",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DecimalField(
+                value = profile.startWeightKg?.toString().orEmpty(),
+                onChange = { onProfileChange(profile.copy(startWeightKg = it.toDoubleOrNull())) },
+                label = "Start kg",
+                modifier = Modifier.weight(1f)
+            )
+            DecimalField(
+                value = profile.targetWeightKg?.toString().orEmpty(),
+                onChange = { onProfileChange(profile.copy(targetWeightKg = it.toDoubleOrNull())) },
+                label = "Target kg",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            DecimalField(
+                value = profile.targetBodyFatPercent?.toString().orEmpty(),
+                onChange = { onProfileChange(profile.copy(targetBodyFatPercent = it.toDoubleOrNull())) },
+                label = "Target BF %",
+                modifier = Modifier.weight(1f)
+            )
+            OutlinedTextField(
+                value = profile.availableEquipment,
+                onValueChange = { onProfileChange(profile.copy(availableEquipment = it)) },
+                modifier = Modifier.weight(1f),
+                label = { Text("Equipment") },
+                singleLine = true
+            )
+        }
+        OutlinedTextField(
+            value = profile.weakPoints,
+            onValueChange = { onProfileChange(profile.copy(weakPoints = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Weak points or physique priorities") },
+            minLines = 2
+        )
+        OutlinedTextField(
+            value = profile.dietaryPreference,
+            onValueChange = { onProfileChange(profile.copy(dietaryPreference = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Diet preference") },
+            singleLine = true
+        )
+        OutlinedTextField(
+            value = profile.constraints,
+            onValueChange = { onProfileChange(profile.copy(constraints = it)) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Injuries, schedule, recovery, or food constraints") },
+            minLines = 2
+        )
+    }
+}
+
+@Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun PlanPage(
     state: CoachUiState,
+    onProfileChange: (AthleteProfile) -> Unit,
     onNameChange: (String) -> Unit,
     onGoalChange: (String) -> Unit,
     onSelectDay: (Int) -> Unit,
@@ -605,6 +743,7 @@ private fun PlanPage(
     var notes by remember(selectedIndex) { mutableStateOf("") }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        AthleteProfileCard(profile = state.athleteProfile, onProfileChange = onProfileChange)
         SectionCard(title = "Weekly Plan", subtitle = "Build the plan first, then apply a training day to today's executable workout log.") {
             OutlinedTextField(
                 value = plan.name,
@@ -1289,7 +1428,7 @@ private fun HealthConnectCard(
     val snapshot = state.healthSnapshot
     SectionCard(
         title = "Health Connect",
-        subtitle = "Sync body weight, body fat, lean mass, sleep, steps, resting heart rate, and total calories from supported phone, scale, watch, Xiaomi, Huawei, or other health apps."
+        subtitle = "Read user-authorized body and recovery records from Health Connect, then feed them into daily AI review."
     ) {
         MetricGrid(
             metrics = listOf(
@@ -1302,7 +1441,16 @@ private fun HealthConnectCard(
                 "Body fat" to formatOptional(snapshot.bodyFatPercent, "%"),
                 "Steps" to (snapshot.steps?.toString() ?: "--"),
                 "Sleep" to formatOptional(snapshot.sleepHours, "h"),
-                "Resting HR" to formatOptional(snapshot.restingHeartRateBpm, "bpm")
+                "Resting HR" to formatOptional(snapshot.restingHeartRateBpm, "bpm"),
+                "Calories" to formatOptional(snapshot.totalCaloriesBurnedKcal, "kcal")
+            )
+        )
+        DataChipGrid(
+            items = listOf(
+                "Xiaomi/Mi Fitness -> Health Connect",
+                "Huawei Health -> Health Connect or Health Kit",
+                "Scale/watch/phone -> Health Connect",
+                "Manual fallback"
             )
         )
         Text(
@@ -1311,7 +1459,7 @@ private fun HealthConnectCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Vendor data is readable when the source app writes it into Health Connect and you approve permissions; dedicated Huawei Health Kit or Xiaomi-specific connectors can be added as later provider modules.",
+            text = "Vendor data is readable only when the source app writes compatible records into Health Connect and you approve permissions. Huawei Health Kit can be added as a dedicated provider for deeper Huawei ecosystem syncing.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

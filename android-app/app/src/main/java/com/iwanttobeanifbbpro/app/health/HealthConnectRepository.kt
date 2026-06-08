@@ -122,7 +122,7 @@ class HealthConnectRepository(private val context: Context) {
             val steps = readSteps(client, granted, startOfDay, now)
             val calories = readTotalCalories(client, granted, startOfDay, now)
             val message = if (listOf(weight, bodyFat, leanMass, sleepHours, restingHeartRate, calories).any { it != null } || steps != null) {
-                "Synced Health Connect metrics. Xiaomi, Huawei, scale, watch, and phone data can appear here when their apps write to Health Connect."
+                "Synced Health Connect metrics. Xiaomi, Huawei, scale, watch, and phone data can appear here when the source app writes compatible records into Health Connect."
             } else {
                 "Connected, but no supported Health Connect records were found for today's sync window."
             }

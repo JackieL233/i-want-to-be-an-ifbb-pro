@@ -10,6 +10,7 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 - A `Today` Command Center with readiness, next action, training, nutrition, recovery, and body-composition cards so beginners know what to do first while advanced users can scan the key numbers.
 - Local daily log history with a 7-day trend summary for body weight, calories, protein, sleep, steps, hard sets, and training volume.
 - Saved AI review history so the latest coaching guidance remains visible after the app closes.
+- Athlete Profile setup for long-term goal, current phase, training experience, target weight/body fat, weekly training days, equipment, weak points, diet preference, and constraints. This profile is included in every daily AI review.
 - Coach modes for new plans, check-ins, training visual analysis, food visual analysis, linked training + nutrition analysis, existing plan audit, and evidence explanations.
 - Configurable API key, base URL, and model from the app UI.
 - OpenAI Responses API request shape with text and photos.
@@ -30,14 +31,15 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 
 Use the app as a daily training and daily nutrition cockpit:
 
-1. Open `Today` to see the current training, nutrition, metrics, and readiness summary.
+1. Set `Athlete Profile` in `Plan` so the app knows your phase, target, training schedule, equipment, weak points, and constraints.
+2. Open `Today` to see the current training, nutrition, metrics, and readiness summary.
    The Command Center shows the next best action and a beginner-friendly daily loop: plan, train, log food, sync health data, then run AI review.
    The 7-day trend card shows whether body weight, food intake, hard sets, sleep, and activity are moving in the right direction.
-2. Use `Plan` to build the weekly training plan, select a day, add planned exercises, and tap `Apply today`.
-3. Use `Training` to log the applied session, set-by-set weight, reps, RIR, rest time, hard sets, target muscle, and pain/form notes. Tap `Complete` after a set to start the rest timer.
-4. Use `Nutrition` to set calorie/macronutrient targets, log meals, and attach a meal photo when you want food-photo analysis.
-5. Use `Metrics` for body weight, body fat, lean mass, waist, sleep, steps, resting heart rate, calorie burn, hunger, fatigue, soreness, stress, and daily reflection. Tap `Connect health data` and `Sync today` to import supported Health Connect records.
-6. Use `AI Coach` or the `Run AI review` button to send the weekly training plan, day's log, set-level performance, photos, and your extra question to the model for adjustment guidance.
+3. Use `Plan` to build the weekly training plan, select a day, add planned exercises, and tap `Apply today`.
+4. Use `Training` to log the applied session, set-by-set weight, reps, RIR, rest time, hard sets, target muscle, and pain/form notes. Tap `Complete` after a set to start the rest timer.
+5. Use `Nutrition` to set calorie/macronutrient targets, log meals, and attach a meal photo when you want food-photo analysis.
+6. Use `Metrics` for body weight, body fat, lean mass, waist, sleep, steps, resting heart rate, calorie burn, hunger, fatigue, soreness, stress, and daily reflection. Tap `Connect health data` and `Sync today` to import supported Health Connect records.
+7. Use `AI Coach` or the `Run AI review` button to send the athlete profile, weekly training plan, day's log, set-level performance, photos, and your extra question to the model for adjustment guidance.
 
 ## Health data sync
 
@@ -53,7 +55,12 @@ The first health-data layer is Android Health Connect. The app requests read-onl
 
 This can support Xiaomi, Huawei, smart-scale, watch, and phone health data when those vendor apps sync or expose records through Health Connect and the user grants permission. The app does not bypass vendor privacy controls or read private manufacturer databases directly.
 
-For deeper vendor-specific support, Huawei Health Kit can be added later as a dedicated provider module. Manual metrics remain available when Health Connect is unavailable, permissions are denied, or a vendor app does not export the needed records.
+Current implementation status:
+
+- Implemented now: Health Connect read-only sync for compatible records, including data that Xiaomi/Mi Fitness, Huawei, smart-scale, watch, or phone apps write into Health Connect.
+- Not guaranteed by the app alone: a vendor app must actually export the metric to Health Connect, and the user must approve the permission.
+- Future provider module: Huawei Health Kit can be added later for deeper Huawei ecosystem syncing when Health Connect does not expose enough data.
+- Fallback: manual entry remains available when Health Connect is unavailable, permissions are denied, or a vendor app does not export the needed records.
 
 ## Build
 

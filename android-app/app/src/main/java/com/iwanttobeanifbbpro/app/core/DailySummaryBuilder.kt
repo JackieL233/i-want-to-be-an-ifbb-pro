@@ -1,12 +1,14 @@
 package com.iwanttobeanifbbpro.app.core
 
 import com.iwanttobeanifbbpro.app.data.DailyLog
+import com.iwanttobeanifbbpro.app.data.AthleteProfile
 import com.iwanttobeanifbbpro.app.data.WeeklyTrainingPlan
 
 class DailySummaryBuilder {
     fun buildAiReviewContext(
         log: DailyLog,
         recentLogs: List<DailyLog> = emptyList(),
+        profile: AthleteProfile = AthleteProfile(),
         plan: WeeklyTrainingPlan? = null,
         extraRequest: String = ""
     ): String {
@@ -35,6 +37,23 @@ class DailySummaryBuilder {
             AI review context for daily training and daily nutrition.
 
             Date: ${log.date}
+
+            Athlete profile and goal:
+            - Name: ${profile.displayName.ifBlank { "not set" }}
+            - Primary goal: ${profile.primaryGoal}
+            - Current phase: ${profile.currentPhase}
+            - Training experience: ${profile.trainingExperience}
+            - Sex: ${profile.sex.ifBlank { "not set" }}
+            - Age: ${profile.age ?: "not set"}
+            - HeightCm: ${profile.heightCm ?: "not set"}
+            - Start weightKg: ${profile.startWeightKg ?: "not set"}
+            - Target weightKg: ${profile.targetWeightKg ?: "not set"}
+            - Target bodyFatPercent: ${profile.targetBodyFatPercent ?: "not set"}
+            - Weekly training days: ${profile.weeklyTrainingDays}
+            - Available equipment: ${profile.availableEquipment}
+            - Dietary preference: ${profile.dietaryPreference.ifBlank { "not set" }}
+            - Constraints: ${profile.constraints.ifBlank { "none logged" }}
+            - Weak points: ${profile.weakPoints.ifBlank { "not set" }}
 
             Daily targets:
             - Calories ${log.targets.calories}, protein ${log.targets.protein}g, carbs ${log.targets.carbs}g, fat ${log.targets.fat}g, fiber ${log.targets.fiber}g.
@@ -89,14 +108,15 @@ class DailySummaryBuilder {
             ${extraRequest.ifBlank { "Perform an AI review and update recommendations for tomorrow." }}
 
             Please perform an AI review:
-            1. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
-            2. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
-            3. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
-            4. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
-            5. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
-            6. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
-            7. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
-            8. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
+            1. Interpret today's data through the athlete profile: goal, phase, experience, equipment, schedule, weak points, and constraints.
+            2. Identify the limiting factor across training execution, nutrition adherence, sleep/recovery, and body-composition trend signals using the recent trend window before reacting to today's values.
+            3. Compare today's execution against the current weekly training plan and decide whether later training days should stay unchanged or be adjusted.
+            4. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
+            5. Decide which exercises should add reps, add load, hold, reduce volume, swap, or deload next time.
+            6. Use Health Connect-derived data, if present, as approximate user-authorized signals from phone, scale, watch, Xiaomi, Huawei, or other source apps; do not overreact to one-day body-fat or calorie-burn estimates.
+            7. Compare food intake with training demand and recommend the smallest useful calorie, protein, carb, fat, fiber, hydration, or meal-timing adjustment.
+            8. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
+            9. Specify tomorrow's training, nutrition, recovery, and tracking priorities.
         """.trimIndent()
     }
 

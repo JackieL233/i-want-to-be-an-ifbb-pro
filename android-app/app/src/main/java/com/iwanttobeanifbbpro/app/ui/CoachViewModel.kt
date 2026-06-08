@@ -17,6 +17,8 @@ import com.iwanttobeanifbbpro.app.core.SkillAssetRepository
 import com.iwanttobeanifbbpro.app.core.SkillPromptBuilder
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AiReviewStore
+import com.iwanttobeanifbbpro.app.data.AthleteProfile
+import com.iwanttobeanifbbpro.app.data.AthleteProfileStore
 import com.iwanttobeanifbbpro.app.data.DailyLog
 import com.iwanttobeanifbbpro.app.data.DailyLogStore
 import com.iwanttobeanifbbpro.app.data.DailyMetrics
@@ -72,6 +74,7 @@ data class CoachUiState(
     val settings: AiSettings = AiSettings(),
     val dailyLog: DailyLog = DailyLog(),
     val recentLogs: List<DailyLog> = emptyList(),
+    val athleteProfile: AthleteProfile = AthleteProfile(),
     val trainingPlan: WeeklyTrainingPlan = WeeklyTrainingPlan(),
     val selectedPlanDayIndex: Int = 0,
     val restTimer: RestTimerState? = null,
@@ -89,6 +92,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     private val dailyLogStore = DailyLogStore(application)
     private val trainingPlanStore = TrainingPlanStore(application)
     private val aiReviewStore = AiReviewStore(application)
+    private val athleteProfileStore = AthleteProfileStore(application)
     private val dailySummaryBuilder = DailySummaryBuilder()
     private val promptBuilder = SkillPromptBuilder(SkillAssetRepository(application))
     private val apiClient = OpenAiResponsesClient()
@@ -100,6 +104,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
             settings = settingsStore.load(),
             dailyLog = dailyLogStore.readLog(),
             recentLogs = dailyLogStore.readRecentLogs(),
+            athleteProfile = athleteProfileStore.readProfile(),
             trainingPlan = trainingPlanStore.readPlan(),
             reviewHistory = aiReviewStore.readReviews()
         )
@@ -121,6 +126,11 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     fun updateSettings(settings: AiSettings) {
         settingsStore.save(settings)
         uiState = uiState.copy(settings = settings)
+    }
+
+    fun updateAthleteProfile(profile: AthleteProfile) {
+        athleteProfileStore.saveProfile(profile)
+        uiState = uiState.copy(athleteProfile = profile)
     }
 
     fun selectPlanDay(index: Int) {
@@ -420,6 +430,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
         val context = dailySummaryBuilder.buildAiReviewContext(
             log = uiState.dailyLog,
             recentLogs = uiState.recentLogs,
+            profile = uiState.athleteProfile,
             plan = uiState.trainingPlan,
             extraRequest = uiState.userInput
         )

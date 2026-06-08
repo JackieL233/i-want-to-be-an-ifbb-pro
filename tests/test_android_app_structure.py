@@ -22,6 +22,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLog.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLogStore.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/AiReviewStore.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/data/AthleteProfile.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlan.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/data/TrainingPlanStore.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailySummaryBuilder.kt",
@@ -108,7 +109,20 @@ class AndroidAppStructureTest(unittest.TestCase):
         ai_review_store = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/AiReviewStore.kt").read_text(
             encoding="utf-8"
         )
+        athlete_profile = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/AthleteProfile.kt").read_text(
+            encoding="utf-8"
+        )
         expected_terms = [
+            "AthleteProfile",
+            "AthleteProfileStore",
+            "athlete_profile",
+            "primaryGoal",
+            "currentPhase",
+            "trainingExperience",
+            "targetBodyFatPercent",
+            "weeklyTrainingDays",
+            "weakPoints",
+            "constraints",
             "TrainingSession",
             "ExerciseEntry",
             "SetEntry",
@@ -153,6 +167,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "daily training",
             "daily nutrition",
             "AI review",
+            "Athlete profile and goal",
+            "Interpret today's data through the athlete profile",
             "set-level performance",
             "rest time",
             "Current weekly training plan",
@@ -161,7 +177,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Weight change in window",
             "Daily trend rows",
         ]
-        combined = f"{model}\n{store}\n{ai_review_store}\n{plan_model}\n{plan_store}\n{summary}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -193,6 +209,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Set load",
             "Actual reps",
             "Weekly Plan",
+            "Athlete Profile",
+            "Primary physique goal",
+            "Weak points or physique priorities",
+            "updateAthleteProfile",
+            "athleteProfile",
             "Apply today",
             "addPlannedExercise",
             "applyPlanDayToToday",
@@ -220,6 +241,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Saved AI Reviews",
             "Latest AI guidance",
             "ReviewHistoryCard",
+            "Xiaomi/Mi Fitness -> Health Connect",
+            "Huawei Health -> Health Connect or Health Kit",
+            "Scale/watch/phone -> Health Connect",
+            "Manual fallback",
         ]
         activity = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/MainActivity.kt").read_text(encoding="utf-8")
         theme = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/AppTheme.kt").read_text(encoding="utf-8")
@@ -263,6 +288,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "ReadRecordsRequest",
             "HealthSnapshot",
             "hasImportableMetrics",
+            "Xiaomi",
+            "Huawei",
+            "source app writes compatible records into Health Connect",
         ]
         combined = f"{gradle}\n{manifest}\n{repository}\n{snapshot}"
         for term in expected_terms:
@@ -290,10 +318,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Apply today",
             "Health Connect",
             "Xiaomi",
+            "Mi Fitness",
             "Huawei",
             "body fat",
             "resting heart rate",
             "Huawei Health Kit",
+            "Athlete Profile",
+            "target weight/body fat",
+            "weekly training days",
+            "manual entry",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
