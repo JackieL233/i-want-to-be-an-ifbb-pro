@@ -110,6 +110,21 @@ data class PhotoEvidenceEntry(
     companion object
 }
 
+data class DailyConditioning(
+    val stepGoal: Int = 9000,
+    val cardioMinutes: Int = 0,
+    val cardioType: String = "",
+    val cardioIntensity: String = "Zone 2",
+    val waterLiters: Double? = null,
+    val sodiumMg: Int? = null,
+    val caffeineMg: Int? = null,
+    val alcoholServings: Double? = null,
+    val digestion: String = "",
+    val notes: String = ""
+) {
+    companion object
+}
+
 data class MealTemplate(
     val id: String,
     val title: String,
@@ -227,6 +242,7 @@ data class DailyLog(
     val trainingSession: TrainingSession = TrainingSession(),
     val meals: List<MealEntry> = emptyList(),
     val photoEvidence: List<PhotoEvidenceEntry> = emptyList(),
+    val conditioning: DailyConditioning = DailyConditioning(),
     val metrics: DailyMetrics = DailyMetrics(),
     val reflection: String = ""
 ) {
@@ -253,6 +269,7 @@ data class DailyLog(
             .put("trainingSession", trainingSession.toJson())
             .put("meals", JSONArray().also { array -> meals.forEach { array.put(it.toJson()) } })
             .put("photoEvidence", JSONArray().also { array -> photoEvidence.forEach { array.put(it.toJson()) } })
+            .put("conditioning", conditioning.toJson())
             .put("metrics", metrics.toJson())
             .put("reflection", reflection)
     }
@@ -271,6 +288,7 @@ data class DailyLog(
                 photoEvidence = (0 until photoEvidence.length()).mapNotNull { index ->
                     photoEvidence.optJSONObject(index)?.let { PhotoEvidenceEntry.fromJson(it) }
                 },
+                conditioning = DailyConditioning.fromJson(json.optJSONObject("conditioning") ?: JSONObject()),
                 metrics = DailyMetrics.fromJson(json.optJSONObject("metrics") ?: JSONObject()),
                 reflection = json.optString("reflection", "")
             )
@@ -338,6 +356,20 @@ private fun PhotoEvidenceEntry.toJson(): JSONObject {
         .put("mimeType", mimeType)
         .put("note", note)
         .put("createdAt", createdAt)
+}
+
+private fun DailyConditioning.toJson(): JSONObject {
+    return JSONObject()
+        .put("stepGoal", stepGoal)
+        .put("cardioMinutes", cardioMinutes)
+        .put("cardioType", cardioType)
+        .put("cardioIntensity", cardioIntensity)
+        .put("waterLiters", waterLiters)
+        .put("sodiumMg", sodiumMg)
+        .put("caffeineMg", caffeineMg)
+        .put("alcoholServings", alcoholServings)
+        .put("digestion", digestion)
+        .put("notes", notes)
 }
 
 private fun DailyMetrics.toJson(): JSONObject {
@@ -457,6 +489,21 @@ fun PhotoEvidenceEntry.Companion.fromJson(json: JSONObject): PhotoEvidenceEntry 
         mimeType = json.safeString("mimeType", "image/jpeg"),
         note = json.optString("note", ""),
         createdAt = json.optString("createdAt", "")
+    )
+}
+
+fun DailyConditioning.Companion.fromJson(json: JSONObject): DailyConditioning {
+    return DailyConditioning(
+        stepGoal = json.safeInt("stepGoal", 9000).coerceAtLeast(0),
+        cardioMinutes = json.safeInt("cardioMinutes", 0).coerceAtLeast(0),
+        cardioType = json.optString("cardioType", ""),
+        cardioIntensity = json.safeString("cardioIntensity", "Zone 2"),
+        waterLiters = json.nullableDouble("waterLiters"),
+        sodiumMg = if (json.has("sodiumMg") && !json.isNull("sodiumMg")) json.optInt("sodiumMg") else null,
+        caffeineMg = if (json.has("caffeineMg") && !json.isNull("caffeineMg")) json.optInt("caffeineMg") else null,
+        alcoholServings = json.nullableDouble("alcoholServings"),
+        digestion = json.optString("digestion", ""),
+        notes = json.optString("notes", "")
     )
 }
 

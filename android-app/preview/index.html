@@ -1319,6 +1319,57 @@
 
           <div class="section">
             <div class="section-head">
+              <h2>Today Visual Primer</h2>
+              <p class="subtle">Unified simple equipment/action instance diagrams before training, so exercise names map to a real station, free weight, or movement path.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip active">Unified Exercise Visual Atlas</span>
+              <span class="chip active">simple equipment/action instance diagrams</span>
+              <span class="chip active">visual-map thumbnails</span>
+              <span class="chip active">Exercise name -> visual category</span>
+              <span class="chip active">Beginner recognition cue</span>
+            </div>
+            <p class="subtle">Three-step recognition: match the simplified instance diagram -> find the real equipment markers -> follow the intended movement path.</p>
+            <div class="visual-map">
+              <div class="visual-map-row">
+                <div class="mini-figure compact smith" aria-hidden="true">
+                  <span class="rail-left"></span><span class="rail-right"></span><span class="bar-line"></span><span class="bench"></span><span class="head"></span><span class="body"></span>
+                </div>
+                <div>
+                  <strong>Incline Smith Press</strong>
+                  <p class="subtle">VG-01 Smith machine (史密斯机) | 4 x 6-10 | done 2/4</p>
+                  <p class="subtle">Quick visual cue: 图例: 两根竖轨 + 一根固定杠; look for two rails and a fixed bar.</p>
+                </div>
+              </div>
+              <div class="visual-map-row">
+                <div class="mini-figure compact cable" aria-hidden="true">
+                  <span class="tower"></span><span class="arm"></span><span class="pulley"></span><span class="line"></span><span class="head"></span><span class="body"></span>
+                </div>
+                <div>
+                  <strong>Cable Lateral Raise</strong>
+                  <p class="subtle">VG-02 Cable station (绳索龙门架/滑轮器械) | 3 x 12-15 | done 1/3</p>
+                  <p class="subtle">Find equipment cue: 找器械: 龙门架、滑轮、钢索和把手; movement follows the cable line.</p>
+                </div>
+              </div>
+              <div class="visual-map-row">
+                <div class="mini-figure compact dumbbell" aria-hidden="true">
+                  <span class="head"></span><span class="torso"></span><span class="arm-left"></span><span class="arm-right"></span><span class="db-left"></span><span class="db-right"></span><span class="leg-left"></span><span class="leg-right"></span>
+                </div>
+                <div>
+                  <strong>Dumbbell Row</strong>
+                  <p class="subtle">VG-03 Dumbbells (哑铃) | 3 x 8-12 | done 0/3</p>
+                  <p class="subtle">Beginner recognition cue: 先找一对短柄重量；左右手独立控制轨迹。</p>
+                </div>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="button primary" type="button" data-tab-target="training">Open visual map</button>
+              <button class="button" type="button" data-tab-target="plan">Exercise Visual Library</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
               <h2>Daily Execution Plan</h2>
               <p class="subtle">The app's current decision layer: what to do first, what to adjust, and when AI review is reliable.</p>
             </div>
@@ -1443,6 +1494,31 @@
               <div class="metric"><span class="label">Kcal adjust</span><span class="value">0 kcal</span></div>
             </div>
             <p class="subtle"><strong>Next action:</strong> hold calories for another check-in and reassess with the next trend window.</p>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h2>Conditioning &amp; Hydration</h2>
+              <p class="subtle">Step goal, cardio, water, sodium, caffeine, digestion, and scale-weight noise before changing calories or volume.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Status</span><span class="value">Support variables logged</span></div>
+              <div class="metric"><span class="label">Score</span><span class="value">78</span></div>
+              <div class="metric"><span class="label">Steps</span><span class="value">8,420/9,000</span></div>
+              <div class="metric"><span class="label">Cardio</span><span class="value">20 min</span></div>
+              <div class="metric"><span class="label">Water</span><span class="value">3.2 L</span></div>
+              <div class="metric"><span class="label">Caffeine</span><span class="value">240 mg</span></div>
+            </div>
+            <div class="progress green"><span style="width:78%"></span></div>
+            <p class="subtle"><strong>Next action:</strong> keep steps, cardio, water, sodium, caffeine, and digestion notes consistent for cleaner AI review.</p>
+            <div class="chip-row">
+              <span class="chip active">step goal progress</span>
+              <span class="chip active">cardio status</span>
+              <span class="chip active">hydration status</span>
+              <span class="chip active">sodium cue</span>
+              <span class="chip active">caffeine cue</span>
+              <span class="chip active">weight fluctuation cue</span>
+            </div>
           </div>
 
           <div class="section">
@@ -2016,6 +2092,69 @@
 
           <div class="section">
             <div class="section-head">
+              <h2>Conditioning &amp; Hydration</h2>
+              <p class="subtle">Log training-outside variables so AI does not confuse water, sodium, caffeine, or NEAT changes with fat gain or poor programming.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Status</span><span class="value">Support variables logged</span></div>
+              <div class="metric"><span class="label">Step goal</span><span class="value">9,000</span></div>
+              <div class="metric"><span class="label">Cardio min</span><span class="value">20</span></div>
+              <div class="metric"><span class="label">Water L</span><span class="value">3.2</span></div>
+            </div>
+            <div class="split-row">
+              <div class="field">
+                <label for="step-goal">Step goal</label>
+                <input id="step-goal" class="mini-input" value="9000">
+              </div>
+              <div class="field">
+                <label for="cardio-min">Cardio min</label>
+                <input id="cardio-min" class="mini-input" value="20">
+              </div>
+            </div>
+            <div class="split-row">
+              <div class="field">
+                <label for="cardio-type">Cardio type</label>
+                <input id="cardio-type" class="mini-input" value="Incline walk">
+              </div>
+              <div class="field">
+                <label for="cardio-intensity">Cardio intensity</label>
+                <input id="cardio-intensity" class="mini-input" value="Zone 2">
+              </div>
+            </div>
+            <div class="split-row">
+              <div class="field">
+                <label for="water-liters">Water liters</label>
+                <input id="water-liters" class="mini-input" value="3.2">
+              </div>
+              <div class="field">
+                <label for="sodium-mg">Sodium mg</label>
+                <input id="sodium-mg" class="mini-input" value="3400">
+              </div>
+            </div>
+            <div class="split-row">
+              <div class="field">
+                <label for="caffeine-mg">Caffeine mg</label>
+                <input id="caffeine-mg" class="mini-input" value="240">
+              </div>
+              <div class="field">
+                <label for="alcohol-servings">Alcohol servings</label>
+                <input id="alcohol-servings" class="mini-input" value="0">
+              </div>
+            </div>
+            <div class="field">
+              <label for="digestion-notes">Digestion notes</label>
+              <textarea id="digestion-notes">No bloating; slightly salty restaurant meal yesterday.</textarea>
+            </div>
+            <div class="chip-row">
+              <span class="chip active">scale-weight noise</span>
+              <span class="chip active">NEAT behind</span>
+              <span class="chip active">Hydration gap</span>
+              <span class="chip active">Stimulant pressure</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
               <h2>Meal Templates</h2>
               <p class="subtle">Quick-add reliable meals, then refine with portions, labels, or photos.</p>
             </div>
@@ -2120,6 +2259,23 @@
               <div class="metric"><span class="label">HR signal</span><span class="value">Baseline building</span></div>
             </div>
             <p class="subtle"><strong>Training action:</strong> keep load and sets stable; avoid adding extra sets or failure work today.</p>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h2>Conditioning &amp; Hydration</h2>
+              <p class="subtle">NEAT, cardio, water, sodium, caffeine, alcohol, digestion notes, and weight fluctuation cue.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Status</span><span class="value">Support variables logged</span></div>
+              <div class="metric"><span class="label">Score</span><span class="value">78</span></div>
+              <div class="metric"><span class="label">Step progress</span><span class="value">94%</span></div>
+              <div class="metric"><span class="label">Cardio status</span><span class="value">Useful range</span></div>
+              <div class="metric"><span class="label">Hydration</span><span class="value">Logged</span></div>
+              <div class="metric"><span class="label">Sodium cue</span><span class="value">Plausible</span></div>
+            </div>
+            <p class="subtle"><strong>Weight fluctuation cue:</strong> scale changed +0.3 kg with possible confounders: high sodium and hard training stress.</p>
+            <p class="subtle"><strong>AI review focus:</strong> separate true calorie/training needs from NEAT, cardio, water, sodium, caffeine, alcohol, digestion, and scale-weight noise.</p>
           </div>
 
           <div class="section">
@@ -2328,6 +2484,17 @@
               <span class="chip active">Food photos/macros</span>
               <span class="chip active">Meal Templates</span>
               <span class="chip active">Nutrition Pacing</span>
+              <span class="chip active">Conditioning &amp; Hydration</span>
+              <span class="chip active">step goal</span>
+              <span class="chip active">cardio minutes</span>
+              <span class="chip active">cardio type</span>
+              <span class="chip active">cardio intensity</span>
+              <span class="chip active">water liters</span>
+              <span class="chip active">sodium mg</span>
+              <span class="chip active">caffeine mg</span>
+              <span class="chip active">alcohol servings</span>
+              <span class="chip active">digestion notes</span>
+              <span class="chip active">scale-weight noise</span>
               <span class="chip active">Next Meal Builder</span>
               <span class="chip active">Meal Assembly Guide</span>
               <span class="chip active">Plate structure</span>

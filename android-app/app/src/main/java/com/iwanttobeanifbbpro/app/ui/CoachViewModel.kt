@@ -22,6 +22,7 @@ import com.iwanttobeanifbbpro.app.data.AthleteProfileStore
 import com.iwanttobeanifbbpro.app.data.DailyLog
 import com.iwanttobeanifbbpro.app.data.DailyLogStore
 import com.iwanttobeanifbbpro.app.data.DailyMetrics
+import com.iwanttobeanifbbpro.app.data.DailyConditioning
 import com.iwanttobeanifbbpro.app.data.DailyTargets
 import com.iwanttobeanifbbpro.app.data.ExerciseEntry
 import com.iwanttobeanifbbpro.app.data.MealEntry
@@ -230,6 +231,10 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateTargets(targets: DailyTargets) {
         updateLog(uiState.dailyLog.copy(targets = targets))
+    }
+
+    fun updateConditioning(conditioning: DailyConditioning) {
+        updateLog(uiState.dailyLog.copy(conditioning = conditioning))
     }
 
     fun updateMetrics(metrics: DailyMetrics) {

@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
+import com.iwanttobeanifbbpro.app.core.ConditioningHydrationGuidance
 import com.iwanttobeanifbbpro.app.core.DailyExecutionPlan
 import com.iwanttobeanifbbpro.app.core.DailyExecutionRoute
 import com.iwanttobeanifbbpro.app.core.ExerciseHistorySummary
@@ -74,6 +75,7 @@ import com.iwanttobeanifbbpro.app.core.TomorrowCoachBrief
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
+import com.iwanttobeanifbbpro.app.core.conditioningHydrationGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
 import com.iwanttobeanifbbpro.app.core.exerciseVisualAtlas
 import com.iwanttobeanifbbpro.app.core.exerciseVisualSpec
@@ -90,6 +92,7 @@ import com.iwanttobeanifbbpro.app.core.trainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.weeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
+import com.iwanttobeanifbbpro.app.data.DailyConditioning
 import com.iwanttobeanifbbpro.app.data.DailyLog
 import com.iwanttobeanifbbpro.app.data.DailyMetrics
 import com.iwanttobeanifbbpro.app.data.DailyTargets
@@ -201,6 +204,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                         NutritionPage(
                             state = state,
                             onTargetsChange = viewModel::updateTargets,
+                            onConditioningChange = viewModel::updateConditioning,
                             onAddMeal = viewModel::addMeal,
                             onAddMealTemplate = viewModel::addMealTemplate,
                             onRemoveMeal = viewModel::removeMeal,
@@ -217,6 +221,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                         MetricsPage(
                             state = state,
                             onMetricsChange = viewModel::updateMetrics,
+                            onConditioningChange = viewModel::updateConditioning,
                             onReflectionChange = viewModel::updateReflection,
                             onPickPhysiquePhoto = {
                                 viewModel.preparePhotoEvidence(PhotoEvidenceType.PHYSIQUE, "Progress photo for physique, symmetry, posture, and waist-control comparison.")
@@ -442,6 +447,129 @@ private fun DailyLog.nextMealBuilder(): NextMealBuilder {
         portionCue = portionCue,
         photoCue = photoCue
     )
+}
+
+@Composable
+private fun ConditioningHydrationCard(
+    log: DailyLog,
+    recentLogs: List<DailyLog>,
+    profile: AthleteProfile,
+    onConditioningChange: ((DailyConditioning) -> Unit)? = null,
+    compact: Boolean = false
+) {
+    val guidance = conditioningHydrationGuidance(log, recentLogs, profile)
+    val conditioning = log.conditioning
+    SectionCard(
+        title = "Conditioning & Hydration",
+        subtitle = "Steps, cardio, water, sodium, caffeine, digestion, and scale-weight noise before changing calories or volume."
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                "Status" to guidance.statusLabel,
+                "Score" to guidance.conditioningScore.toString(),
+                "Steps" to "${log.metrics.steps}/${conditioning.stepGoal}",
+                "Cardio" to "${conditioning.cardioMinutes} min",
+                "Water" to formatOptional(conditioning.waterLiters, "L"),
+                "Caffeine" to (conditioning.caffeineMg?.let { "$it mg" } ?: "--")
+            )
+        )
+        LinearProgressIndicator(
+            progress = { guidance.stepProgressPercent.coerceIn(0, 100) / 100f },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = guidance.nextAction,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = guidance.weightFluctuationCue,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                guidance.cardioStatus,
+                guidance.hydrationStatus,
+                guidance.sodiumCue,
+                guidance.caffeineCue
+            ).filter { it.isNotBlank() }
+        )
+        if (!compact && onConditioningChange != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(
+                    value = conditioning.stepGoal.toString(),
+                    onChange = { onConditioningChange(conditioning.copy(stepGoal = (it.toIntOrNull() ?: conditioning.stepGoal).coerceAtLeast(0))) },
+                    label = "Step goal",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = conditioning.cardioMinutes.toString(),
+                    onChange = { onConditioningChange(conditioning.copy(cardioMinutes = (it.toIntOrNull() ?: conditioning.cardioMinutes).coerceAtLeast(0))) },
+                    label = "Cardio min",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = conditioning.cardioType,
+                    onValueChange = { onConditioningChange(conditioning.copy(cardioType = it)) },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Cardio type") },
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = conditioning.cardioIntensity,
+                    onValueChange = { onConditioningChange(conditioning.copy(cardioIntensity = it.ifBlank { "Zone 2" })) },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Intensity") },
+                    singleLine = true
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DecimalField(
+                    value = conditioning.waterLiters?.toString().orEmpty(),
+                    onChange = { onConditioningChange(conditioning.copy(waterLiters = it.toDoubleOrNull())) },
+                    label = "Water L",
+                    modifier = Modifier.weight(1f)
+                )
+                NumberField(
+                    value = conditioning.sodiumMg?.toString().orEmpty(),
+                    onChange = { onConditioningChange(conditioning.copy(sodiumMg = it.toIntOrNull())) },
+                    label = "Sodium mg",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NumberField(
+                    value = conditioning.caffeineMg?.toString().orEmpty(),
+                    onChange = { onConditioningChange(conditioning.copy(caffeineMg = it.toIntOrNull())) },
+                    label = "Caffeine mg",
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalField(
+                    value = conditioning.alcoholServings?.toString().orEmpty(),
+                    onChange = { onConditioningChange(conditioning.copy(alcoholServings = it.toDoubleOrNull())) },
+                    label = "Alcohol",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            OutlinedTextField(
+                value = conditioning.digestion,
+                onValueChange = { onConditioningChange(conditioning.copy(digestion = it)) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Digestion, bloating, high-salt meal, cramps, pump") },
+                minLines = 2
+            )
+            OutlinedTextField(
+                value = conditioning.notes,
+                onValueChange = { onConditioningChange(conditioning.copy(notes = it)) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Conditioning notes") },
+                minLines = 2
+            )
+        }
+    }
 }
 
 private fun CoachUiState.dailyReadiness(): DailyReadiness {
@@ -1055,6 +1183,11 @@ private fun TodayDashboard(
                 onOpenAi = onOpenAi
             )
         )
+        TodayExerciseVisualPrimerCard(
+            log = log,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining
+        )
         TodayActionGrid(
             state = state,
             onOpenPlan = onOpenPlan,
@@ -1107,12 +1240,81 @@ private fun TodayDashboard(
             guidance = bodyCompositionGuidance(log, state.recentLogs, state.athleteProfile),
             subtitle = "Trend-based target check before changing calories."
         )
+        ConditioningHydrationCard(
+            log = log,
+            recentLogs = state.recentLogs,
+            profile = state.athleteProfile,
+            compact = true
+        )
         RecoveryGuidanceCard(
             guidance = recoveryGuidance(log, state.recentLogs),
             subtitle = "Sleep, soreness, stress, resting HR, and set pressure before pushing harder."
         )
         TrendOverviewCard(logs = state.recentLogs)
         BeginnerGuideCard(onOpenPlan = onOpenPlan, onOpenNutrition = onOpenNutrition, onOpenMetrics = onOpenMetrics)
+    }
+}
+
+@Composable
+private fun TodayExerciseVisualPrimerCard(
+    log: DailyLog,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit
+) {
+    val items = log.trainingSession.exercises.map { exercise ->
+        ExerciseVisualMapItem(
+            name = exercise.name,
+            targetMuscle = exercise.targetMuscle,
+            detail = "${exercise.sets} x ${exercise.reps} | done ${exercise.completedSetCount()}/${exercise.trackedSets().size}"
+        )
+    }
+    SectionCard(
+        title = "Today Visual Primer",
+        subtitle = "Unified simple equipment/action instance diagrams before training, so exercise names map to a real station, free weight, or movement path."
+    ) {
+        if (items.isEmpty()) {
+            Text(
+                text = "Apply a plan day or add exercises to see today's visual-map thumbnails and beginner recognition cues.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(onClick = onOpenPlan, modifier = Modifier.fillMaxWidth()) {
+                Text("Open plan")
+            }
+        } else {
+            val atlas = exerciseVisualAtlas()
+            val specs = items.map { exerciseVisualSpec(it.name, it.targetMuscle) }
+            DataChipGrid(
+                items = listOf(
+                    "Unified Exercise Visual Atlas",
+                    "simple equipment/action instance diagrams",
+                    "visual-map thumbnails",
+                    "Exercise name -> visual category",
+                    "Beginner recognition cue"
+                ) + specs.distinctBy { it.visualId }.map { "${it.visualId} ${it.equipmentZh}" }
+            )
+            Text(
+                text = "Three-step recognition: ${atlas.recognitionFlow.joinToString(" -> ")}.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            items.take(4).forEachIndexed { index, item ->
+                if (index > 0) {
+                    HorizontalDivider()
+                }
+                ExerciseVisualMapRow(item = item)
+            }
+            if (items.size > 4) {
+                Text(
+                    text = "+${items.size - 4} more exercises. Open Training for the full Today's Exercise Visual Map.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Button(onClick = onOpenTraining, modifier = Modifier.fillMaxWidth()) {
+                Text("Open visual map")
+            }
+        }
     }
 }
 
@@ -2983,6 +3185,7 @@ private fun MealTemplateCard(template: MealTemplate, onAddMealTemplate: (String)
 private fun NutritionPage(
     state: CoachUiState,
     onTargetsChange: (DailyTargets) -> Unit,
+    onConditioningChange: (DailyConditioning) -> Unit,
     onAddMeal: (String, Int, Double, Double, Double, Double, String) -> Unit,
     onAddMealTemplate: (String) -> Unit,
     onRemoveMeal: (Int) -> Unit,
@@ -3005,6 +3208,12 @@ private fun NutritionPage(
         BodyCompositionCard(
             guidance = bodyCompositionGuidance(state.dailyLog, state.recentLogs, state.athleteProfile),
             subtitle = "Use body-weight trend, average intake, and phase goal before changing targets."
+        )
+        ConditioningHydrationCard(
+            log = state.dailyLog,
+            recentLogs = state.recentLogs,
+            profile = state.athleteProfile,
+            onConditioningChange = onConditioningChange
         )
         MealTemplateLibrary(onAddMealTemplate = onAddMealTemplate)
         SectionCard(title = "Nutrition Targets", subtitle = "Use weighed food when possible; use photos for AI estimates when weighing is not practical.") {
@@ -3137,6 +3346,7 @@ private fun NutritionPage(
 private fun MetricsPage(
     state: CoachUiState,
     onMetricsChange: (DailyMetrics) -> Unit,
+    onConditioningChange: (DailyConditioning) -> Unit,
     onReflectionChange: (String) -> Unit,
     onPickPhysiquePhoto: () -> Unit,
     onConnectHealthData: () -> Unit,
@@ -3152,6 +3362,12 @@ private fun MetricsPage(
         RecoveryGuidanceCard(
             guidance = recoveryGuidance(state.dailyLog, state.recentLogs),
             subtitle = "Conservative training-pressure guidance from logged recovery and health signals."
+        )
+        ConditioningHydrationCard(
+            log = state.dailyLog,
+            recentLogs = state.recentLogs,
+            profile = state.athleteProfile,
+            onConditioningChange = onConditioningChange
         )
         PhysiqueMeasurementSummaryCard(summary = physiqueMeasurementSummary(state.dailyLog, state.recentLogs))
         SectionCard(
@@ -3653,6 +3869,17 @@ private fun AiCoachPage(
                     "Pain flags",
                     "Meal macros",
                     "Nutrition Pacing",
+                    "Conditioning & Hydration",
+                    "step goal",
+                    "cardio minutes",
+                    "cardio type",
+                    "cardio intensity",
+                    "water liters",
+                    "sodium mg",
+                    "caffeine mg",
+                    "alcohol servings",
+                    "digestion notes",
+                    "scale-weight noise",
                     "Next Meal Builder",
                     "Meal Assembly Guide",
                     "Plate structure",

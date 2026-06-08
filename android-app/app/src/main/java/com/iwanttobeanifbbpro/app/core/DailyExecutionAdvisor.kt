@@ -63,6 +63,7 @@ fun dailyExecutionPlan(
     val recovery = recoveryGuidance(log, recentLogs)
     val readiness = trainingReadinessBuilder(log, recovery)
     val body = bodyCompositionGuidance(log, recentLogs, profile)
+    val conditioning = conditioningHydrationGuidance(log, recentLogs, profile)
     val trendReady = recentLogs.ifEmpty { listOf(log) }.size >= 4
 
     val primaryActionRoute = when {
@@ -109,12 +110,14 @@ fun dailyExecutionPlan(
         fiberRemaining > 10 -> "Fiber is still $fiberRemaining g behind; add fruit, vegetables, oats, beans, or potatoes."
         else -> "Nutrition is usable for review; keep portions measurable and note oil, sauces, labels, or food photos where uncertain."
     }
-    val recoveryDecision = "${recovery.statusLabel}: ${recovery.recommendedTrainingAction}"
+    val recoveryDecision = "${recovery.statusLabel}: ${recovery.recommendedTrainingAction} Conditioning: ${conditioning.statusLabel}; ${conditioning.nextAction}"
     val dataQualityGate = when {
         !sessionReady -> "Missing loaded workout."
         !trainingDone -> "AI review can draft guidance, but final progression should wait until all working sets are logged."
         !mealsLogged -> "Missing food log or food photo."
         !metricsReady -> "Missing body/recovery metrics or Health Connect sync."
+        conditioning.statusLabel == "NEAT behind" -> "Training and food are usable, but step/conditioning gap lowers fat-loss confidence."
+        conditioning.statusLabel == "Hydration gap" -> "Hydration is not clean enough to trust pump, appetite, or scale changes."
         !trendReady -> "Daily data is usable, but trend confidence improves after at least four logged days."
         else -> "Training, food, metrics, and trend signals are ready for a high-confidence AI review."
     }
@@ -128,6 +131,9 @@ fun dailyExecutionPlan(
     val planAdjustmentSignal = when {
         recovery.statusLabel == "Deload check" -> "Do not chase progression; consider deload, rest, or technique-only work."
         recovery.statusLabel == "Reduce volume" -> "Reduce hard sets or choose stable machine/cable alternatives today."
+        conditioning.statusLabel == "NEAT behind" -> "Adjust steps or easy cardio before cutting calories again."
+        conditioning.statusLabel == "Hydration gap" -> "Hold calorie changes until water/sodium logging is cleaner."
+        conditioning.statusLabel == "Stimulant pressure" -> "Protect sleep before adding training or cardio pressure."
         body.statusLabel == "Small calorie increase" -> "Food target may need a small increase, mostly around training."
         body.statusLabel == "Small calorie decrease" -> "Food target may need a small decrease from low-satiety extras."
         body.statusLabel == "Need trend data" -> "Hold plan targets until body weight and food logs have enough trend evidence."

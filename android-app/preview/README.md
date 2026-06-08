@@ -15,6 +15,7 @@ The preview mirrors the current Android app structure:
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
 - Unified exercise visual guide for equipment/action recognition, including stable visual guide IDs
 - Unified Exercise Visual Atlas with the same three-step recognition flow used by Android and AI review: match the simplified instance diagram, find the real equipment markers, and follow the intended movement path
+- Today Visual Primer for training-before-you-start equipment/action scanning with unified simple equipment/action instance diagrams, visual-map thumbnails, visual guide IDs, Chinese equipment labels, and beginner recognition cues
 - Selected Day Visual Map, Today's Exercise Visual Map, visual-map thumbnails, and exercise thumbnail headers for quick equipment/action scanning
 - Live equipment/action preview while adding planned or active exercises
 - Exercise Visual Library with Chinese equipment labels, simple unified instance diagrams, three-step recognition, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
@@ -31,6 +32,7 @@ The preview mirrors the current Android app structure:
 - Next Meal Builder for practical next-meal macro targets, timing, portion uncertainty, and photo/label cues
 - Meal Assembly Guide for plate structure, protein/carb anchors, fat control, shopping/prep cues, and photo logging cues
 - Body Composition Guidance for trend-based calorie target checks
+- Conditioning & Hydration for step goal progress, cardio minutes/type/intensity, water liters, sodium, caffeine, alcohol, digestion notes, and scale-weight noise before calorie or volume changes
 - Physique Measurement Summary for waist, chest, shoulder, hip, left/right arms, left/right thighs, neck, shoulder-to-waist ratio, arm symmetry, thigh symmetry, and weekly tape-measure check-ins
 - Recovery Guidance for sleep, soreness, stress, resting HR, and training-pressure decisions
 - Health Connect and vendor-data boundary

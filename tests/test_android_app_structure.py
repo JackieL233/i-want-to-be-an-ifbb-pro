@@ -28,6 +28,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TomorrowCoachAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/WeeklyCheckInAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/BodyCompositionAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/ConditioningHydrationAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/PhysiqueMeasurementAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt",
@@ -206,6 +207,17 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Fiber + Micronutrient Add",
             "DailyMetrics",
             "DailyTargets",
+            "DailyConditioning",
+            "conditioning",
+            "stepGoal",
+            "cardioMinutes",
+            "cardioType",
+            "cardioIntensity",
+            "waterLiters",
+            "sodiumMg",
+            "caffeineMg",
+            "alcoholServings",
+            "digestion",
             "AiReviewEntry",
             "AiReviewStore",
             "readReviews",
@@ -301,6 +313,20 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Recovery guidance",
             "RecoveryGuidance",
             "recoveryGuidance",
+            "Conditioning & Hydration",
+            "ConditioningHydrationGuidance",
+            "conditioningHydrationGuidance",
+            "step goal progress",
+            "cardio status",
+            "hydration status",
+            "sodium cue",
+            "caffeine cue",
+            "weight fluctuation cue",
+            "scale-weight noise",
+            "NEAT behind",
+            "Hydration gap",
+            "Stimulant pressure",
+            "water, sodium, caffeine, cardio, steps",
             "recommended training action",
             "recommendedTrainingAction",
             "readiness score",
@@ -477,6 +503,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
+        conditioning = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ConditioningHydrationAdvisor.kt"
+        ).read_text(encoding="utf-8")
         training_readiness = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingReadinessAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -495,7 +524,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -525,6 +554,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "addMealTemplate",
             "updateMetrics",
             "updateTargets",
+            "updateConditioning",
             "runDailyReview",
             "hard sets",
             "meal photo",
@@ -616,6 +646,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Huawei Health -> Health Connect or Health Kit",
             "Scale/watch/phone -> Health Connect",
             "Manual fallback",
+            "Today Visual Primer",
+            "TodayExerciseVisualPrimerCard",
             "ExerciseVisualGuide",
             "ExerciseVisualGuideLibrary",
             "ExerciseVisualGuideSample",
@@ -662,6 +694,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Common movement examples",
             "Equipment photo recognition",
             "Exercise name -> visual category",
+            "simple equipment/action instance diagrams",
             "equipment/action thumbnails",
             "equipmentZh",
             "instanceCue",
@@ -757,6 +790,21 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Recovery Guidance",
             "RecoveryGuidanceCard",
             "recoveryGuidance",
+            "ConditioningHydrationGuidance",
+            "Conditioning & Hydration",
+            "ConditioningHydrationCard",
+            "conditioningHydrationGuidance",
+            "DailyConditioning",
+            "Step goal",
+            "Cardio min",
+            "Cardio type",
+            "Intensity",
+            "Water L",
+            "Sodium mg",
+            "Caffeine mg",
+            "Alcohol",
+            "Digestion, bloating, high-salt meal, cramps, pump",
+            "scale-weight noise",
             "Training action",
             "Sleep signal",
             "HR signal",
@@ -895,6 +943,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
+        conditioning = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ConditioningHydrationAdvisor.kt"
+        ).read_text(encoding="utf-8")
         training_readiness = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingReadinessAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -913,7 +964,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -1218,6 +1269,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI review locked",
             "Exercise visual guide",
             "Exercise Visual Library",
+            "Today Visual Primer",
             "Selected Day Visual Map",
             "Today's Exercise Visual Map",
             "exercise thumbnail headers",
@@ -1240,6 +1292,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Common movement examples",
             "Equipment photo recognition",
             "Exercise name -> visual category",
+            "simple equipment/action instance diagrams",
             "visual-map thumbnails",
             "VG-01",
             "VG-10",
