@@ -7,8 +7,9 @@ Open `index.html` in a browser to review the Apple-inspired product feel without
 The preview mirrors the current Android app structure:
 
 - Today command center
-- EN/中文 language switch preview for the app shell
-- Start Here / 从这里开始 first-screen loop with plan, training, food, metrics, and AI review steps
+- EN/中文 language switch preview for the app shell and core training flow, implemented with `data-en`, `data-zh`, and `setLanguage`
+- Start Here first-screen loop with plan, training, food, metrics, and AI review steps
+- One-tap Training preview with `Workout Flow Coach`, `one-tap-hero`, `Complete set + start rest`, lightweight `action-shortcuts`, and an exercise image slot before the professional analysis layers
 - AI Setup & Review Readiness with API key, base URL, model, photo context, missing setup, and AI review ready states
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
 - AI Review Action Queue with sourceLabel, confidenceLabel, primaryAction, actionLabel, training action, nutrition action, recovery action, tracking action, and plan action routing
@@ -25,6 +26,7 @@ The preview mirrors the current Android app structure:
 - Live equipment/action preview while adding planned or active exercises
 - Exercise Visual Library with Chinese equipment labels, simple unified instance diagrams, three-step recognition, quick visual cues, find-equipment cues, movement path cues, action path cues, beginner recognition cues, equipment markers, instance diagram cues, example movements, common movement examples, and look-for cues for Smith machine, cable station, dumbbells, barbell, machine, adjustable bench, pull-up/dip station, resistance band, leg press or hack squat, and bodyweight/open-station work
 - Set-level training execution
+- Collapsed `Professional detail layers` so readiness, ramp planning, next-set cues, visual maps, quality, and closeout remain accessible without overwhelming a beginner
 - Training Readiness Builder for warm-up strategy, ramp-up cue, first working set, volume adjustment, and stop rule
 - Warm-up Ramp Plan for exact ramp set checklist, planned load percentages, final ramp set quality, first working set gate, and stop rule before the first working set
 - Next Set Coach for the current exercise, next set target, load cue, reps cue, RIR cue, rest cue, stop cue, After-set logging cue, and the matching equipment/action instance diagram

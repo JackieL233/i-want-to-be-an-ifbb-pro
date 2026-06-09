@@ -9,6 +9,8 @@
       color-scheme: light;
       --bg: #f5f5f7;
       --surface: #ffffff;
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-strong: rgba(255, 255, 255, 0.88);
       --surface-2: #f2f2f7;
       --text: #1d1d1f;
       --muted: #6e6e73;
@@ -22,6 +24,7 @@
       --amber-soft: #fff3df;
       --red: #ff3b30;
       --shadow: 0 22px 60px rgba(29, 29, 31, 0.14);
+      --glass-shadow: 0 18px 54px rgba(29, 29, 31, 0.16);
       --radius: 8px;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
     }
@@ -71,6 +74,9 @@
       overflow: auto;
       padding: 18px 16px 92px;
       scrollbar-width: thin;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(245, 245, 247, 0.96) 34%),
+        var(--bg);
     }
 
     .header {
@@ -143,14 +149,17 @@
       background: var(--surface);
     }
 
-    .language-toggle span {
+    .language-toggle button {
       min-width: 32px;
       padding: 5px 8px;
       border-radius: 999px;
+      border: 0;
+      background: transparent;
       color: var(--muted);
       font-size: 11px;
       font-weight: 750;
       text-align: center;
+      cursor: pointer;
     }
 
     .language-toggle .active {
@@ -251,6 +260,192 @@
       padding: 14px;
       display: grid;
       gap: 11px;
+    }
+
+    .section.glass {
+      border-color: rgba(255, 255, 255, 0.62);
+      background: var(--glass);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(24px) saturate(150%);
+    }
+
+    .one-tap-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    .one-tap-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(0, 122, 255, 0.12), rgba(52, 199, 89, 0.08) 52%, rgba(255, 255, 255, 0.3));
+      pointer-events: none;
+    }
+
+    .one-tap-hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .coach-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 116px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .next-action-title {
+      font-size: 26px;
+      line-height: 1.04;
+      font-weight: 800;
+      max-width: 12ch;
+    }
+
+    .action-orb {
+      border-radius: 22px;
+      min-height: 128px;
+      display: grid;
+      align-content: end;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.18)),
+        #eef4ff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+    }
+
+    .exercise-photo-slot {
+      min-height: 92px;
+      border-radius: 18px;
+      display: grid;
+      align-items: end;
+      padding: 10px;
+      color: #fff;
+      background:
+        linear-gradient(180deg, rgba(14, 19, 28, 0.04), rgba(14, 19, 28, 0.72)),
+        url("https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1?auto=format&fit=crop&w=500&q=70") center/cover;
+    }
+
+    .exercise-photo-slot strong {
+      font-size: 12px;
+      line-height: 1.18;
+    }
+
+    .primary-play {
+      min-height: 54px;
+      border-radius: 18px;
+      border: 0;
+      background: #007aff;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      box-shadow: 0 12px 26px rgba(0, 122, 255, 0.32);
+      cursor: pointer;
+    }
+
+    .action-shortcuts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: -2px;
+    }
+
+    .action-shortcuts .button {
+      min-height: 34px;
+      border-radius: 999px;
+      padding: 0 8px;
+      font-size: 12px;
+    }
+
+    .micro-status {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .micro-status .metric {
+      min-height: 54px;
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(16px);
+    }
+
+    .coach-lane {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .coach-lane span {
+      border-radius: 999px;
+      padding: 7px 6px;
+      background: rgba(255, 255, 255, 0.66);
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .coach-lane .active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .advanced-stack {
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 18px;
+      background: var(--glass);
+      backdrop-filter: blur(22px) saturate(150%);
+      box-shadow: 0 12px 34px rgba(29, 29, 31, 0.1);
+      overflow: hidden;
+    }
+
+    .advanced-stack summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .advanced-stack summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .advanced-stack summary span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .advanced-stack summary > span:first-child {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .advanced-stack[open] {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 10px;
+    }
+
+    .advanced-stack[open] summary {
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 4px;
+    }
+
+    .advanced-stack .section {
+      margin: 0 10px;
+      box-shadow: none;
+    }
+
+    .current-set-card {
+      background: var(--glass-strong);
+      backdrop-filter: blur(20px) saturate(150%);
     }
 
     .section-head {
@@ -1313,8 +1508,8 @@
           </div>
           <div class="header-actions">
             <div class="language-toggle" aria-label="Language switch">
-              <span class="active">EN</span>
-              <span>中文</span>
+              <button class="active" type="button" data-lang-option="en" aria-pressed="true">EN</button>
+              <button type="button" data-lang-option="zh" aria-pressed="false">中文</button>
             </div>
             <span class="date-pill">Jun 8</span>
           </div>
@@ -1322,8 +1517,8 @@
 
         <div id="rest-banner" class="rest-banner" aria-live="polite">
           <div>
-            <strong>Rest timer</strong>
-            <p class="subtle">Incline press set 2 finished. Next set in</p>
+            <strong data-en="Rest timer" data-zh="休息倒计时">Rest timer</strong>
+            <p class="subtle" data-en="Incline press set 2 finished. Next set in" data-zh="上斜推第 2 组已完成。下一组倒计时">Incline press set 2 finished. Next set in</p>
           </div>
           <div class="rest-time" id="rest-time">02:00</div>
         </div>
@@ -1331,34 +1526,34 @@
         <section class="panel active" data-panel="today" aria-label="Today">
           <div class="section">
             <div class="section-head">
-              <h2>Start Here / 从这里开始</h2>
-              <p class="subtle">A clear daily loop: plan, train, eat, sync, then let AI review the evidence. 每天先按这个闭环执行，再进入专业分析卡片。</p>
+              <h2 data-en="Start Here" data-zh="从这里开始">Start Here</h2>
+              <p class="subtle" data-en="A clear daily loop: plan, train, eat, sync, then let AI review the evidence." data-zh="每天只按这个闭环执行：计划、训练、吃饭、同步数据，然后让 AI 复盘证据。">A clear daily loop: plan, train, eat, sync, then let AI review the evidence.</p>
             </div>
             <div class="metric-grid">
-              <div class="metric"><span class="label">Progress / 今日进度</span><span class="value">3/5</span></div>
-              <div class="metric"><span class="label">Readiness / 状态</span><span class="value">82</span></div>
-              <div class="metric"><span class="label">Phase / 阶段</span><span class="value">Hypertrophy</span></div>
-              <div class="metric"><span class="label">Next / 下一步</span><span class="value">Training executed</span></div>
+              <div class="metric"><span class="label" data-en="Progress" data-zh="今日进度">Progress</span><span class="value">3/5</span></div>
+              <div class="metric"><span class="label" data-en="Readiness" data-zh="状态">Readiness</span><span class="value">82</span></div>
+              <div class="metric"><span class="label" data-en="Phase" data-zh="阶段">Phase</span><span class="value" data-en="Hypertrophy" data-zh="增肌期">Hypertrophy</span></div>
+              <div class="metric"><span class="label" data-en="Next" data-zh="下一步">Next</span><span class="value" data-en="Finish training" data-zh="完成训练">Finish training</span></div>
             </div>
             <div class="progress"><span style="width: 60%"></span></div>
-            <h3>8/18 sets completed; finish working sets and rest timers.</h3>
-            <button class="button primary" type="button" data-tab-target="training">Log sets / 记录组数</button>
+            <h3 data-en="8/18 sets completed; finish working sets and rest timers." data-zh="已完成 8/18 组；继续完成正式组并跟随休息倒计时。">8/18 sets completed; finish working sets and rest timers.</h3>
+            <button class="button primary" type="button" data-tab-target="training" data-en="Continue workout" data-zh="继续训练">Continue workout</button>
             <div class="task-list">
               <div class="task">
                 <span class="step-number">1</span>
                 <div>
-                  <strong>Plan prepared / 训练计划已准备</strong>
-                  <p class="subtle">Push A: 18 planned sets loaded.</p>
+                  <strong data-en="Plan prepared" data-zh="训练计划已准备">Plan prepared</strong>
+                  <p class="subtle" data-en="Push A: 18 planned sets loaded." data-zh="Push A：已载入 18 个计划组。">Push A: 18 planned sets loaded.</p>
                 </div>
-                <span class="badge green">Done</span>
+                <span class="badge green" data-en="Done" data-zh="已完成">Done</span>
               </div>
               <div class="task">
                 <span class="step-number">2</span>
                 <div>
-                  <strong>Training executed / 训练已执行</strong>
-                  <p class="subtle">Finish the remaining working sets and keep RIR honest.</p>
+                  <strong data-en="Training in progress" data-zh="训练进行中">Training in progress</strong>
+                  <p class="subtle" data-en="Finish the remaining working sets and keep RIR honest." data-zh="完成剩余正式组，并如实记录 RIR。">Finish the remaining working sets and keep RIR honest.</p>
                 </div>
-                <span class="badge amber">Next</span>
+                <span class="badge amber" data-en="Next" data-zh="下一步">Next</span>
               </div>
               <div class="task">
                 <span class="step-number">3</span>
@@ -1993,6 +2188,46 @@
         </section>
 
         <section class="panel" data-panel="training" aria-label="Training">
+          <div class="section glass one-tap-hero">
+            <div class="section-head">
+              <h2 data-en="Workout Flow Coach" data-zh="训练执行教练">Workout Flow Coach</h2>
+              <p class="subtle" data-en="One-tap training flow: show only the next useful action, keep professional logic underneath." data-zh="一键式训练流程：首屏只告诉你下一步做什么，专业判断收在下方。">One-tap training flow: show only the next useful action, keep professional logic underneath.</p>
+            </div>
+            <div class="coach-stage">
+              <div>
+                <p class="eyebrow" data-en="NEXT SET" data-zh="下一组">NEXT SET</p>
+                <h3 class="next-action-title">Incline Smith Press</h3>
+                <p class="subtle" data-en="Set 3/4 · 82.5 kg · 6-10 reps · RIR 2 · rest 150s" data-zh="第 3/4 组 · 82.5 kg · 6-10 次 · RIR 2 · 休息 150 秒">Set 3/4 · 82.5 kg · 6-10 reps · RIR 2 · rest 150s</p>
+              </div>
+              <div class="action-orb">
+                <div class="exercise-photo-slot">
+                  <strong data-en="exercise image slot" data-zh="动作图片位">exercise image slot</strong>
+                </div>
+              </div>
+            </div>
+            <button id="hero-complete-set" class="primary-play" type="button" data-en="Complete set + start rest" data-zh="完成本组并开始休息">Complete set + start rest</button>
+            <div class="micro-status">
+              <div class="metric"><span class="label" data-en="Sets" data-zh="组数">Sets</span><span class="value">8/18</span></div>
+              <div class="metric"><span class="label" data-en="Ready" data-zh="状态">Ready</span><span class="value">74</span></div>
+              <div class="metric"><span class="label" data-en="Quality" data-zh="质量">Quality</span><span class="value">82</span></div>
+            </div>
+            <div class="coach-lane" aria-label="Training flow">
+              <span data-en="Warm up" data-zh="热身">Warm up</span>
+              <span class="active" data-en="Next set" data-zh="下一组">Next set</span>
+              <span data-en="Rest" data-zh="休息">Rest</span>
+              <span data-en="Review" data-zh="复盘">Review</span>
+            </div>
+            <p class="subtle" data-en="Only edit reps, kg, or RIR below when reality differs from the plan. The big button is the normal path." data-zh="只有当实际次数、重量或 RIR 和计划不同时，才需要在下方修改。正常路径就是点上面的大按钮。">Only edit reps, kg, or RIR below when reality differs from the plan. The big button is the normal path.</p>
+            <div class="action-row action-shortcuts">
+              <button class="button" type="button" data-en="Form" data-zh="动作">Form</button>
+              <button class="button" type="button" data-en="Equipment" data-zh="器械">Equipment</button>
+              <button class="button ghost" type="button" data-tab-target="nutrition" data-en="Food" data-zh="饮食">Food</button>
+            </div>
+          </div>
+
+          <details class="advanced-stack">
+            <summary><span data-en="Professional detail layers" data-zh="专业细节层">Professional detail layers</span><span data-en="readiness, ramp, visual map, quality, closeout" data-zh="状态、热身递增、动作图、质量、收尾">readiness, ramp, visual map, quality, closeout</span></summary>
+
           <div class="section">
             <div class="section-head">
               <h2>Training Readiness Builder</h2>
@@ -2237,10 +2472,12 @@
             </div>
           </div>
 
-          <div class="section">
+          </details>
+
+          <div class="section current-set-card">
             <div class="section-head">
               <h2>Incline Smith Press</h2>
-              <p class="subtle">Upper chest | 4 x 6-10 | rest 150s | keep scapula set.</p>
+              <p class="subtle" data-en="Upper chest | 4 x 6-10 | rest 150s | keep scapula set." data-zh="上胸 | 4 组 x 6-10 次 | 休息 150 秒 | 保持肩胛稳定。">Upper chest | 4 x 6-10 | rest 150s | keep scapula set.</p>
             </div>
             <div class="exercise-head">
               <div class="mini-figure compact smith" aria-hidden="true">
@@ -2248,8 +2485,8 @@
               </div>
               <div>
                 <strong>Incline Smith Press</strong>
-                <p class="subtle">VG-01 史密斯机 | Upper chest | 4 x 6-10 | rest 150s</p>
-                <p class="subtle">Look for two rails and a fixed bar</p>
+                <p class="subtle" data-en="VG-01 Smith machine | Upper chest | 4 x 6-10 | rest 150s" data-zh="VG-01 史密斯机 | 上胸 | 4 组 x 6-10 次 | 休息 150 秒">VG-01 Smith machine | Upper chest | 4 x 6-10 | rest 150s</p>
+                <p class="subtle" data-en="Look for two rails and a fixed bar" data-zh="先找两根竖轨和一根固定杠">Look for two rails and a fixed bar</p>
               </div>
             </div>
             <div class="visual-guide">
@@ -2257,22 +2494,19 @@
                 <span class="rail-left"></span><span class="rail-right"></span><span class="bar-line"></span><span class="bench"></span><span class="head"></span><span class="body"></span>
               </div>
               <div>
-                <strong>Exercise visual guide / 统一动作图例</strong>
-                <p class="subtle">Smith machine (史密斯机) | Guided press path</p>
-                <p class="subtle">Unified instance diagram: fixed bar between two vertical rails</p>
-                <p class="subtle">Quick visual cue: 图例: 两根竖轨 + 一根固定杠</p>
-                <p class="subtle">Find equipment cue: 找器械: 史密斯架、固定杠、安全挂钩</p>
-                <p class="subtle">Movement path cue: 动作路径: 杠铃沿竖轨上下移动</p>
-                <p class="subtle">Action path cue: bar travels on rails while the bench stays under the track</p>
-                <p class="subtle">Example: Incline Smith Press</p>
-                <p class="subtle">Instance diagram cue: two vertical rails with a fixed-track bar</p>
-                <p class="subtle">Beginner recognition cue: 先找两根竖轨和一根固定杠</p>
-                <div class="chip-row"><span class="chip">Upper chest</span><span class="chip">Align bench under bar</span><span class="chip">Equipment markers</span><span class="chip">Look for two rails and a fixed bar</span></div>
+                <strong data-en="Exercise visual guide" data-zh="动作图例">Exercise visual guide</strong>
+                <p class="subtle" data-en="Smith machine | Guided press path" data-zh="史密斯机 | 固定轨迹推举">Smith machine | Guided press path</p>
+                <p class="subtle" data-en="Unified instance diagram: fixed bar between two vertical rails" data-zh="统一图例：两根竖轨中间有一根固定轨迹杠铃">Unified instance diagram: fixed bar between two vertical rails</p>
+                <p class="subtle" data-en="Quick visual cue: two rails + one fixed bar" data-zh="快速识别：两根竖轨 + 一根固定杠">Quick visual cue: two rails + one fixed bar</p>
+                <p class="subtle" data-en="Find equipment cue: Smith rack, fixed bar, safety hooks" data-zh="找器械：史密斯架、固定杠、安全挂钩">Find equipment cue: Smith rack, fixed bar, safety hooks</p>
+                <p class="subtle" data-en="Movement path: the bar travels vertically on the rails" data-zh="动作路径：杠铃沿竖轨上下移动">Movement path: the bar travels vertically on the rails</p>
+                <p class="subtle" data-en="Beginner cue: align the bench under the fixed bar path" data-zh="新手提示：把训练凳对准固定杠的运动轨迹">Beginner cue: align the bench under the fixed bar path</p>
+                <div class="chip-row"><span class="chip" data-en="Upper chest" data-zh="上胸">Upper chest</span><span class="chip" data-en="Align bench under bar" data-zh="凳子对准杠下">Align bench under bar</span><span class="chip" data-en="Equipment markers" data-zh="器械标记">Equipment markers</span></div>
               </div>
             </div>
             <div class="note">
-              <strong>Progression Cue: Add reps first.</strong>
-              Effort is still conservative based on logged RIR. Add 1-2 reps across sets before increasing load.
+              <strong data-en="Progression Cue: Add reps first." data-zh="进阶提示：先加次数。">Progression Cue: Add reps first.</strong>
+              <span data-en="Effort is still conservative based on logged RIR. Add 1-2 reps across sets before increasing load." data-zh="根据记录的 RIR，今天强度仍偏保守。加重量前先在各组增加 1-2 次。">Effort is still conservative based on logged RIR. Add 1-2 reps across sets before increasing load.</span>
             </div>
             <div class="section" style="padding:10px">
               <div class="section-head">
@@ -2312,9 +2546,9 @@
             <table class="set-table">
               <thead>
                 <tr>
-                  <th>Set</th>
+                  <th data-en="Set" data-zh="组">Set</th>
                   <th>Kg</th>
-                  <th>Reps</th>
+                  <th data-en="Reps" data-zh="次数">Reps</th>
                   <th>RIR</th>
                   <th></th>
                 </tr>
@@ -2325,26 +2559,26 @@
                   <td><input class="mini-input" value="82.5" aria-label="Set 1 kilograms"></td>
                   <td><input class="mini-input" value="9" aria-label="Set 1 reps"></td>
                   <td><input class="mini-input" value="2" aria-label="Set 1 RIR"></td>
-                  <td><button class="button" type="button" disabled>Done</button></td>
+                  <td><button class="button" type="button" disabled data-en="Done" data-zh="已完成">Done</button></td>
                 </tr>
                 <tr>
                   <td>2</td>
                   <td><input class="mini-input" value="82.5" aria-label="Set 2 kilograms"></td>
                   <td><input class="mini-input" value="8" aria-label="Set 2 reps"></td>
                   <td><input class="mini-input" value="2" aria-label="Set 2 RIR"></td>
-                  <td><button id="complete-set" class="button primary" type="button">Complete</button></td>
+                  <td><button id="complete-set" class="button primary" type="button" data-en="Complete" data-zh="完成">Complete</button></td>
                 </tr>
                 <tr>
                   <td>3</td>
                   <td><input class="mini-input" value="80" aria-label="Set 3 kilograms"></td>
                   <td><input class="mini-input" value="" aria-label="Set 3 reps"></td>
                   <td><input class="mini-input" value="" aria-label="Set 3 RIR"></td>
-                  <td><button class="button" type="button">Save</button></td>
+                  <td><button class="button" type="button" data-en="Save" data-zh="保存">Save</button></td>
                 </tr>
               </tbody>
             </table>
             <div class="field">
-              <label for="set-note">Form and stimulus notes</label>
+              <label for="set-note" data-en="Form and stimulus notes" data-zh="动作与目标肌肉感受备注">Form and stimulus notes</label>
               <textarea id="set-note">Good upper chest stimulus. No shoulder pain. Hold load until set 4 reaches 8+ reps.</textarea>
             </div>
           </div>
@@ -2896,20 +3130,20 @@
       </div>
 
       <nav class="tabs" aria-label="App tabs">
-        <button class="tab active" type="button" data-tab="today"><span>T</span><span>Today</span></button>
-        <button class="tab" type="button" data-tab="plan"><span>P</span><span>Plan</span></button>
-        <button class="tab" type="button" data-tab="training"><span>W</span><span>Train</span></button>
-        <button class="tab" type="button" data-tab="nutrition"><span>N</span><span>Food</span></button>
-        <button class="tab" type="button" data-tab="metrics"><span>M</span><span>Metrics</span></button>
-        <button class="tab" type="button" data-tab="ai"><span>A</span><span>AI</span></button>
+        <button class="tab active" type="button" data-tab="today"><span>T</span><span data-en="Today" data-zh="今日">Today</span></button>
+        <button class="tab" type="button" data-tab="plan"><span>P</span><span data-en="Plan" data-zh="计划">Plan</span></button>
+        <button class="tab" type="button" data-tab="training"><span>W</span><span data-en="Train" data-zh="训练">Train</span></button>
+        <button class="tab" type="button" data-tab="nutrition"><span>N</span><span data-en="Food" data-zh="饮食">Food</span></button>
+        <button class="tab" type="button" data-tab="metrics"><span>M</span><span data-en="Metrics" data-zh="数据">Metrics</span></button>
+        <button class="tab" type="button" data-tab="ai"><span>A</span><span data-en="AI" data-zh="AI">AI</span></button>
       </nav>
     </section>
 
     <aside class="side" aria-label="Preview notes">
       <div class="side-header">
-        <span class="badge blue">Live design preview</span>
-        <h2 class="side-title">A daily bodybuilding cockpit: beginner-friendly first steps, professional data depth underneath.</h2>
-        <p class="subtle">This local preview mirrors the Android app structure so you can review the product feel immediately, even without an Android emulator or JDK installed.</p>
+        <span class="badge blue" data-en="Live design preview" data-zh="实时设计预览">Live design preview</span>
+        <h2 class="side-title" data-en="A daily bodybuilding cockpit: beginner-friendly first steps, professional data depth underneath." data-zh="一个每日健美训练驾驶舱：新手先跟着下一步做，专业数据沉在下方。">A daily bodybuilding cockpit: beginner-friendly first steps, professional data depth underneath.</h2>
+        <p class="subtle" data-en="This local preview mirrors the Android app structure so you can review the product feel immediately, even without an Android emulator or JDK installed." data-zh="这个本地预览会映射 Android app 的结构，即使没有模拟器或 JDK，也能先看到产品手感。">This local preview mirrors the Android app structure so you can review the product feel immediately, even without an Android emulator or JDK installed.</p>
       </div>
 
       <div class="board">
@@ -3215,24 +3449,73 @@
 
   <script>
     const titles = {
-      today: "Today",
-      plan: "Plan",
-      training: "Training",
-      nutrition: "Nutrition",
-      metrics: "Metrics",
-      ai: "AI Coach"
+      en: {
+        today: "Today",
+        plan: "Plan",
+        training: "Training",
+        nutrition: "Nutrition",
+        metrics: "Metrics",
+        ai: "AI Coach"
+      },
+      zh: {
+        today: "今日",
+        plan: "训练计划",
+        training: "训练执行",
+        nutrition: "饮食营养",
+        metrics: "身体数据",
+        ai: "AI 教练"
+      }
     };
 
+    const uiCopy = {
+      en: {
+        fallbackTitle: "Today",
+        done: "Done"
+      },
+      zh: {
+        fallbackTitle: "今日",
+        done: "已完成"
+      }
+    };
+
+    let currentLang = "en";
+    let currentTab = "today";
+
+    function applyTextLanguage(lang) {
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-en][data-zh]").forEach((element) => {
+        element.textContent = lang === "zh" ? element.dataset.zh : element.dataset.en;
+      });
+      document.querySelectorAll("[data-lang-option]").forEach((button) => {
+        const active = button.dataset.langOption === lang;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      document.getElementById("page-title").textContent =
+        titles[lang][currentTab] || uiCopy[lang].fallbackTitle;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang === "zh" ? "zh" : "en";
+      applyTextLanguage(currentLang);
+    }
+
     function activateTab(tabName) {
+      currentTab = tabName;
       document.querySelectorAll(".tab").forEach((button) => {
         button.classList.toggle("active", button.dataset.tab === tabName);
       });
       document.querySelectorAll(".panel").forEach((panel) => {
         panel.classList.toggle("active", panel.dataset.panel === tabName);
       });
-      document.getElementById("page-title").textContent = titles[tabName] || "Today";
+      document.getElementById("page-title").textContent =
+        titles[currentLang][tabName] || uiCopy[currentLang].fallbackTitle;
       document.querySelector(".app-scroll").scrollTop = 0;
     }
+
+    document.querySelectorAll("[data-lang-option]").forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.langOption));
+    });
 
     document.querySelectorAll("[data-tab]").forEach((button) => {
       button.addEventListener("click", () => activateTab(button.dataset.tab));
@@ -3245,6 +3528,7 @@
     const restBanner = document.getElementById("rest-banner");
     const restTime = document.getElementById("rest-time");
     const completeSet = document.getElementById("complete-set");
+    const heroCompleteSet = document.getElementById("hero-complete-set");
     let timerId = 0;
 
     function formatTime(seconds) {
@@ -3253,8 +3537,13 @@
       return `${mins}:${secs}`;
     }
 
-    completeSet.addEventListener("click", () => {
-      completeSet.textContent = "Done";
+    function startRestTimer() {
+      [completeSet, heroCompleteSet].forEach((button) => {
+        if (!button) return;
+        button.dataset.en = uiCopy.en.done;
+        button.dataset.zh = uiCopy.zh.done;
+        button.textContent = uiCopy[currentLang].done;
+      });
       completeSet.disabled = true;
       restBanner.classList.add("visible");
       let remaining = 120;
@@ -3268,7 +3557,11 @@
           restBanner.classList.remove("visible");
         }
       }, 1000);
-    });
+    }
+
+    completeSet.addEventListener("click", startRestTimer);
+    heroCompleteSet.addEventListener("click", startRestTimer);
+    setLanguage("en");
   </script>
 </body>
 </html>

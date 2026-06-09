@@ -3600,6 +3600,160 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawExerciseVisual(
 }
 
 @Composable
+private fun WorkoutFlowCoachCard(
+    log: DailyLog,
+    readinessBuilder: TrainingReadinessBuilder,
+    rampPlan: WarmUpRampPlan,
+    nextSet: NextSetCoach,
+    qualityDashboard: SessionQualityDashboard,
+    closeoutCoach: TrainingCloseoutCoach,
+    language: AppLanguage,
+    isLoading: Boolean,
+    onOpenPlan: () -> Unit,
+    onMarkTrainingComplete: () -> Unit,
+    onRunDailyReview: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit,
+    onPickTrainingPhoto: (PhotoEvidenceType, String) -> Unit
+) {
+    val totalSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val remainingSets = (totalSets - completedSets).coerceAtLeast(0)
+    val hasWorkout = log.trainingSession.exercises.isNotEmpty() && totalSets > 0
+    val allSetsComplete = hasWorkout && completedSets >= totalSets
+    val sessionMarkedComplete = log.trainingSession.completed
+    val stepLabel = when {
+        !hasWorkout -> language.t("Load workout", "载入训练")
+        completedSets == 0 -> language.t("Warm up", "热身")
+        !allSetsComplete -> language.t("Execute sets", "执行组数")
+        !sessionMarkedComplete -> language.t("Close out", "训练收尾")
+        else -> language.t("Review", "复盘")
+    }
+    val nextStepTitle = when {
+        !hasWorkout -> language.t("Apply a plan day or add today's first movement.", "应用训练日，或添加今天第一个动作。")
+        completedSets == 0 -> language.t("Warm up, then enter the first working set.", "先热身，再进入第一组正式组。")
+        !allSetsComplete && nextSet.hasActiveSet -> language.t(
+            "Log ${nextSet.currentExerciseName} set ${nextSet.setNumber}/${nextSet.totalSets}.",
+            "记录 ${nextSet.currentExerciseName} 第 ${nextSet.setNumber}/${nextSet.totalSets} 组。"
+        )
+        !allSetsComplete -> language.t("Finish the remaining working sets.", "完成剩余正式组。")
+        !sessionMarkedComplete -> language.t("Mark training complete and check closeout.", "标记训练完成，并检查收尾清单。")
+        else -> language.t("Run AI review after food and metrics are ready.", "饮食和身体数据就绪后运行 AI 复盘。")
+    }
+    val nextStepDetail = when {
+        !hasWorkout -> language.t(
+            "Use Plan first so every exercise has target reps, load, RIR, rest time, and a visual guide.",
+            "先在计划页载入训练，让每个动作都有目标次数、重量、RIR、休息时间和动作图例。"
+        )
+        completedSets == 0 -> language.t(
+            "Follow the Warm-up Ramp Plan, then use the active exercise cards below to log kg, reps, RIR, notes, and Complete.",
+            "按热身递增计划执行，然后在下方动作卡记录重量、次数、RIR、备注，并点击完成。"
+        )
+        !allSetsComplete -> language.t(
+            "$remainingSets working set(s) remain. Fill actual reps, kg, and RIR before tapping Complete so the rest timer and AI review have clean evidence.",
+            "还剩 $remainingSets 个正式组。点击完成前先填实际次数、重量和 RIR，这样休息倒计时和 AI 复盘才有干净证据。"
+        )
+        !sessionMarkedComplete -> language.t(
+            "All planned sets are done. Add session notes, photos if needed, and mark the workout complete.",
+            "计划组数已完成。补充训练备注，必要时添加照片，然后标记训练完成。"
+        )
+        else -> language.t(
+            "Use closeout, post-workout nutrition, metrics, and photos as the evidence package for AI adjustment.",
+            "把训练收尾、训练后饮食、身体数据和照片作为 AI 调整的证据包。"
+        )
+    }
+    val primaryLabel = when {
+        !hasWorkout -> language.t("Open plan", "打开计划")
+        allSetsComplete && !sessionMarkedComplete -> language.t("Mark complete", "标记完成")
+        sessionMarkedComplete -> language.t("Run review", "运行复盘")
+        else -> language.t("Form check", "动作检查")
+    }
+    val primaryAction: () -> Unit = when {
+        !hasWorkout -> onOpenPlan
+        allSetsComplete && !sessionMarkedComplete -> onMarkTrainingComplete
+        sessionMarkedComplete -> onRunDailyReview
+        else -> {
+            {
+                onPickTrainingPhoto(
+                    PhotoEvidenceType.TRAINING_FORM,
+                    "Workout Flow Coach form check for current set, target-muscle stimulus, technique, pain flags, and set-log context."
+                )
+            }
+        }
+    }
+
+    SectionCard(
+        title = language.t("Workout Flow Coach", "训练执行教练"),
+        subtitle = language.t(
+            "The first-screen path: load plan, warm up, log the next set, rest, close out, then run AI review.",
+            "首屏训练路径：载入计划、热身、记录下一组、休息、收尾，然后运行 AI 复盘。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Step", "步骤") to stepLabel,
+                language.t("Sets", "组数") to "$completedSets/$totalSets",
+                language.t("Next set", "下一组") to if (nextSet.hasActiveSet) {
+                    "${nextSet.currentExerciseName} ${nextSet.setNumber}/${nextSet.totalSets}"
+                } else {
+                    "--"
+                },
+                language.t("Readiness", "状态") to readinessBuilder.readinessScore.toString(),
+                language.t("Quality", "质量") to qualityDashboard.qualityScore.toString(),
+                language.t("Closeout", "收尾") to closeoutCoach.closeoutScore.toString()
+            )
+        )
+        Text(nextStepTitle, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            text = nextStepDetail,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                language.t("Workout Flow Coach", "训练执行教练"),
+                language.t("Warm up -> ramp -> next set -> log -> rest -> closeout -> AI review", "热身 -> 递增 -> 下一组 -> 记录 -> 休息 -> 收尾 -> AI 复盘"),
+                language.t("Set rows below are the source of truth", "下方组记录才是真实数据来源"),
+                language.t("Rest timer starts after Complete", "点击完成后启动休息倒计时"),
+                rampPlan.visualSpec.visualId
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = primaryAction,
+                enabled = !isLoading,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(primaryLabel)
+            }
+            ElevatedButton(
+                onClick = {
+                    onPickTrainingPhoto(
+                        PhotoEvidenceType.EQUIPMENT,
+                        "Workout Flow Coach equipment photo for visual guide ID mapping, setup recognition, and substitution context."
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Equipment", "器械照片"))
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
+                Text(language.t("Food", "饮食"))
+            }
+            TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
+                Text(language.t("Metrics", "数据"))
+            }
+            TextButton(onClick = onOpenAi, modifier = Modifier.weight(1f)) {
+                Text(language.t("AI", "AI"))
+            }
+        }
+    }
+}
+
+@Composable
 private fun TrainingPage(
     state: CoachUiState,
     onFocusChange: (String) -> Unit,
@@ -3625,6 +3779,8 @@ private fun TrainingPage(
     var rir by remember { mutableStateOf("2") }
     var rest by remember { mutableStateOf("120") }
     var notes by remember { mutableStateOf("") }
+    var showProfessionalDetails by remember { mutableStateOf(false) }
+    val language = state.appLanguage
     val session = state.dailyLog.trainingSession
     val recovery = recoveryGuidance(state.dailyLog, state.recentLogs)
     val readinessBuilder = trainingReadinessBuilder(state.dailyLog, recovery)
@@ -3637,44 +3793,89 @@ private fun TrainingPage(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        TrainingReadinessBuilderCard(builder = readinessBuilder)
-        WarmUpRampPlanCard(plan = rampPlan)
-        NextSetCoachCard(coach = nextSet)
-        SessionQualityDashboardCard(dashboard = qualityDashboard)
-        TrainingCloseoutCoachCard(
-            coach = closeoutCoach,
+        WorkoutFlowCoachCard(
+            log = state.dailyLog,
+            readinessBuilder = readinessBuilder,
+            rampPlan = rampPlan,
+            nextSet = nextSet,
+            qualityDashboard = qualityDashboard,
+            closeoutCoach = closeoutCoach,
+            language = language,
             isLoading = state.isLoading,
-            onRunDailyReview = onRunDailyReview,
             onOpenPlan = onOpenPlan,
-            onOpenTraining = onOpenTraining,
+            onMarkTrainingComplete = onCompletedChange,
+            onRunDailyReview = onRunDailyReview,
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi,
             onPickTrainingPhoto = onPickTrainingPhoto
         )
-        SectionCard(title = "Training Execution", subtitle = "Log every working set, hard sets, rest time, and effort so AI can compare performance, pain, and recovery.") {
+        SectionCard(
+            title = language.t("Professional detail layers", "专业细节层"),
+            subtitle = language.t(
+                "Readiness, ramp plan, next-set cues, quality, and closeout stay available without crowding the first action.",
+                "状态、热身递增、下一组提示、质量和收尾仍然保留，但不会挤占首屏动作。"
+            )
+        ) {
+            Text(
+                text = language.t(
+                    "Open this when you want to understand why the app chose the next action.",
+                    "想知道 App 为什么推荐当前下一步时，再展开这里。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TextButton(onClick = { showProfessionalDetails = !showProfessionalDetails }) {
+                Text(
+                    if (showProfessionalDetails) {
+                        language.t("Hide professional details", "收起专业细节")
+                    } else {
+                        language.t("Show professional details", "展开专业细节")
+                    }
+                )
+            }
+        }
+        if (showProfessionalDetails) {
+            TrainingReadinessBuilderCard(builder = readinessBuilder)
+            WarmUpRampPlanCard(plan = rampPlan)
+            NextSetCoachCard(coach = nextSet)
+        }
+        SectionCard(
+            title = language.t("Training Execution", "训练记录"),
+            subtitle = language.t(
+                "Log every working set, hard sets, rest time, and effort so AI can compare performance, pain, and recovery.",
+                "记录每个正式组的重量、次数、RIR、休息和感受，让 AI 能比较表现、疼痛和恢复。"
+            )
+        ) {
             MetricGrid(
                 metrics = listOf(
-                    "Exercises" to session.exercises.size.toString(),
-                    "Completed sets" to "${state.dailyLog.completedHardSets()}/${state.dailyLog.plannedHardSets()}",
-                    "Tonnage" to "${formatDecimal(state.dailyLog.trainingVolumeKg())} kg"
+                    language.t("Exercises", "动作") to session.exercises.size.toString(),
+                    language.t("Completed sets", "已完成组数") to "${state.dailyLog.completedHardSets()}/${state.dailyLog.plannedHardSets()}",
+                    language.t("Tonnage", "总训练量") to "${formatDecimal(state.dailyLog.trainingVolumeKg())} kg"
                 )
             )
             OutlinedTextField(
                 value = session.plannedFocus,
                 onValueChange = onFocusChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Planned focus") }
+                label = { Text(language.t("Planned focus", "今日训练重点")) }
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(checked = session.completed, onCheckedChange = { onCompletedChange() })
-                Text("Training completed")
+                Text(language.t("Training completed", "训练已完成"))
             }
             OutlinedTextField(
                 value = session.sessionNotes,
                 onValueChange = onNotesChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Session notes: pump, stimulus, pain, technique, energy") },
+                label = {
+                    Text(
+                        language.t(
+                            "Session notes: pump, stimulus, pain, technique, energy",
+                            "训练备注：充血、目标肌肉感受、疼痛、技术、精力"
+                        )
+                    )
+                },
                 minLines = 2
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -3687,7 +3888,7 @@ private fun TrainingPage(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Form photo")
+                    Text(language.t("Form photo", "动作照片"))
                 }
                 ElevatedButton(
                     onClick = {
@@ -3698,56 +3899,102 @@ private fun TrainingPage(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Equipment photo")
+                    Text(language.t("Equipment photo", "器械照片"))
                 }
             }
         }
 
+        if (session.exercises.isEmpty()) {
+            EmptyState(language.t("No exercises yet. Add your first movement to start set-level tracking.", "还没有动作。先添加第一个动作，开始按组记录。"))
+        } else {
+            session.exercises.forEachIndexed { exerciseIndex, exercise ->
+                ExerciseExecutionCard(
+                    exerciseIndex = exerciseIndex,
+                    exercise = exercise,
+                    currentLog = state.dailyLog,
+                    recentLogs = state.recentLogs,
+                    profile = state.athleteProfile,
+                    language = language,
+                    onRemove = { onRemoveExercise(exerciseIndex) },
+                    onUpdateSetEntry = onUpdateSetEntry,
+                    onCompleteSet = onCompleteSet
+                )
+            }
+        }
+
+        SessionQualityDashboardCard(dashboard = qualityDashboard)
+        TrainingCloseoutCoachCard(
+            coach = closeoutCoach,
+            isLoading = state.isLoading,
+            onRunDailyReview = onRunDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi,
+            onPickTrainingPhoto = onPickTrainingPhoto
+        )
+
         ExerciseVisualMap(
-            title = "Today's Exercise Visual Map",
-            subtitle = "A quick equipment/action index for the active workout, so exercise names map to real gym setup.",
-            emptyText = "Add or apply exercises to see today's equipment/action thumbnails.",
+            title = language.t("Today's Exercise Visual Map", "今日动作图例"),
+            subtitle = language.t(
+                "A quick equipment/action index for the active workout, so exercise names map to real gym setup.",
+                "把今天的动作名映射到真实器械和动作路径，新手先看图再找器械。"
+            ),
+            emptyText = language.t(
+                "Add or apply exercises to see today's equipment/action thumbnails.",
+                "添加或应用训练动作后，这里会显示今天的器械/动作缩略图。"
+            ),
             items = session.exercises.map { exercise ->
                 ExerciseVisualMapItem(
                     name = exercise.name,
                     targetMuscle = exercise.targetMuscle,
-                    detail = "${exercise.sets} x ${exercise.reps} | done ${exercise.completedSetCount()}/${exercise.trackedSets().size}"
+                    detail = language.t(
+                        "${exercise.sets} x ${exercise.reps} | done ${exercise.completedSetCount()}/${exercise.trackedSets().size}",
+                        "${exercise.sets} x ${exercise.reps} | 已完成 ${exercise.completedSetCount()}/${exercise.trackedSets().size}"
+                    )
                 )
             }
         )
 
-        SectionCard(title = "Add Exercise", subtitle = "Create planned set rows first; the app adds a simple equipment/action visual so the movement is easier to recognize.") {
+        SectionCard(
+            title = language.t("Add Exercise", "添加动作"),
+            subtitle = language.t(
+                "Create planned set rows first; the app adds a simple equipment/action visual so the movement is easier to recognize.",
+                "先创建计划组；App 会同时生成器械/动作图例，让动作更容易识别。"
+            )
+        ) {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Exercise") },
+                label = { Text(language.t("Exercise", "动作名称")) },
                 singleLine = true
             )
             OutlinedTextField(
                 value = muscle,
                 onValueChange = { muscle = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Target muscle") },
+                label = { Text(language.t("Target muscle", "目标肌肉")) },
                 singleLine = true
             )
             ExerciseVisualRecognitionPreview(name = name, targetMuscle = muscle)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NumberField(value = sets, onChange = { sets = it }, label = "Sets", modifier = Modifier.weight(1f))
+                NumberField(value = sets, onChange = { sets = it }, label = language.t("Sets", "组数"), modifier = Modifier.weight(1f))
                 OutlinedTextField(
                     value = reps,
                     onValueChange = { reps = it },
                     modifier = Modifier.weight(1f),
-                    label = { Text("Target reps") },
+                    label = { Text(language.t("Target reps", "目标次数")) },
                     singleLine = true
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DecimalField(value = load, onChange = { load = it }, label = "Load kg", modifier = Modifier.weight(1f))
+                DecimalField(value = load, onChange = { load = it }, label = language.t("Load kg", "重量 kg"), modifier = Modifier.weight(1f))
                 DecimalField(value = rir, onChange = { rir = it }, label = "RIR", modifier = Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                NumberField(value = rest, onChange = { rest = it }, label = "Rest sec", modifier = Modifier.weight(1f))
+                NumberField(value = rest, onChange = { rest = it }, label = language.t("Rest sec", "休息秒数"), modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
                         onAddExercise(
@@ -3766,33 +4013,16 @@ private fun TrainingPage(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Add")
+                    Text(language.t("Add", "添加"))
                 }
             }
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Technique, stimulus, substitutions, pain") },
+                label = { Text(language.t("Technique, stimulus, substitutions, pain", "技术、目标肌肉感受、替代动作、疼痛")) },
                 minLines = 2
             )
-        }
-
-        if (session.exercises.isEmpty()) {
-            EmptyState("No exercises yet. Add your first movement to start set-level tracking.")
-        } else {
-            session.exercises.forEachIndexed { exerciseIndex, exercise ->
-                ExerciseExecutionCard(
-                    exerciseIndex = exerciseIndex,
-                    exercise = exercise,
-                    currentLog = state.dailyLog,
-                    recentLogs = state.recentLogs,
-                    profile = state.athleteProfile,
-                    onRemove = { onRemoveExercise(exerciseIndex) },
-                    onUpdateSetEntry = onUpdateSetEntry,
-                    onCompleteSet = onCompleteSet
-                )
-            }
         }
     }
 }
@@ -4204,6 +4434,7 @@ private fun ExerciseExecutionCard(
     currentLog: DailyLog,
     recentLogs: List<DailyLog>,
     profile: AthleteProfile,
+    language: AppLanguage,
     onRemove: () -> Unit,
     onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
     onCompleteSet: (Int, Int) -> Unit
@@ -4214,11 +4445,11 @@ private fun ExerciseExecutionCard(
                 ExerciseVisualHeader(
                     name = exercise.name,
                     targetMuscle = exercise.targetMuscle,
-                    detail = "${exercise.targetMuscle.ifBlank { "Target muscle not set" }} | ${exercise.sets} x ${exercise.reps} | rest ${exercise.restSeconds}s",
+                    detail = "${exercise.targetMuscle.ifBlank { language.t("Target muscle not set", "未设置目标肌肉") }} | ${exercise.sets} x ${exercise.reps} | ${language.t("rest", "休息")} ${exercise.restSeconds}s",
                     modifier = Modifier.weight(1f)
                 )
                 TextButton(onClick = onRemove) {
-                    Text("Remove")
+                    Text(language.t("Remove", "移除"))
                 }
             }
             if (exercise.notes.isNotBlank()) {
@@ -4231,9 +4462,9 @@ private fun ExerciseExecutionCard(
             ExerciseVisualGuide(name = exercise.name, targetMuscle = exercise.targetMuscle)
             MetricGrid(
                 metrics = listOf(
-                    "Done" to "${exercise.completedSetCount()}/${exercise.trackedSets().size}",
-                    "Volume" to "${formatDecimal(exercise.volumeKg())} kg",
-                    "Default RIR" to (exercise.rir?.let { formatDecimal(it) } ?: "--")
+                    language.t("Done", "完成") to "${exercise.completedSetCount()}/${exercise.trackedSets().size}",
+                    language.t("Volume", "容量") to "${formatDecimal(exercise.volumeKg())} kg",
+                    language.t("Default RIR", "默认 RIR") to (exercise.rir?.let { formatDecimal(it) } ?: "--")
                 )
             )
             ExerciseHistoryCard(summary = exercise.exerciseHistorySummary(currentLog, recentLogs))
@@ -4245,6 +4476,7 @@ private fun ExerciseExecutionCard(
                     exerciseIndex = exerciseIndex,
                     setIndex = setIndex,
                     set = set,
+                    language = language,
                     onUpdateSetEntry = onUpdateSetEntry,
                     onCompleteSet = onCompleteSet
                 )
@@ -4408,6 +4640,7 @@ private fun SetRow(
     exerciseIndex: Int,
     setIndex: Int,
     set: SetEntry,
+    language: AppLanguage,
     onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
     onCompleteSet: (Int, Int) -> Unit
 ) {
@@ -4419,9 +4652,12 @@ private fun SetRow(
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Set ${set.setNumber}", fontWeight = FontWeight.SemiBold)
+                Text(language.t("Set ${set.setNumber}", "第 ${set.setNumber} 组"), fontWeight = FontWeight.SemiBold)
                 Text(
-                    text = "Target ${set.targetReps.ifBlank { "--" }} reps | rest ${set.restSeconds}s",
+                    text = language.t(
+                        "Target ${set.targetReps.ifBlank { "--" }} reps | rest ${set.restSeconds}s",
+                        "目标 ${set.targetReps.ifBlank { "--" }} 次 | 休息 ${set.restSeconds} 秒"
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -4440,7 +4676,7 @@ private fun SetRow(
                 },
                 enabled = !set.completed
             ) {
-                Text(if (set.completed) "Done" else "Complete")
+                Text(if (set.completed) language.t("Done", "已完成") else language.t("Complete", "完成"))
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -4450,7 +4686,7 @@ private fun SetRow(
                     reps = it
                     onUpdateSetEntry(exerciseIndex, setIndex, it.toIntOrNull(), load.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
                 },
-                label = "Reps",
+                label = language.t("Reps", "次数"),
                 modifier = Modifier.weight(1f)
             )
             DecimalField(
@@ -4479,7 +4715,7 @@ private fun SetRow(
                 onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), load.toDoubleOrNull(), rir.toDoubleOrNull(), it)
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Set notes") },
+            label = { Text(language.t("Set notes", "本组备注")) },
             minLines = 1
         )
     }
