@@ -56,6 +56,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.iwanttobeanifbbpro.app.core.AiReviewActionItem
+import com.iwanttobeanifbbpro.app.core.AiReviewActionQueue
 import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.ConditioningHydrationGuidance
@@ -76,6 +78,7 @@ import com.iwanttobeanifbbpro.app.core.TrainingCloseoutCoach
 import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.WarmUpRampPlan
 import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
+import com.iwanttobeanifbbpro.app.core.aiReviewActionQueue
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.conditioningHydrationGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
@@ -134,6 +137,7 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
         bottomBar = {
             BottomNavigation(
                 selected = state.selectedTab,
+                language = state.appLanguage,
                 onSelect = viewModel::selectTab
             )
         }
@@ -146,9 +150,20 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            item { Header(state = state) }
+            item {
+                Header(
+                    state = state,
+                    onLanguageChange = viewModel::updateLanguage
+                )
+            }
             state.restTimer?.let { timer ->
-                item { RestTimerBanner(timer = timer, onSkip = viewModel::skipRestTimer) }
+                item {
+                    RestTimerBanner(
+                        timer = timer,
+                        language = state.appLanguage,
+                        onSkip = viewModel::skipRestTimer
+                    )
+                }
             }
             when (state.selectedTab) {
                 AppTab.TODAY -> {
@@ -256,38 +271,71 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                             },
                             onClearImages = viewModel::clearImages,
                             onRunAnalysis = viewModel::runAnalysis,
-                            onDailyReview = viewModel::runDailyReview
+                            onDailyReview = viewModel::runDailyReview,
+                            onOpenPlan = { viewModel.selectTab(AppTab.PLAN) },
+                            onOpenTraining = { viewModel.selectTab(AppTab.TRAINING) },
+                            onOpenNutrition = { viewModel.selectTab(AppTab.NUTRITION) },
+                            onOpenMetrics = { viewModel.selectTab(AppTab.METRICS) },
+                            onOpenAi = { viewModel.selectTab(AppTab.AI_COACH) }
                         )
                     }
                 }
             }
             item {
-                state.error?.let { MessageCard(title = "Error", body = it) }
-                if (state.result.isNotBlank()) {
-                    MessageCard(title = "AI Coach result", body = state.result)
+                state.error?.let {
+                    MessageCard(
+                        title = state.appLanguage.t("Error", "错误"),
+                        body = it
+                    )
                 }
-                SafetyNote()
+                if (state.result.isNotBlank()) {
+                    MessageCard(
+                        title = state.appLanguage.t("AI Coach result", "AI 教练结果"),
+                        body = state.result
+                    )
+                }
+                SafetyNote(language = state.appLanguage)
             }
         }
     }
 }
 
 @Composable
-private fun Header(state: CoachUiState) {
-    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(
-            text = state.selectedTab.title,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.SemiBold
-        )
+private fun Header(state: CoachUiState, onLanguageChange: (AppLanguage) -> Unit) {
+    val language = state.appLanguage
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = state.selectedTab.localizedTitle(language),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                AppLanguage.entries.forEach { item ->
+                    FilterChip(
+                        selected = language == item,
+                        onClick = { onLanguageChange(item) },
+                        label = { Text(item.label) }
+                    )
+                }
+            }
+        }
         Text(
             text = "I Want to be an IFBB PRO",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Daily bodybuilding execution: training, food, recovery, photos, and AI adjustments in one log.",
+            text = language.t(
+                "Daily bodybuilding execution: training, food, recovery, photos, and AI adjustments in one log.",
+                "每日健美执行系统：训练、饮食、恢复、照片证据与 AI 调整都在同一个日志里。"
+            ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -295,14 +343,14 @@ private fun Header(state: CoachUiState) {
 }
 
 @Composable
-private fun BottomNavigation(selected: AppTab, onSelect: (AppTab) -> Unit) {
+private fun BottomNavigation(selected: AppTab, language: AppLanguage, onSelect: (AppTab) -> Unit) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         AppTab.entries.forEach { tab ->
             NavigationBarItem(
                 selected = selected == tab,
                 onClick = { onSelect(tab) },
                 icon = { Text(tab.navIcon()) },
-                label = { Text(tab.shortTitle()) }
+                label = { Text(tab.shortTitle(language)) }
             )
         }
     }
@@ -319,11 +367,30 @@ private fun AppTab.navIcon(): String {
     }
 }
 
-private fun AppTab.shortTitle(): String {
+private fun AppTab.shortTitle(language: AppLanguage): String {
     return when (this) {
-        AppTab.AI_COACH -> "Coach"
-        else -> title
+        AppTab.TODAY -> language.t("Today", "今日")
+        AppTab.PLAN -> language.t("Plan", "计划")
+        AppTab.TRAINING -> language.t("Train", "训练")
+        AppTab.NUTRITION -> language.t("Food", "饮食")
+        AppTab.METRICS -> language.t("Metrics", "数据")
+        AppTab.AI_COACH -> language.t("Coach", "AI")
     }
+}
+
+private fun AppTab.localizedTitle(language: AppLanguage): String {
+    return when (this) {
+        AppTab.TODAY -> language.t("Today", "今日")
+        AppTab.PLAN -> language.t("Plan", "训练计划")
+        AppTab.TRAINING -> language.t("Training", "训练执行")
+        AppTab.NUTRITION -> language.t("Nutrition", "饮食营养")
+        AppTab.METRICS -> language.t("Metrics", "身体数据")
+        AppTab.AI_COACH -> language.t("AI Coach", "AI 教练")
+    }
+}
+
+private fun AppLanguage.t(en: String, zh: String): String {
+    return if (this == AppLanguage.CHINESE) zh else en
 }
 
 private data class DailyReadiness(
@@ -344,6 +411,16 @@ private data class NutritionPacing(
 )
 
 private data class DailyCoachTask(
+    val title: String,
+    val detail: String,
+    val done: Boolean,
+    val actionLabel: String,
+    val actionEnabled: Boolean = true,
+    val onAction: () -> Unit
+)
+
+private data class DailyStartStep(
+    val number: Int,
     val title: String,
     val detail: String,
     val done: Boolean,
@@ -582,7 +659,7 @@ private fun ConditioningHydrationCard(
     }
 }
 
-private fun CoachUiState.dailyReadiness(): DailyReadiness {
+private fun CoachUiState.dailyReadiness(language: AppLanguage): DailyReadiness {
     val metrics = dailyLog.metrics
     val recoveryPenalty = listOf(metrics.fatigue, metrics.soreness, metrics.stress).sumOf { (it - 3).coerceAtLeast(0) } * 8
     val sleepBonus = when {
@@ -598,22 +675,41 @@ private fun CoachUiState.dailyReadiness(): DailyReadiness {
     }
     val score = (72 + sleepBonus + completionBonus - recoveryPenalty).coerceIn(35, 98)
     val nextAction = when {
-        dailyLog.trainingSession.exercises.isEmpty() -> "Apply a plan day or add today's first exercise."
-        dailyLog.completedHardSets() < dailyLog.plannedHardSets() -> "Finish the remaining working sets and keep RIR honest."
-        dailyLog.meals.isEmpty() -> "Log the first meal or add a food photo for AI estimation."
-        dailyLog.nutritionPacing().adherenceScore < 72 -> "Use Nutrition Pacing to fix the biggest macro gap before AI review."
-        metrics.bodyWeightKg == null || metrics.sleepHours == null -> "Sync Health Connect or fill today's recovery metrics."
-        else -> "Run AI review and lock tomorrow's training and food targets."
+        dailyLog.trainingSession.exercises.isEmpty() -> language.t(
+            "Apply a plan day or add today's first exercise.",
+            "先应用一个训练日，或者添加今天第一个动作。"
+        )
+        dailyLog.completedHardSets() < dailyLog.plannedHardSets() -> language.t(
+            "Finish the remaining working sets and keep RIR honest.",
+            "完成剩余工作组，并如实记录 RIR。"
+        )
+        dailyLog.meals.isEmpty() -> language.t(
+            "Log the first meal or add a food photo for AI estimation.",
+            "先记录第一餐，或添加食物照片给 AI 估算。"
+        )
+        dailyLog.nutritionPacing().adherenceScore < 72 -> language.t(
+            "Use Nutrition Pacing to fix the biggest macro gap before AI review.",
+            "先用营养节奏修正最大的宏量营养缺口，再做 AI 复盘。"
+        )
+        metrics.bodyWeightKg == null || metrics.sleepHours == null -> language.t(
+            "Sync Health Connect or fill today's recovery metrics.",
+            "同步 Health Connect，或手动补齐今天的恢复数据。"
+        )
+        else -> language.t(
+            "Run AI review and lock tomorrow's training and food targets.",
+            "运行 AI 复盘，并锁定明天训练和饮食目标。"
+        )
     }
     val label = when {
-        score >= 82 -> "Ready to progress"
-        score >= 65 -> "Controlled push"
-        else -> "Hold or recover"
+        score >= 82 -> language.t("Ready to progress", "可以推进")
+        score >= 65 -> language.t("Controlled push", "可控推进")
+        else -> language.t("Hold or recover", "维持或恢复")
     }
     return DailyReadiness(score = score, label = label, nextAction = nextAction)
 }
 
 private fun CoachUiState.dailyCoachTasks(
+    language: AppLanguage,
     onOpenPlan: () -> Unit,
     onOpenTraining: () -> Unit,
     onOpenNutrition: () -> Unit,
@@ -637,63 +733,242 @@ private fun CoachUiState.dailyCoachTasks(
 
     return listOf(
         DailyCoachTask(
-            title = "Plan prepared",
+            title = language.t("Plan prepared", "训练计划已准备"),
             detail = when {
-                sessionReady -> "${log.trainingSession.plannedFocus}: $plannedSets planned sets loaded."
-                planReady -> "Weekly plan exists; apply the right day before training."
-                else -> "Choose a Plan Template or build today's first training day."
+                sessionReady -> language.t(
+                    "${log.trainingSession.plannedFocus}: $plannedSets planned sets loaded.",
+                    "${log.trainingSession.plannedFocus}：已载入 $plannedSets 个计划组。"
+                )
+                planReady -> language.t(
+                    "Weekly plan exists; apply the right day before training.",
+                    "已经有周计划；训练前先应用正确的训练日。"
+                )
+                else -> language.t(
+                    "Choose a Plan Template or build today's first training day.",
+                    "选择一个计划模板，或创建今天的第一个训练日。"
+                )
             },
             done = sessionReady,
-            actionLabel = if (sessionReady) "View workout" else if (planReady) "Apply day" else "Pick plan",
+            actionLabel = if (sessionReady) {
+                language.t("View workout", "查看训练")
+            } else if (planReady) {
+                language.t("Apply day", "应用训练日")
+            } else {
+                language.t("Pick plan", "选择计划")
+            },
             onAction = if (sessionReady) onOpenTraining else onOpenPlan
         ),
         DailyCoachTask(
-            title = "Training executed",
+            title = language.t("Training executed", "训练已执行"),
             detail = when {
-                !sessionReady -> "No workout loaded yet."
-                trainingDone -> "$completedSets/$plannedSets sets completed; add notes before review."
-                else -> "$completedSets/$plannedSets sets completed; finish working sets and rest timers."
+                !sessionReady -> language.t("No workout loaded yet.", "今天还没有载入训练。")
+                trainingDone -> language.t(
+                    "$completedSets/$plannedSets sets completed; add notes before review.",
+                    "已完成 $completedSets/$plannedSets 组；复盘前补充训练备注。"
+                )
+                else -> language.t(
+                    "$completedSets/$plannedSets sets completed; finish working sets and rest timers.",
+                    "已完成 $completedSets/$plannedSets 组；继续完成工作组并跟随休息倒计时。"
+                )
             },
             done = trainingDone,
-            actionLabel = "Log sets",
+            actionLabel = language.t("Log sets", "记录组数"),
             actionEnabled = sessionReady,
             onAction = onOpenTraining
         ),
         DailyCoachTask(
-            title = "Food logged",
+            title = language.t("Food logged", "饮食已记录"),
             detail = if (nutritionLogged) {
-                "${log.meals.size} meals logged; ${formatRemaining(pacing.caloriesRemaining, "kcal")} and protein ${formatRemaining(pacing.proteinRemaining, "g")}."
+                language.t(
+                    "${log.meals.size} meals logged; ${formatRemaining(pacing.caloriesRemaining, "kcal")} and protein ${formatRemaining(pacing.proteinRemaining, "g")}.",
+                    "已记录 ${log.meals.size} 餐；热量${formatRemainingLocalized(pacing.caloriesRemaining, "kcal", language)}，蛋白质${formatRemainingLocalized(pacing.proteinRemaining, "g", language)}。"
+                )
             } else {
-                "Add a meal template or food photo so nutrition can be compared with training demand."
+                language.t(
+                    "Add a meal template or food photo so nutrition can be compared with training demand.",
+                    "添加餐食模板或食物照片，让饮食能和训练需求一起分析。"
+                )
             },
             done = nutritionLogged,
-            actionLabel = if (nutritionLogged) "Review food" else "Add meal",
+            actionLabel = if (nutritionLogged) language.t("Review food", "查看饮食") else language.t("Add meal", "添加餐食"),
             onAction = onOpenNutrition
         ),
         DailyCoachTask(
-            title = "Metrics synced",
+            title = language.t("Metrics synced", "身体数据已同步"),
             detail = when {
-                log.metrics.healthSyncedAt.isNotBlank() -> "Health data synced; source ${log.metrics.healthDataSource.ifBlank { "Health Connect" }}."
-                metricsReady -> "Manual metrics available; sync Health Connect when possible."
-                else -> "Add body weight, sleep, steps, HR, soreness, fatigue, and stress."
+                log.metrics.healthSyncedAt.isNotBlank() -> language.t(
+                    "Health data synced; source ${log.metrics.healthDataSource.ifBlank { "Health Connect" }}.",
+                    "健康数据已同步；来源 ${log.metrics.healthDataSource.ifBlank { "Health Connect" }}。"
+                )
+                metricsReady -> language.t(
+                    "Manual metrics available; sync Health Connect when possible.",
+                    "已有手动数据；条件允许时同步 Health Connect。"
+                )
+                else -> language.t(
+                    "Add body weight, sleep, steps, HR, soreness, fatigue, and stress.",
+                    "补齐体重、睡眠、步数、静息心率、酸痛、疲劳和压力。"
+                )
             },
             done = metricsReady,
-            actionLabel = if (metricsReady) "Check metrics" else "Sync metrics",
+            actionLabel = if (metricsReady) language.t("Check metrics", "查看数据") else language.t("Sync metrics", "同步数据"),
             onAction = onOpenMetrics
         ),
         DailyCoachTask(
-            title = "AI review locked",
+            title = language.t("AI review locked", "AI 复盘已锁定"),
             detail = if (aiReviewedToday) {
-                "Today's review is saved; use it to set tomorrow's training and food targets."
+                language.t(
+                    "Today's review is saved; use it to set tomorrow's training and food targets.",
+                    "今天的复盘已保存；用它安排明天训练和饮食目标。"
+                )
             } else {
-                "Run after training, food, and metrics are logged for the cleanest adjustment."
+                language.t(
+                    "Run after training, food, and metrics are logged for the cleanest adjustment.",
+                    "训练、饮食和身体数据记录后再运行，调整会更可靠。"
+                )
             },
             done = aiReviewedToday,
-            actionLabel = if (aiReviewedToday) "View review" else "Run review",
+            actionLabel = if (aiReviewedToday) language.t("View review", "查看复盘") else language.t("Run review", "运行复盘"),
             actionEnabled = !isLoading,
             onAction = if (aiReviewedToday) onOpenAi else onRunAiReview
         )
     )
+}
+
+private fun CoachUiState.dailyStartSteps(
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onRunAiReview: () -> Unit,
+    onOpenAi: () -> Unit
+): List<DailyStartStep> {
+    return dailyCoachTasks(
+        language = language,
+        onOpenPlan = onOpenPlan,
+        onOpenTraining = onOpenTraining,
+        onOpenNutrition = onOpenNutrition,
+        onOpenMetrics = onOpenMetrics,
+        onRunAiReview = onRunAiReview,
+        onOpenAi = onOpenAi
+    ).mapIndexed { index, task ->
+        DailyStartStep(
+            number = index + 1,
+            title = task.title,
+            detail = task.detail,
+            done = task.done,
+            actionLabel = task.actionLabel,
+            actionEnabled = task.actionEnabled,
+            onAction = task.onAction
+        )
+    }
+}
+
+@Composable
+private fun StartHereCoachCard(
+    state: CoachUiState,
+    readiness: DailyReadiness,
+    steps: List<DailyStartStep>,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit
+) {
+    val language = state.appLanguage
+    val doneCount = steps.count { it.done }
+    val nextStep = steps.firstOrNull { !it.done && it.actionEnabled } ?: steps.lastOrNull()
+    val progress = if (steps.isEmpty()) 0f else doneCount.toFloat() / steps.size.toFloat()
+    SectionCard(
+        title = language.t("Start Here", "从这里开始"),
+        subtitle = language.t(
+            "A clear daily loop: plan, train, eat, sync, then let AI review the evidence.",
+            "每天只按这个闭环走：先计划，再训练，再记录饮食，同步身体数据，最后让 AI 基于证据复盘。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Progress", "今日进度") to "$doneCount/${steps.size}",
+                language.t("Readiness", "状态") to "${readiness.score}",
+                language.t("Phase", "阶段") to state.athleteProfile.currentPhase,
+                language.t("Next", "下一步") to (nextStep?.title ?: language.t("Complete", "已完成"))
+            )
+        )
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = nextStep?.detail ?: language.t(
+                "Today's loop is complete. Use the saved review queue to prepare tomorrow.",
+                "今天的闭环已经完成。可以用已保存的复盘队列准备明天。"
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Button(
+            onClick = { nextStep?.onAction?.invoke() },
+            enabled = nextStep?.actionEnabled == true,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(nextStep?.actionLabel ?: language.t("Done", "已完成"))
+        }
+        steps.forEach { step ->
+            StartHereStepRow(step = step, language = language)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onOpenTraining, modifier = Modifier.weight(1f)) {
+                Text(language.t("Train", "训练"))
+            }
+            TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
+                Text(language.t("Food", "饮食"))
+            }
+            TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
+                Text(language.t("Metrics", "数据"))
+            }
+        }
+    }
+}
+
+@Composable
+private fun StartHereStepRow(step: DailyStartStep, language: AppLanguage) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = if (step.done) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    ) {
+        Row(
+            modifier = Modifier.padding(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = if (step.done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = step.number.toString(),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    color = if (step.done) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(step.title, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = step.detail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Text(
+                text = if (step.done) language.t("Done", "完成") else language.t("Next", "下一步"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
 }
 
 @Composable
@@ -723,23 +998,30 @@ private fun ActionCard(
 private fun CommandCenterCard(
     readiness: DailyReadiness,
     state: CoachUiState,
+    language: AppLanguage,
     onDailyReview: () -> Unit,
     onOpenTraining: () -> Unit,
     onOpenNutrition: () -> Unit,
     onOpenMetrics: () -> Unit
 ) {
-    SectionCard(title = "Command Center", subtitle = "Start here each day: execute, log, sync, then review.") {
+    SectionCard(
+        title = language.t("Command Center", "今日指挥台"),
+        subtitle = language.t(
+            "Use this after the Start Here loop when you want the decision layer and latest guidance.",
+            "完成“从这里开始”闭环后，在这里查看当前决策层和最新建议。"
+        )
+    ) {
         MetricGrid(
             metrics = listOf(
-                "Readiness" to "${readiness.score}",
-                "State" to readiness.label,
-                "Phase" to state.athleteProfile.currentPhase,
-                "Sets" to "${state.dailyLog.completedHardSets()}/${state.dailyLog.plannedHardSets()}",
-                "Meals" to state.dailyLog.meals.size.toString()
+                language.t("Readiness", "状态分") to "${readiness.score}",
+                language.t("State", "状态") to readiness.label,
+                language.t("Phase", "阶段") to state.athleteProfile.currentPhase,
+                language.t("Sets", "组数") to "${state.dailyLog.completedHardSets()}/${state.dailyLog.plannedHardSets()}",
+                language.t("Meals", "餐数") to state.dailyLog.meals.size.toString()
             )
         )
         Text(
-            text = "Goal: ${state.athleteProfile.primaryGoal}",
+            text = language.t("Goal: ${state.athleteProfile.primaryGoal}", "目标：${state.athleteProfile.primaryGoal}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -754,7 +1036,7 @@ private fun CommandCenterCard(
                 enabled = !state.isLoading,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(if (state.isLoading) "Reviewing" else "AI review")
+                Text(if (state.isLoading) language.t("Reviewing", "复盘中") else language.t("AI review", "AI 复盘"))
             }
             ElevatedButton(
                 onClick = when {
@@ -764,7 +1046,7 @@ private fun CommandCenterCard(
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Next")
+                Text(language.t("Next", "下一步"))
             }
         }
         if (state.isLoading) {
@@ -773,7 +1055,7 @@ private fun CommandCenterCard(
         state.reviewHistory.firstOrNull()?.let { review ->
             HorizontalDivider()
             Text(
-                text = "Latest AI guidance",
+                text = language.t("Latest AI guidance", "最新 AI 建议"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -788,6 +1070,7 @@ private fun CommandCenterCard(
 @Composable
 private fun DailyExecutionPlanCard(
     plan: DailyExecutionPlan,
+    language: AppLanguage,
     onOpenPlan: () -> Unit,
     onOpenTraining: () -> Unit,
     onOpenNutrition: () -> Unit,
@@ -796,15 +1079,18 @@ private fun DailyExecutionPlanCard(
     onOpenAi: () -> Unit
 ) {
     SectionCard(
-        title = "Daily Execution Plan",
-        subtitle = "The app's current decision layer: what to do first, what to adjust, and when AI review is reliable."
+        title = language.t("Daily Execution Plan", "今日执行计划"),
+        subtitle = language.t(
+            "The app's decision layer: what to do first, what to adjust, and when AI review is reliable.",
+            "App 的每日决策层：先做什么、该调整什么、什么时候 AI 复盘才可靠。"
+        )
     ) {
         MetricGrid(
             metrics = listOf(
-                "Status" to plan.statusLabel,
-                "Priority" to plan.priorityFocus,
-                "Readiness" to plan.readinessScore.toString(),
-                "Primary" to plan.primaryActionLabel
+                language.t("Status", "状态") to plan.statusLabel,
+                language.t("Priority", "优先级") to plan.priorityFocus,
+                language.t("Readiness", "状态分") to plan.readinessScore.toString(),
+                language.t("Primary", "主动作") to plan.primaryActionLabel
             )
         )
         Text(
@@ -813,17 +1099,17 @@ private fun DailyExecutionPlanCard(
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Training: ${plan.trainingDecision}",
+            text = language.t("Training: ${plan.trainingDecision}", "训练：${plan.trainingDecision}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Nutrition: ${plan.nutritionDecision}",
+            text = language.t("Nutrition: ${plan.nutritionDecision}", "饮食：${plan.nutritionDecision}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Recovery: ${plan.recoveryDecision}",
+            text = language.t("Recovery: ${plan.recoveryDecision}", "恢复：${plan.recoveryDecision}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -850,19 +1136,195 @@ private fun DailyExecutionPlanCard(
 }
 
 @Composable
-private fun TomorrowCoachBriefCard(brief: TomorrowCoachBrief, onOpenPlan: () -> Unit, onOpenNutrition: () -> Unit, onOpenMetrics: () -> Unit) {
+private fun AiReviewActionQueueCard(
+    queue: AiReviewActionQueue,
+    isLoading: Boolean,
+    language: AppLanguage,
+    onDailyReview: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit
+) {
     SectionCard(
-        title = "Tomorrow Coach Brief",
-        subtitle = "Lock the next-day training, food, recovery, and tracking priorities after today's review."
+        title = language.t("AI Review Action Queue", "AI 复盘行动队列"),
+        subtitle = language.t(
+            "Turns the latest saved AI review into training, nutrition, recovery, tracking, and plan actions.",
+            "把最新保存的 AI 复盘，转成训练、饮食、恢复、追踪和计划修改动作。"
+        )
     ) {
         MetricGrid(
             metrics = listOf(
-                "Status" to brief.statusLabel,
-                "Date" to brief.tomorrowDate,
-                "Plan day" to brief.planDayName,
-                "Focus" to brief.planFocus,
-                "Calories" to brief.targetCalories.toString(),
-                "Protein" to "${brief.targetProtein} g"
+                language.t("Status", "状态") to queue.statusLabel,
+                language.t("Source", "来源") to queue.sourceLabel,
+                language.t("Confidence", "可信度") to queue.confidenceLabel,
+                language.t("Primary", "主动作") to queue.primaryAction.title
+            )
+        )
+        Text(
+            text = queue.primaryAction.detail,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        DataChipGrid(
+            items = listOf(
+                "AI Review Action Queue",
+                "Review saved guidance",
+                "Run daily review",
+                "training action",
+                "nutrition action",
+                "recovery action",
+                "tracking action"
+            ) + queue.actions.map { "${it.category.label} priority ${it.priority}" }
+        )
+        queue.actions.forEachIndexed { index, action ->
+            AiReviewActionRow(
+                action = action,
+                isPrimary = action == queue.primaryAction,
+                isLoading = isLoading,
+                language = language,
+                onDailyReview = onDailyReview,
+                onOpenPlan = onOpenPlan,
+                onOpenTraining = onOpenTraining,
+                onOpenNutrition = onOpenNutrition,
+                onOpenMetrics = onOpenMetrics,
+                onOpenAi = onOpenAi
+            )
+            if (index != queue.actions.lastIndex) {
+                HorizontalDivider()
+            }
+        }
+        Text(
+            text = queue.aiReviewFocus,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun AiReviewActionRow(
+    action: AiReviewActionItem,
+    isPrimary: Boolean,
+    isLoading: Boolean,
+    language: AppLanguage,
+    onDailyReview: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = if (isPrimary) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    ) {
+        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(
+                        language.t("${action.category.label} action", "${action.category.label} 动作"),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = action.title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = action.detail,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = "P${action.priority}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Text(
+                text = language.t("Evidence: ${action.evidenceCue}", "证据：${action.evidenceCue}"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TextButton(
+                onClick = {
+                    performAiReviewAction(
+                        action = action,
+                        onDailyReview = onDailyReview,
+                        onOpenPlan = onOpenPlan,
+                        onOpenTraining = onOpenTraining,
+                        onOpenNutrition = onOpenNutrition,
+                        onOpenMetrics = onOpenMetrics,
+                        onOpenAi = onOpenAi
+                    )
+                },
+                enabled = !(isLoading && action.route == DailyExecutionRoute.AI_REVIEW)
+            ) {
+                Text(
+                    if (isLoading && action.route == DailyExecutionRoute.AI_REVIEW) {
+                        language.t("Reviewing", "复盘中")
+                    } else {
+                        action.actionLabel
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun performAiReviewAction(
+    action: AiReviewActionItem,
+    onDailyReview: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    when (action.route) {
+        DailyExecutionRoute.PLAN -> onOpenPlan()
+        DailyExecutionRoute.TRAINING -> onOpenTraining()
+        DailyExecutionRoute.NUTRITION -> onOpenNutrition()
+        DailyExecutionRoute.METRICS -> onOpenMetrics()
+        DailyExecutionRoute.AI_REVIEW -> {
+            if (action.actionLabel.contains("Run", ignoreCase = true)) {
+                onDailyReview()
+            } else {
+                onOpenAi()
+            }
+        }
+    }
+}
+
+@Composable
+private fun TomorrowCoachBriefCard(
+    brief: TomorrowCoachBrief,
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit
+) {
+    SectionCard(
+        title = language.t("Tomorrow Coach Brief", "明日教练简报"),
+        subtitle = language.t(
+            "Lock the next-day training, food, recovery, and tracking priorities after today's review.",
+            "在今天复盘后，锁定明天的训练、饮食、恢复和追踪重点。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Status", "状态") to brief.statusLabel,
+                language.t("Date", "日期") to brief.tomorrowDate,
+                language.t("Plan day", "训练日") to brief.planDayName,
+                language.t("Focus", "重点") to brief.planFocus,
+                language.t("Calories", "热量") to brief.targetCalories.toString(),
+                language.t("Protein", "蛋白质") to "${brief.targetProtein} g"
             )
         )
         Text(
@@ -871,104 +1333,116 @@ private fun TomorrowCoachBriefCard(brief: TomorrowCoachBrief, onOpenPlan: () -> 
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Training: ${brief.trainingAction}",
+            text = language.t("Training: ${brief.trainingAction}", "训练：${brief.trainingAction}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Nutrition: ${brief.nutritionAction}",
+            text = language.t("Nutrition: ${brief.nutritionAction}", "饮食：${brief.nutritionAction}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Recovery: ${brief.recoveryAction}",
+            text = language.t("Recovery: ${brief.recoveryAction}", "恢复：${brief.recoveryAction}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Tracking: ${brief.trackingAction}",
+            text = language.t("Tracking: ${brief.trackingAction}", "追踪：${brief.trackingAction}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         DataChipGrid(
             items = listOf(
-                "Readiness gate: ${brief.readinessGate}",
-                "AI review focus: ${brief.aiReviewFocus}"
+                language.t("Readiness gate: ${brief.readinessGate}", "状态门槛：${brief.readinessGate}"),
+                language.t("AI review focus: ${brief.aiReviewFocus}", "AI 复盘重点：${brief.aiReviewFocus}")
             )
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = onOpenPlan, modifier = Modifier.weight(1f)) {
-                Text("Plan tomorrow")
+                Text(language.t("Plan tomorrow", "安排明天"))
             }
             TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
-                Text("Food targets")
+                Text(language.t("Food targets", "饮食目标"))
             }
             TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
-                Text("Metrics")
+                Text(language.t("Metrics", "数据"))
             }
         }
     }
 }
 
 @Composable
-private fun WeeklyCheckInCard(summary: WeeklyCheckInSummary, onOpenPlan: () -> Unit, onOpenNutrition: () -> Unit, onOpenMetrics: () -> Unit) {
+private fun WeeklyCheckInCard(
+    summary: WeeklyCheckInSummary,
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit
+) {
     SectionCard(
-        title = "Weekly Check-in",
-        subtitle = "Use 7-14 day execution before changing weekly volume, calories, or recovery pressure."
+        title = language.t("Weekly Check-in", "周复盘"),
+        subtitle = language.t(
+            "Use 7-14 day execution before changing weekly volume, calories, or recovery pressure.",
+            "用 7-14 天执行数据，再调整周训练量、热量或恢复压力。"
+        )
     ) {
         MetricGrid(
             metrics = listOf(
-                "Status" to summary.statusLabel,
-                "Days" to summary.daysLogged.toString(),
-                "Training completion" to "${summary.trainingCompletionPercent}%",
-                "Avg kcal" to (summary.averageCalories?.let { formatDecimal(it) } ?: "--"),
-                "Avg protein" to (summary.averageProtein?.let { "${formatDecimal(it)} g" } ?: "--"),
-                "Weight" to (summary.weightChangeKg?.let { "${formatSigned(it)} kg" } ?: "--"),
-                "Recovery" to (summary.recoveryScoreAverage?.toString() ?: "--")
+                language.t("Status", "状态") to summary.statusLabel,
+                language.t("Days", "天数") to summary.daysLogged.toString(),
+                language.t("Training completion", "训练完成率") to "${summary.trainingCompletionPercent}%",
+                language.t("Avg kcal", "平均热量") to (summary.averageCalories?.let { formatDecimal(it) } ?: "--"),
+                language.t("Avg protein", "平均蛋白") to (summary.averageProtein?.let { "${formatDecimal(it)} g" } ?: "--"),
+                language.t("Weight", "体重") to (summary.weightChangeKg?.let { "${formatSigned(it)} kg" } ?: "--"),
+                language.t("Recovery", "恢复") to (summary.recoveryScoreAverage?.toString() ?: "--")
             )
         )
         Text(
-            text = "Next week action: ${summary.nextWeekAction}",
+            text = language.t("Next week action: ${summary.nextWeekAction}", "下周动作：${summary.nextWeekAction}"),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Plan adjustment: ${summary.planAdjustment}",
+            text = language.t("Plan adjustment: ${summary.planAdjustment}", "计划调整：${summary.planAdjustment}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Nutrition adjustment: ${summary.nutritionAdjustment}",
+            text = language.t("Nutrition adjustment: ${summary.nutritionAdjustment}", "饮食调整：${summary.nutritionAdjustment}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         DataChipGrid(
             items = listOf(
-                "Weak point: ${summary.weakPointFocus}",
+                language.t("Weak point: ${summary.weakPointFocus}", "弱项：${summary.weakPointFocus}"),
                 summary.dataQualityGate,
                 summary.aiReviewFocus
             )
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onOpenPlan, modifier = Modifier.weight(1f)) {
-                Text("Plan")
+                Text(language.t("Plan", "计划"))
             }
             TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
-                Text("Food")
+                Text(language.t("Food", "饮食"))
             }
             TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
-                Text("Metrics")
+                Text(language.t("Metrics", "数据"))
             }
         }
     }
 }
 
 @Composable
-private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>) {
+private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>, language: AppLanguage) {
     val completed = tasks.count { it.done }
     SectionCard(
-        title = "Daily Coach Checklist",
-        subtitle = "$completed/${tasks.size} complete. Follow this loop before trusting today's AI adjustment."
+        title = language.t("Daily Coach Checklist", "每日教练清单"),
+        subtitle = language.t(
+            "$completed/${tasks.size} complete. Follow this loop before trusting today's AI adjustment.",
+            "已完成 $completed/${tasks.size}。先完成这个闭环，再信任今天的 AI 调整。"
+        )
     ) {
         tasks.forEachIndexed { index, task ->
             if (index > 0) {
@@ -985,7 +1459,7 @@ private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>) {
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Text(
-                        text = if (task.done) "Done" else "Next",
+                        text = if (task.done) language.t("Done", "完成") else language.t("Next", "下一步"),
                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold
@@ -1010,6 +1484,7 @@ private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>) {
 @Composable
 private fun TodayActionGrid(
     state: CoachUiState,
+    language: AppLanguage,
     onOpenPlan: () -> Unit,
     onOpenTraining: () -> Unit,
     onOpenNutrition: () -> Unit,
@@ -1020,54 +1495,69 @@ private fun TodayActionGrid(
     val pacing = log.nutritionPacing()
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         ActionCard(
-            title = "Training",
+            title = language.t("Training", "训练"),
             value = "${log.completedHardSets()}/${log.plannedHardSets()} sets",
             detail = "${formatDecimal(log.trainingVolumeKg())} kg volume",
-            actionLabel = if (log.trainingSession.exercises.isEmpty()) "Build session" else "Log sets",
+            actionLabel = if (log.trainingSession.exercises.isEmpty()) {
+                language.t("Build session", "创建训练")
+            } else {
+                language.t("Log sets", "记录组数")
+            },
             onAction = if (log.trainingSession.exercises.isEmpty()) onOpenPlan else onOpenTraining
         )
         ActionCard(
-            title = "Nutrition",
-            value = formatRemaining(pacing.caloriesRemaining, "kcal"),
+            title = language.t("Nutrition", "饮食"),
+            value = formatRemainingLocalized(pacing.caloriesRemaining, "kcal", language),
             detail = "${pacing.statusLabel} | Protein ${totals.protein}/${log.targets.protein} g",
-            actionLabel = "Log meal",
+            actionLabel = language.t("Log meal", "记录餐食"),
             onAction = onOpenNutrition
         )
         ActionCard(
-            title = "Recovery",
+            title = language.t("Recovery", "恢复"),
             value = formatOptional(log.metrics.sleepHours, "h"),
             detail = "Steps ${log.metrics.steps}, fatigue ${log.metrics.fatigue}/5",
-            actionLabel = "Sync metrics",
+            actionLabel = language.t("Sync metrics", "同步数据"),
             onAction = onOpenMetrics
         )
         ActionCard(
-            title = "Body",
+            title = language.t("Body", "身体"),
             value = formatOptional(log.metrics.bodyWeightKg, "kg"),
             detail = "Body fat ${formatOptional(log.metrics.bodyFatPercent, "%")}",
-            actionLabel = "Update",
+            actionLabel = language.t("Update", "更新"),
             onAction = onOpenMetrics
         )
     }
 }
 
 @Composable
-private fun BeginnerGuideCard(onOpenPlan: () -> Unit, onOpenNutrition: () -> Unit, onOpenMetrics: () -> Unit) {
-    SectionCard(title = "Beginner Friendly Flow", subtitle = "A simple daily loop before the deeper pro-level details.") {
+private fun BeginnerGuideCard(
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit
+) {
+    SectionCard(
+        title = language.t("Beginner Friendly Flow", "新手友好流程"),
+        subtitle = language.t(
+            "A simple daily loop before the deeper pro-level details.",
+            "先按简单日常闭环执行，再进入更专业的细节分析。"
+        )
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("1. Pick or apply today's plan.")
-            Text("2. Complete each working set and respect the rest timer.")
-            Text("3. Log meals or attach photos when portions are uncertain.")
-            Text("4. Sync health data, then run AI review.")
+            Text(language.t("1. Pick or apply today's plan.", "1. 选择或应用今天的训练计划。"))
+            Text(language.t("2. Complete each working set and respect the rest timer.", "2. 完成每个工作组，并按休息倒计时执行。"))
+            Text(language.t("3. Log meals or attach photos when portions are uncertain.", "3. 记录餐食；份量不确定时添加照片。"))
+            Text(language.t("4. Sync health data, then run AI review.", "4. 同步健康数据，然后运行 AI 复盘。"))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onOpenPlan, modifier = Modifier.weight(1f)) {
-                Text("Plan")
+                Text(language.t("Plan", "计划"))
             }
             TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
-                Text("Food")
+                Text(language.t("Food", "饮食"))
             }
             TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
-                Text("Metrics")
+                Text(language.t("Metrics", "数据"))
             }
         }
     }
@@ -1131,9 +1621,19 @@ private fun TodayDashboard(
     onOpenAi: () -> Unit
 ) {
     val log = state.dailyLog
+    val language = state.appLanguage
     val totals = log.nutritionTotals()
     val pacing = log.nutritionPacing()
-    val readiness = state.dailyReadiness()
+    val readiness = state.dailyReadiness(language)
+    val startSteps = state.dailyStartSteps(
+        language = language,
+        onOpenPlan = onOpenPlan,
+        onOpenTraining = onOpenTraining,
+        onOpenNutrition = onOpenNutrition,
+        onOpenMetrics = onOpenMetrics,
+        onRunAiReview = onDailyReview,
+        onOpenAi = onOpenAi
+    )
     val executionPlan = dailyExecutionPlan(
         log = log,
         recentLogs = state.recentLogs,
@@ -1153,10 +1653,23 @@ private fun TodayDashboard(
         profile = state.athleteProfile,
         plan = state.trainingPlan
     )
+    val reviewQueue = aiReviewActionQueue(
+        latestReview = state.reviewHistory.firstOrNull(),
+        log = log
+    )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        StartHereCoachCard(
+            state = state,
+            readiness = readiness,
+            steps = startSteps,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics
+        )
         CommandCenterCard(
             readiness = readiness,
             state = state,
+            language = language,
             onDailyReview = onDailyReview,
             onOpenTraining = onOpenTraining,
             onOpenNutrition = onOpenNutrition,
@@ -1164,6 +1677,7 @@ private fun TodayDashboard(
         )
         DailyExecutionPlanCard(
             plan = executionPlan,
+            language = language,
             onOpenPlan = onOpenPlan,
             onOpenTraining = onOpenTraining,
             onOpenNutrition = onOpenNutrition,
@@ -1171,84 +1685,107 @@ private fun TodayDashboard(
             onDailyReview = onDailyReview,
             onOpenAi = onOpenAi
         )
+        AiReviewActionQueueCard(
+            queue = reviewQueue,
+            isLoading = state.isLoading,
+            language = language,
+            onDailyReview = onDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi
+        )
         TomorrowCoachBriefCard(
             brief = tomorrowBrief,
+            language = language,
             onOpenPlan = onOpenPlan,
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics
         )
         WeeklyCheckInCard(
             summary = weeklyCheckIn,
+            language = language,
             onOpenPlan = onOpenPlan,
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics
         )
         DailyCoachChecklistCard(
             tasks = state.dailyCoachTasks(
+                language = language,
                 onOpenPlan = onOpenPlan,
                 onOpenTraining = onOpenTraining,
                 onOpenNutrition = onOpenNutrition,
                 onOpenMetrics = onOpenMetrics,
                 onRunAiReview = onDailyReview,
                 onOpenAi = onOpenAi
-            )
+            ),
+            language = language
         )
         TodayExerciseVisualPrimerCard(
             log = log,
+            language = language,
             onOpenPlan = onOpenPlan,
             onOpenTraining = onOpenTraining
         )
         TodayActionGrid(
             state = state,
+            language = language,
             onOpenPlan = onOpenPlan,
             onOpenTraining = onOpenTraining,
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics
         )
-        SectionCard(title = "Today Snapshot", subtitle = log.date) {
+        SectionCard(title = language.t("Today Snapshot", "今日快照"), subtitle = log.date) {
             MetricGrid(
                 metrics = listOf(
-                    "Volume" to "${formatDecimal(log.trainingVolumeKg())} kg",
-                    "Calories" to "${totals.calories}/${log.targets.calories}",
-                    "Protein" to "${totals.protein}/${log.targets.protein} g",
-                    "Macro pace" to "${pacing.adherenceScore}%",
-                    "Body fat" to formatOptional(log.metrics.bodyFatPercent, "%"),
-                    "Sleep" to formatOptional(log.metrics.sleepHours, "h"),
-                    "Resting HR" to formatOptional(log.metrics.restingHeartRateBpm, "bpm")
+                    language.t("Volume", "容量") to "${formatDecimal(log.trainingVolumeKg())} kg",
+                    language.t("Calories", "热量") to "${totals.calories}/${log.targets.calories}",
+                    language.t("Protein", "蛋白质") to "${totals.protein}/${log.targets.protein} g",
+                    language.t("Macro pace", "宏量节奏") to "${pacing.adherenceScore}%",
+                    language.t("Body fat", "体脂") to formatOptional(log.metrics.bodyFatPercent, "%"),
+                    language.t("Sleep", "睡眠") to formatOptional(log.metrics.sleepHours, "h"),
+                    language.t("Resting HR", "静息心率") to formatOptional(log.metrics.restingHeartRateBpm, "bpm")
                 )
             )
             Text(
-                text = "Focus: ${log.trainingSession.plannedFocus}",
+                text = language.t("Focus: ${log.trainingSession.plannedFocus}", "训练重点：${log.trainingSession.plannedFocus}"),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Nutrition: C ${totals.carbs}/${log.targets.carbs} g, F ${totals.fat}/${log.targets.fat} g, fiber ${totals.fiber}/${log.targets.fiber} g.",
+                text = language.t(
+                    "Nutrition: C ${totals.carbs}/${log.targets.carbs} g, F ${totals.fat}/${log.targets.fat} g, fiber ${totals.fiber}/${log.targets.fiber} g.",
+                    "营养：碳水 ${totals.carbs}/${log.targets.carbs} g，脂肪 ${totals.fat}/${log.targets.fat} g，纤维 ${totals.fiber}/${log.targets.fiber} g。"
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Next meal: ${pacing.nextMealFocus}",
+                text = language.t("Next meal: ${pacing.nextMealFocus}", "下一餐：${pacing.nextMealFocus}"),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "Recovery: waist ${formatOptional(log.metrics.waistCm, "cm")}, steps ${log.metrics.steps}, hunger ${log.metrics.hunger}/5, fatigue ${log.metrics.fatigue}/5, soreness ${log.metrics.soreness}/5.",
+                text = language.t(
+                    "Recovery: waist ${formatOptional(log.metrics.waistCm, "cm")}, steps ${log.metrics.steps}, hunger ${log.metrics.hunger}/5, fatigue ${log.metrics.fatigue}/5, soreness ${log.metrics.soreness}/5.",
+                    "恢复：腰围 ${formatOptional(log.metrics.waistCm, "cm")}，步数 ${log.metrics.steps}，饥饿 ${log.metrics.hunger}/5，疲劳 ${log.metrics.fatigue}/5，酸痛 ${log.metrics.soreness}/5。"
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onReset, modifier = Modifier.weight(1f)) {
-                    Text("Reset today")
+                    Text(language.t("Reset today", "重置今日"))
                 }
                 TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
-                    Text("Edit metrics")
+                    Text(language.t("Edit metrics", "编辑数据"))
                 }
             }
         }
         PhotoEvidenceCard(photoEvidence = log.photoEvidence, compact = true)
         BodyCompositionCard(
             guidance = bodyCompositionGuidance(log, state.recentLogs, state.athleteProfile),
-            subtitle = "Trend-based target check before changing calories."
+            subtitle = language.t("Trend-based target check before changing calories.", "调整热量前，先看趋势目标检查。")
         )
         ConditioningHydrationCard(
             log = log,
@@ -1258,16 +1795,25 @@ private fun TodayDashboard(
         )
         RecoveryGuidanceCard(
             guidance = recoveryGuidance(log, state.recentLogs),
-            subtitle = "Sleep, soreness, stress, resting HR, and set pressure before pushing harder."
+            subtitle = language.t(
+                "Sleep, soreness, stress, resting HR, and set pressure before pushing harder.",
+                "继续加压前，先看睡眠、酸痛、压力、静息心率和训练组压力。"
+            )
         )
         TrendOverviewCard(logs = state.recentLogs)
-        BeginnerGuideCard(onOpenPlan = onOpenPlan, onOpenNutrition = onOpenNutrition, onOpenMetrics = onOpenMetrics)
+        BeginnerGuideCard(
+            language = language,
+            onOpenPlan = onOpenPlan,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics
+        )
     }
 }
 
 @Composable
 private fun TodayExerciseVisualPrimerCard(
     log: DailyLog,
+    language: AppLanguage,
     onOpenPlan: () -> Unit,
     onOpenTraining: () -> Unit
 ) {
@@ -1279,17 +1825,23 @@ private fun TodayExerciseVisualPrimerCard(
         )
     }
     SectionCard(
-        title = "Today Visual Primer",
-        subtitle = "Unified simple equipment/action instance diagrams before training, so exercise names map to a real station, free weight, or movement path."
+        title = language.t("Today Visual Primer", "今日动作图例预览"),
+        subtitle = language.t(
+            "Unified simple equipment/action instance diagrams before training, so exercise names map to a real station, free weight, or movement path.",
+            "训练前先看统一器械/动作简图，把动作名称对应到真实器械、自由重量或动作轨迹。"
+        )
     ) {
         if (items.isEmpty()) {
             Text(
-                text = "Apply a plan day or add exercises to see today's visual-map thumbnails and beginner recognition cues.",
+                text = language.t(
+                    "Apply a plan day or add exercises to see today's visual-map thumbnails and beginner recognition cues.",
+                    "应用训练日或添加动作后，这里会显示今天的动作缩略图和新手识别提示。"
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Button(onClick = onOpenPlan, modifier = Modifier.fillMaxWidth()) {
-                Text("Open plan")
+                Text(language.t("Open plan", "打开计划"))
             }
         } else {
             val atlas = exerciseVisualAtlas()
@@ -1304,7 +1856,10 @@ private fun TodayExerciseVisualPrimerCard(
                 ) + specs.distinctBy { it.visualId }.map { "${it.visualId} ${it.equipmentZh}" }
             )
             Text(
-                text = "Three-step recognition: ${atlas.recognitionFlow.joinToString(" -> ")}.",
+                text = language.t(
+                    "Three-step recognition: ${atlas.recognitionFlow.joinToString(" -> ")}.",
+                    "三步识别：${atlas.recognitionFlow.joinToString(" -> ")}。"
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1316,13 +1871,16 @@ private fun TodayExerciseVisualPrimerCard(
             }
             if (items.size > 4) {
                 Text(
-                    text = "+${items.size - 4} more exercises. Open Training for the full Today's Exercise Visual Map.",
+                    text = language.t(
+                        "+${items.size - 4} more exercises. Open Training for the full Today's Exercise Visual Map.",
+                        "还有 ${items.size - 4} 个动作。打开训练页查看完整今日动作图。"
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(onClick = onOpenTraining, modifier = Modifier.fillMaxWidth()) {
-                Text("Open visual map")
+                Text(language.t("Open visual map", "打开动作图"))
             }
         }
     }
@@ -1496,7 +2054,7 @@ private fun RecoveryGuidanceCard(guidance: RecoveryGuidance, subtitle: String) {
 }
 
 @Composable
-private fun RestTimerBanner(timer: RestTimerState, onSkip: () -> Unit) {
+private fun RestTimerBanner(timer: RestTimerState, language: AppLanguage, onSkip: () -> Unit) {
     Card(
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
@@ -1509,14 +2067,17 @@ private fun RestTimerBanner(timer: RestTimerState, onSkip: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("Rest timer", fontWeight = FontWeight.SemiBold)
+                Text(language.t("Rest timer", "休息倒计时"), fontWeight = FontWeight.SemiBold)
                 Text(
-                    text = "${timer.exerciseName} set ${timer.setNumber} finished. Next set in ${formatTimer(timer.remainingSeconds)}.",
+                    text = language.t(
+                        "${timer.exerciseName} set ${timer.setNumber} finished. Next set in ${formatTimer(timer.remainingSeconds)}.",
+                        "${timer.exerciseName} 第 ${timer.setNumber} 组完成。下一组还有 ${formatTimer(timer.remainingSeconds)}。"
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             TextButton(onClick = onSkip) {
-                Text("Skip")
+                Text(language.t("Skip", "跳过"))
             }
         }
     }
@@ -1980,17 +2541,17 @@ private fun ExerciseVisualMapRow(item: ExerciseVisualMapItem) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "识别步骤: ${spec.quickVisualCue}; ${spec.findEquipmentCue}; ${spec.movementPathCue}",
+                text = "Visual cue: ${spec.quickVisualCue}; ${spec.findEquipmentCue}; ${spec.movementPathCue}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "动作识别: ${spec.lookFor}; ${spec.beginnerCue}",
+                text = "Beginner recognition cue: ${spec.lookFor}; ${spec.beginnerCue}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "统一图谱: ${spec.recognitionSteps().joinToString(" ")}",
+                text = "Unified visual atlas: ${spec.recognitionSteps().joinToString(" ")}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -2028,6 +2589,11 @@ private fun ExerciseVisualHeader(
             )
             Text(
                 text = spec.quickVisualCue,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spec.movementPathCue,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -2085,12 +2651,12 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "动作识别: ${spec.beginnerCue}",
+                    text = "Beginner recognition cue: ${spec.beginnerCue}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "统一三步: ${spec.recognitionSteps().joinToString(" ")}",
+                    text = "Three-step recognition: ${spec.recognitionSteps().joinToString(" ")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -2108,6 +2674,7 @@ private fun ExerciseVisualGuideLibrary() {
         subtitle = "Unified equipment/action instance diagrams help non-pro users recognize what an exercise name refers to before adding it. 中文图例会把动作名翻译成大概该找哪种器械。"
     ) {
         ExerciseVisualAtlasOverview()
+        ExerciseVisualLegendGrid(specs = atlas.specs)
         Text(
             text = "When the app or AI sees an exercise name, it maps it to one of these shared visual IDs: equipment name, Chinese label, simple instance diagram, action path cue, beginner recognition cue, example movement, look-for cue, equipment markers, and common movements.",
             style = MaterialTheme.typography.bodySmall,
@@ -2130,6 +2697,71 @@ private fun ExerciseVisualGuideLibrary() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun ExerciseVisualLegendGrid(specs: List<ExerciseVisualSpec>) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Exercise Visual Legend / 统一动作图例", fontWeight = FontWeight.SemiBold)
+        Text(
+            text = "A compact visual atlas: first memorize the simple instance diagram, then match the real gym markers and movement path.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        specs.chunked(2).forEach { rowSpecs ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                rowSpecs.forEach { spec ->
+                    ExerciseVisualLegendTile(
+                        spec = spec,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (rowSpecs.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExerciseVisualLegendTile(spec: ExerciseVisualSpec, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+            ) {
+                drawExerciseVisual(type = spec.type)
+            }
+            Text(
+                text = "${spec.visualId} ${spec.equipmentZh}",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = spec.equipment,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spec.quickVisualCue,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spec.movementPathCue,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -2196,7 +2828,7 @@ private fun ExerciseVisualRecognitionPreview(name: String, targetMuscle: String)
                 )
                 ExerciseVisualCueSteps(spec = spec)
                 Text(
-                    text = "常见动作: ${spec.commonMovements.joinToString(", ")}",
+                    text = "Common movement examples: ${spec.commonMovements.joinToString(", ")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -3978,10 +4610,19 @@ private fun AiCoachPage(
     onPickImages: () -> Unit,
     onClearImages: () -> Unit,
     onRunAnalysis: () -> Unit,
-    onDailyReview: () -> Unit
+    onDailyReview: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit
 ) {
     var photoType by remember { mutableStateOf(state.pendingPhotoType) }
     var photoNote by remember { mutableStateOf(state.pendingPhotoNote) }
+    val reviewQueue = aiReviewActionQueue(
+        latestReview = state.reviewHistory.firstOrNull(),
+        log = state.dailyLog
+    )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SettingsCard(settings = state.settings, onChange = onSettingsChange)
         SectionCard(title = "AI Coach", subtitle = "Use the bundled skill, daily logs, and optional photos together.") {
@@ -4040,6 +4681,17 @@ private fun AiCoachPage(
             }
         }
         PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence)
+        AiReviewActionQueueCard(
+            queue = reviewQueue,
+            isLoading = state.isLoading,
+            language = state.appLanguage,
+            onDailyReview = onDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi
+        )
         ReviewHistoryCard(reviews = state.reviewHistory)
         SectionCard(title = "AI Data Map", subtitle = "These app records are designed to be linked in the same analysis request.") {
             DataChipGrid(
@@ -4406,10 +5058,13 @@ private fun DecimalField(value: String, onChange: (String) -> Unit, label: Strin
 }
 
 @Composable
-private fun SafetyNote() {
+private fun SafetyNote(language: AppLanguage) {
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = "This app is coaching support, not medical care. Photo form checks and food estimates are approximate.",
+        text = language.t(
+            "This app is coaching support, not medical care. Photo form checks and food estimates are approximate.",
+            "本 App 提供训练与营养教练辅助，不替代医疗建议。照片动作检查和食物估算都可能存在误差。"
+        ),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
@@ -4430,6 +5085,18 @@ private fun formatRemaining(value: Int, unit: String): String {
         value > 0 -> "$value $unit left"
         value < 0 -> "${kotlin.math.abs(value)} $unit over"
         else -> "on target"
+    }
+}
+
+private fun formatRemainingLocalized(value: Int, unit: String, language: AppLanguage): String {
+    return if (language == AppLanguage.CHINESE) {
+        when {
+            value > 0 -> "剩余 $value $unit"
+            value < 0 -> "超出 ${kotlin.math.abs(value)} $unit"
+            else -> "已达标"
+        }
+    } else {
+        formatRemaining(value, unit)
     }
 }
 

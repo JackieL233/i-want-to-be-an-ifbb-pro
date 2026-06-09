@@ -7,13 +7,17 @@ Open `index.html` in a browser to review the Apple-inspired product feel without
 The preview mirrors the current Android app structure:
 
 - Today command center
+- EN/中文 language switch preview for the app shell
+- Start Here / 从这里开始 first-screen loop with plan, training, food, metrics, and AI review steps
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
+- AI Review Action Queue with sourceLabel, confidenceLabel, primaryAction, actionLabel, training action, nutrition action, recovery action, tracking action, and plan action routing
 - Tomorrow Coach Brief for next-day training focus, calorie/protein targets, readiness gate, recovery action, and tracking action
 - Weekly Check-in for 7-14 day training completion, average calories/protein, weight trend, recovery average, weak-point focus, data quality, and next-week action
 - Daily Coach Checklist for plan, training, food, metrics, and AI review completion
 - Athlete profile and weekly plan
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
 - Unified exercise visual guide for equipment/action recognition, including stable visual guide IDs
+- Exercise Visual Legend / 统一动作图例 with compact VG-01 to VG-10 diagrams
 - Unified Exercise Visual Atlas with the same three-step recognition flow used by Android and AI review: match the simplified instance diagram, find the real equipment markers, and follow the intended movement path
 - Today Visual Primer for training-before-you-start equipment/action scanning with unified simple equipment/action instance diagrams, visual-map thumbnails, visual guide IDs, Chinese equipment labels, and beginner recognition cues
 - Selected Day Visual Map, Today's Exercise Visual Map, visual-map thumbnails, and exercise thumbnail headers for quick equipment/action scanning

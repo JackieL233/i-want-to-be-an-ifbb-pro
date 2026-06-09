@@ -128,6 +128,49 @@
       white-space: nowrap;
     }
 
+    .header-actions {
+      display: grid;
+      justify-items: end;
+      gap: 7px;
+    }
+
+    .language-toggle {
+      display: inline-flex;
+      gap: 5px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+
+    .language-toggle span {
+      min-width: 32px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .language-toggle .active {
+      background: var(--blue);
+      color: white;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
     .badge.blue {
       background: var(--blue-soft);
       color: #00315f;
@@ -494,6 +537,33 @@
     .visual-map-row:first-child {
       border-top: 0;
       padding-top: 0;
+    }
+
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .legend-tile {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .legend-tile strong,
+    .legend-tile span {
+      overflow-wrap: anywhere;
+    }
+
+    .legend-tile span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
     }
 
     .exercise-head {
@@ -1189,6 +1259,10 @@
       .desktop-preview {
         grid-template-columns: 1fr;
       }
+
+      .legend-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 520px) {
@@ -1209,6 +1283,7 @@
       }
 
       .metric-grid,
+      .legend-grid,
       .action-row,
       .split-row {
         grid-template-columns: 1fr;
@@ -1236,7 +1311,13 @@
             <p class="eyebrow">I Want to be an IFBB PRO</p>
             <h1 id="page-title">Today</h1>
           </div>
-          <span class="date-pill">Jun 8</span>
+          <div class="header-actions">
+            <div class="language-toggle" aria-label="Language switch">
+              <span class="active">EN</span>
+              <span>中文</span>
+            </div>
+            <span class="date-pill">Jun 8</span>
+          </div>
         </header>
 
         <div id="rest-banner" class="rest-banner" aria-live="polite">
@@ -1248,6 +1329,71 @@
         </div>
 
         <section class="panel active" data-panel="today" aria-label="Today">
+          <div class="section">
+            <div class="section-head">
+              <h2>Start Here / 从这里开始</h2>
+              <p class="subtle">A clear daily loop: plan, train, eat, sync, then let AI review the evidence. 每天先按这个闭环执行，再进入专业分析卡片。</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Progress / 今日进度</span><span class="value">3/5</span></div>
+              <div class="metric"><span class="label">Readiness / 状态</span><span class="value">82</span></div>
+              <div class="metric"><span class="label">Phase / 阶段</span><span class="value">Hypertrophy</span></div>
+              <div class="metric"><span class="label">Next / 下一步</span><span class="value">Training executed</span></div>
+            </div>
+            <div class="progress"><span style="width: 60%"></span></div>
+            <h3>8/18 sets completed; finish working sets and rest timers.</h3>
+            <button class="button primary" type="button" data-tab-target="training">Log sets / 记录组数</button>
+            <div class="task-list">
+              <div class="task">
+                <span class="step-number">1</span>
+                <div>
+                  <strong>Plan prepared / 训练计划已准备</strong>
+                  <p class="subtle">Push A: 18 planned sets loaded.</p>
+                </div>
+                <span class="badge green">Done</span>
+              </div>
+              <div class="task">
+                <span class="step-number">2</span>
+                <div>
+                  <strong>Training executed / 训练已执行</strong>
+                  <p class="subtle">Finish the remaining working sets and keep RIR honest.</p>
+                </div>
+                <span class="badge amber">Next</span>
+              </div>
+              <div class="task">
+                <span class="step-number">3</span>
+                <div>
+                  <strong>Food logged / 饮食已记录</strong>
+                  <p class="subtle">2 meals logged; protein still needs a lean anchor.</p>
+                </div>
+                <span class="badge green">Done</span>
+              </div>
+              <div class="task">
+                <span class="step-number">4</span>
+                <div>
+                  <strong>Metrics synced / 身体数据已同步</strong>
+                  <p class="subtle">Health Connect data is available for today's review.</p>
+                </div>
+                <span class="badge green">Done</span>
+              </div>
+              <div class="task">
+                <span class="step-number">5</span>
+                <div>
+                  <strong>AI review locked / AI 复盘已锁定</strong>
+                  <p class="subtle">Run review after training, food, and recovery evidence are complete.</p>
+                </div>
+                <span class="badge amber">Next</span>
+              </div>
+            </div>
+            <div class="chip-row">
+              <span class="chip active">AppLanguage</span>
+              <span class="chip active">updateLanguage</span>
+              <span class="chip active">DailyStartStep</span>
+              <span class="chip active">StartHereCoachCard</span>
+              <span class="chip active">StartHereStepRow</span>
+            </div>
+          </div>
+
           <div class="section">
             <div class="section-head">
               <h2>Command Center</h2>
@@ -1391,6 +1537,59 @@
             <div class="action-row">
               <button class="button primary" type="button" data-tab-target="training">Log sets</button>
               <button class="button" type="button" data-tab-target="ai">Review later</button>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h2>AI Review Action Queue</h2>
+              <p class="subtle">Saved AI review text becomes tappable follow-through for training, nutrition, recovery, tracking, and plan edits.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Status</span><span class="value">Action queue ready</span></div>
+              <div class="metric"><span class="label">Source</span><span class="value">Today Check-in</span></div>
+              <div class="metric"><span class="label">Confidence</span><span class="value">Ready to execute</span></div>
+              <div class="metric"><span class="label">Primary</span><span class="value">Set tomorrow's training intent</span></div>
+            </div>
+            <div class="chip-row">
+              <span class="chip active">AI Review Action Queue</span>
+              <span class="chip active">sourceLabel</span>
+              <span class="chip active">confidenceLabel</span>
+              <span class="chip active">primaryAction</span>
+              <span class="chip active">actionLabel</span>
+              <span class="chip active">training action</span>
+              <span class="chip active">nutrition action</span>
+              <span class="chip active">recovery action</span>
+              <span class="chip active">tracking action</span>
+              <span class="chip active">plan action</span>
+              <span class="chip active">Review saved guidance</span>
+              <span class="chip active">Run daily review</span>
+            </div>
+            <div class="rows">
+              <div class="task">
+                <span class="badge blue">P8</span>
+                <div>
+                  <strong>Training action: Review exercise swaps</strong>
+                  <p class="subtle">Evidence cue: pain/technique notes and visual guide ID continuity before replacing a movement.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="training">Open Training</button>
+              </div>
+              <div class="task">
+                <span class="badge amber">P7</span>
+                <div>
+                  <strong>Nutrition action: Close protein gap</strong>
+                  <p class="subtle">Evidence cue: today 1,940/2,650 kcal and protein 128/185 g.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="nutrition">Open Nutrition</button>
+              </div>
+              <div class="task">
+                <span class="badge green">P6</span>
+                <div>
+                  <strong>Tracking action: Attach evidence photos</strong>
+                  <p class="subtle">Evidence cue: add form, equipment, food label, or physique photos when review uncertainty depends on visuals.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="ai">Open AI</button>
+              </div>
             </div>
           </div>
 
@@ -2711,6 +2910,62 @@
                 <span class="chip">Find real equipment</span>
                 <span class="chip">Movement path matching</span>
               </div>
+            </div>
+          </div>
+          <div class="section-head">
+            <h3>Exercise Visual Legend / 统一动作图例</h3>
+            <p class="subtle">Compact unified instance diagrams for VG-01 to VG-10: memorize the icon, Chinese equipment label, real equipment marker, and movement path before reading unfamiliar exercise names.</p>
+          </div>
+          <div class="legend-grid">
+            <div class="legend-tile">
+              <div class="mini-figure compact smith" aria-hidden="true"><span class="rail-left"></span><span class="rail-right"></span><span class="bar-line"></span><span class="bench"></span><span class="head"></span><span class="body"></span></div>
+              <strong>VG-01 史密斯机</strong>
+              <span>Smith machine | 两根竖轨 + 固定杠 | 杠铃沿竖轨上下移动</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact cable" aria-hidden="true"><span class="tower"></span><span class="arm"></span><span class="pulley"></span><span class="line"></span><span class="head"></span><span class="body"></span></div>
+              <strong>VG-02 绳索龙门架</strong>
+              <span>Cable station | 滑轮 + 钢索 + 把手 | 沿钢索方向受力</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact dumbbell" aria-hidden="true"><span class="head"></span><span class="torso"></span><span class="arm-left"></span><span class="arm-right"></span><span class="db-left"></span><span class="db-right"></span><span class="leg-left"></span><span class="leg-right"></span></div>
+              <strong>VG-03 哑铃</strong>
+              <span>Dumbbells | 一对短柄重量 | 左右手独立控制轨迹</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact barbell" aria-hidden="true"><span class="rack-left"></span><span class="rack-right"></span><span class="bar-line"></span><span class="plate-left"></span><span class="plate-right"></span><span class="head"></span><span class="body"></span></div>
+              <strong>VG-04 杠铃</strong>
+              <span>Barbell | 长直杠 + 杠铃片 | 双手共享同一杠铃路径</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact machine" aria-hidden="true"><span class="frame"></span><span class="base"></span><span class="seat"></span><span class="lever"></span><span class="head"></span><span class="body"></span><span class="arm"></span></div>
+              <strong>VG-05 固定器械</strong>
+              <span>Machine | 座椅 + 靠垫 + 把手 | 沿固定轨迹发力</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact bench" aria-hidden="true"><span class="seat"></span><span class="leg-left"></span><span class="leg-right"></span><span class="head"></span><span class="body"></span><span class="db-left"></span><span class="db-right"></span></div>
+              <strong>VG-06 可调训练凳</strong>
+              <span>Adjustable bench | 平凳/斜凳 | 固定身体角度或支撑点</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact pullup" aria-hidden="true"><span class="post-left"></span><span class="post-right"></span><span class="bar-line"></span><span class="head"></span><span class="body"></span></div>
+              <strong>VG-07 引体/双杠站</strong>
+              <span>Pull-up/Dip station | 顶部横杆/双杠 | 身体垂直移动</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact band" aria-hidden="true"><span class="post"></span><span class="line-one"></span><span class="line-two"></span><span class="head"></span><span class="body"></span></div>
+              <strong>VG-08 弹力带</strong>
+              <span>Resistance band | 固定点 + 拉伸线 | 离固定点越远阻力越大</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact legpress" aria-hidden="true"><span class="rail"></span><span class="platform"></span><span class="seat"></span><span class="head"></span><span class="body"></span></div>
+              <strong>VG-09 腿举/哈克机</strong>
+              <span>Leg press or hack squat | 大脚踏板 + 座椅/肩垫 | 沿轨道蹲起或推开</span>
+            </div>
+            <div class="legend-tile">
+              <div class="mini-figure compact bodyweight" aria-hidden="true"><span class="floor"></span><span class="head"></span><span class="body"></span><span class="arm"></span><span class="leg"></span></div>
+              <strong>VG-10 自重/开放空间</strong>
+              <span>Bodyweight or open station | 地面/横杆/支撑点 | 看身体动作路径</span>
             </div>
           </div>
           <div class="visual-guide compact">

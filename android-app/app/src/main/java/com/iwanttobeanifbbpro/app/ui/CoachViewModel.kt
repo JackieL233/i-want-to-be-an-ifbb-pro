@@ -54,6 +54,11 @@ enum class AppTab(val title: String) {
     AI_COACH("AI Coach")
 }
 
+enum class AppLanguage(val code: String, val label: String) {
+    ENGLISH("en", "EN"),
+    CHINESE("zh", "中文")
+}
+
 data class AiSettings(
     val baseUrl: String = "https://api.openai.com/v1",
     val apiKey: String = "",
@@ -81,6 +86,7 @@ data class RestTimerState(
 
 data class CoachUiState(
     val selectedTab: AppTab = AppTab.TODAY,
+    val appLanguage: AppLanguage = AppLanguage.ENGLISH,
     val mode: CoachMode = CoachMode.LINKED_TRAINING_NUTRITION,
     val userInput: String = CoachMode.LINKED_TRAINING_NUTRITION.defaultPrompt,
     val settings: AiSettings = AiSettings(),
@@ -115,6 +121,7 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
 
     var uiState by mutableStateOf(
         CoachUiState(
+            appLanguage = settingsStore.loadLanguage(),
             settings = settingsStore.load(),
             dailyLog = dailyLogStore.readLog(),
             recentLogs = dailyLogStore.readRecentLogs(),
@@ -127,6 +134,11 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
 
     fun selectTab(tab: AppTab) {
         uiState = uiState.copy(selectedTab = tab)
+    }
+
+    fun updateLanguage(language: AppLanguage) {
+        settingsStore.saveLanguage(language)
+        uiState = uiState.copy(appLanguage = language)
     }
 
     fun updateMode(mode: CoachMode) {
@@ -587,6 +599,17 @@ private fun DailyMetrics.mergeHealthSnapshot(snapshot: HealthSnapshot): DailyMet
 
 private class SettingsStore(context: Context) {
     private val prefs = context.getSharedPreferences("ai_settings", Context.MODE_PRIVATE)
+
+    fun loadLanguage(): AppLanguage {
+        val saved = prefs.getString("app_language", AppLanguage.ENGLISH.code) ?: AppLanguage.ENGLISH.code
+        return AppLanguage.entries.firstOrNull { it.code == saved } ?: AppLanguage.ENGLISH
+    }
+
+    fun saveLanguage(language: AppLanguage) {
+        prefs.edit()
+            .putString("app_language", language.code)
+            .apply()
+    }
 
     fun load(): AiSettings {
         return AiSettings(

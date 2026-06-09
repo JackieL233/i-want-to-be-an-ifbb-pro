@@ -67,6 +67,8 @@ class SkillPromptBuilder(private val repository: SkillAssetRepository) {
             - For exercise names or equipment photos, map the likely setup to the unified exercise visual guide ID, category, Chinese equipment label, unified instance diagram, quick visual cue, find-equipment cue, movement path cue, action path cue, beginner recognition cue, equipment markers, example movement, and look-for cue.
             - When equipment is unavailable, crowded, painful, or technically unstable, use Exercise Substitution Coach rules: preserve same target muscle, same movement pattern, planned rep range, planned RIR, fatigue cost, and visual guide ID continuity before changing the plan.
             - Before changing tomorrow's plan, use Training Closeout Coach as the final review gate: completed sets, missing set logs, pain/technique flags, form/equipment photo evidence, post-workout nutrition cue, metrics sync cue, closeout score, and AI review readiness.
+            - Include an action-oriented closeout that can feed the app's AI Review Action Queue: training action, nutrition action, recovery action, tracking action, and plan action when plan-wide structure should be reviewed.
+            - Label whether each action should open Training, Nutrition, Metrics, Plan, or AI Coach, and mention the evidence cue that justifies it.
             - For linked training/nutrition analysis, compare training execution, session quality, food-photo nutrition estimate, recovery, and current goal before changing variables.
             - End with what to track before the next check-in.
         """.trimIndent()

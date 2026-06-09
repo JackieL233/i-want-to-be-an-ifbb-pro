@@ -24,6 +24,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingCloseoutAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiReviewActionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/NextSetAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/WarmUpRampAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseSubstitutionAdvisor.kt",
@@ -401,6 +402,21 @@ class AndroidAppStructureTest(unittest.TestCase):
             "TrainingCloseoutCoach",
             "TrainingCloseoutTask",
             "trainingCloseoutCoach",
+            "AI Review Action Queue",
+            "AiReviewActionQueue",
+            "AiReviewActionItem",
+            "AiReviewActionCategory",
+            "aiReviewActionQueue",
+            "sourceLabel",
+            "confidenceLabel",
+            "primaryAction",
+            "actionLabel",
+            "Review saved guidance",
+            "Run daily review",
+            "training action",
+            "nutrition action",
+            "recovery action",
+            "tracking action",
             "closeoutScore",
             "missingLogCount",
             "photoCue",
@@ -438,6 +454,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "aiReviewFocus",
             "Exercise visual guide",
             "Unified Exercise Visual Atlas",
+            "Exercise Visual Legend",
+            "统一动作图例",
             "visualPromptLine",
             "visual IDs",
             "equipment/action categories",
@@ -527,6 +545,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         training_closeout = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingCloseoutAdvisor.kt"
         ).read_text(encoding="utf-8")
+        ai_review_action = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiReviewActionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
@@ -554,7 +575,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{ai_review_action}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -579,6 +600,20 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Nutrition",
             "Metrics",
             "AI Coach",
+            "AppLanguage",
+            "appLanguage",
+            "updateLanguage",
+            "loadLanguage",
+            "saveLanguage",
+            "localizedTitle",
+            "Start Here",
+            "从这里开始",
+            "DailyStartStep",
+            "dailyStartSteps",
+            "StartHereCoachCard",
+            "StartHereStepRow",
+            "EN",
+            "中文",
             "addExercise",
             "addMeal",
             "addMealTemplate",
@@ -654,6 +689,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "DailyCoachTask",
             "dailyCoachTasks",
             "DailyCoachChecklistCard",
+            "plan, train, eat, sync",
             "Plan prepared",
             "Training executed",
             "Food logged",
@@ -672,6 +708,21 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Saved AI Reviews",
             "Latest AI guidance",
             "ReviewHistoryCard",
+            "AI Review Action Queue",
+            "AiReviewActionQueueCard",
+            "AiReviewActionRow",
+            "performAiReviewAction",
+            "sourceLabel",
+            "confidenceLabel",
+            "primaryAction",
+            "actionLabel",
+            "Review saved guidance",
+            "Run daily review",
+            "training action",
+            "nutrition action",
+            "recovery action",
+            "tracking action",
+            "plan action",
             "Xiaomi/Mi Fitness -> Health Connect",
             "Huawei Health -> Health Connect or Health Kit",
             "Scale/watch/phone -> Health Connect",
@@ -681,6 +732,8 @@ class AndroidAppStructureTest(unittest.TestCase):
             "ExerciseVisualGuide",
             "ExerciseVisualGuideLibrary",
             "ExerciseVisualGuideSample",
+            "ExerciseVisualLegendGrid",
+            "ExerciseVisualLegendTile",
             "ExerciseVisualMap",
             "ExerciseVisualMapItem",
             "ExerciseVisualMapRow",
@@ -998,6 +1051,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         training_closeout = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingCloseoutAdvisor.kt"
         ).read_text(encoding="utf-8")
+        ai_review_action = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiReviewActionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         recovery = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/RecoveryAdvisor.kt").read_text(
             encoding="utf-8"
         )
@@ -1025,7 +1081,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{ui}\n{view_model}\n{plan_model}\n{log_model}\n{activity}\n{theme}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{ai_review_action}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -1115,6 +1171,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "target weight/body fat",
             "weekly training days",
             "manual entry",
+            "EN/中文 language switching",
+            "AppLanguage",
+            "updateLanguage",
+            "loadLanguage",
+            "Start Here",
+            "DailyStartStep",
+            "StartHereCoachCard",
+            "StartHereStepRow",
+            "plan, train, log food, sync health data, then run AI review",
             "unified exercise visual guide",
             "Exercise Visual Library",
             "Smith machine",
@@ -1268,6 +1333,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Live design preview",
             "Apple",
             "Today",
+            "EN/中文",
+            "Language switch",
+            "language-toggle",
+            "Start Here / 从这里开始",
+            "DailyStartStep",
+            "StartHereCoachCard",
+            "StartHereStepRow",
+            "AppLanguage",
+            "updateLanguage",
             "Command Center",
             "Daily Execution Plan",
             "Priority",
@@ -1335,6 +1409,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Health Connect",
             "Xiaomi/Mi Fitness -> Health Connect",
             "Huawei Health -> Health Connect or Health Kit",
+            "AI Review Action Queue",
+            "sourceLabel",
+            "confidenceLabel",
+            "primaryAction",
+            "actionLabel",
+            "training action",
+            "nutrition action",
+            "recovery action",
+            "tracking action",
+            "plan action",
             "AI Coach",
             "AI Data Map",
             "Photo Evidence",
@@ -1354,6 +1438,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI review locked",
             "Exercise visual guide",
             "Exercise Visual Library",
+            "Exercise Visual Legend",
+            "统一动作图例",
+            "legend-grid",
+            "legend-tile",
             "Today Visual Primer",
             "Selected Day Visual Map",
             "Today's Exercise Visual Map",

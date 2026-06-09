@@ -67,7 +67,7 @@ data class ExerciseVisualAtlas(
 fun exerciseVisualAtlas(): ExerciseVisualAtlas {
     return ExerciseVisualAtlas(
         title = "Unified Exercise Visual Atlas",
-        summary = "A stable VG-01 to VG-10 equipment/action diagram system that maps non-pro exercise names to the gym station, visible markers, and intended movement path before the user trains.",
+        summary = "Exercise Visual Legend / 统一动作图例: a stable VG-01 to VG-10 equipment/action diagram system that maps non-pro exercise names to the gym station, visible markers, and intended movement path before the user trains.",
         recognitionFlow = listOf(
             "Match the simplified instance diagram",
             "Find the real equipment markers",
