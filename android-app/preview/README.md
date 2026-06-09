@@ -37,6 +37,7 @@ The preview mirrors the current Android app structure:
 - Daily nutrition tracking
 - Meal Templates for quick-add high-protein meals
 - Next Meal Builder for practical next-meal macro targets, timing, portion uncertainty, and photo/label cues
+- Meal Logging Coach for coach prefill, recommended template selection, food/menu/label photo capture, and AI review linkage
 - Meal Assembly Guide for plate structure, protein/carb anchors, fat control, shopping/prep cues, and photo logging cues
 - Body Composition Guidance for trend-based calorie target checks
 - Conditioning & Hydration for step goal progress, cardio minutes/type/intensity, water liters, sodium, caffeine, alcohol, digestion notes, and scale-weight noise before calorie or volume changes

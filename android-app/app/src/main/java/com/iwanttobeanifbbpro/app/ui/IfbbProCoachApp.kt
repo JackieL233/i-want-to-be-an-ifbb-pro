@@ -236,7 +236,8 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                             onPickMealPhoto = { note ->
                                 viewModel.preparePhotoEvidence(PhotoEvidenceType.MEAL, note)
                                 imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            }
+                            },
+                            onOpenAi = { viewModel.selectTab(AppTab.AI_COACH) }
                         )
                     }
                 }
@@ -546,6 +547,234 @@ private fun DailyLog.nextMealBuilder(): NextMealBuilder {
         portionCue = portionCue,
         photoCue = photoCue
     )
+}
+
+private fun NutritionPacing.localizedStatusLabel(language: AppLanguage): String {
+    return when (statusLabel) {
+        "Over target" -> language.t("Over target", "已超目标")
+        "Protein behind" -> language.t("Protein behind", "蛋白质落后")
+        "Carbs available" -> language.t("Carbs available", "碳水仍可用")
+        "Fiber behind" -> language.t("Fiber behind", "纤维不足")
+        "On pace" -> language.t("On pace", "节奏正常")
+        "Needs logging" -> language.t("Needs logging", "需要记录")
+        else -> statusLabel
+    }
+}
+
+private fun NutritionPacing.localizedNextMealFocus(language: AppLanguage): String {
+    return when (nextMealFocus) {
+        "Keep the next meal lean and mostly protein/vegetables." -> language.t(
+            "Keep the next meal lean and mostly protein/vegetables.",
+            "下一餐保持清淡，以瘦蛋白和蔬菜为主。"
+        )
+        "Prioritize a lean protein serving before adding extra fats." -> language.t(
+            "Prioritize a lean protein serving before adding extra fats.",
+            "先补足一份瘦蛋白，再考虑额外脂肪。"
+        )
+        "Place carbs around training or the next high-output window." -> language.t(
+            "Place carbs around training or the next high-output window.",
+            "把碳水安排在训练前后或下一段高输出窗口。"
+        )
+        "Add fruit, vegetables, oats, beans, or another high-fiber carb." -> language.t(
+            "Add fruit, vegetables, oats, beans, or another high-fiber carb.",
+            "加入水果、蔬菜、燕麦、豆类或其他高纤维碳水。"
+        )
+        "Keep fats low for the rest of the day." -> language.t(
+            "Keep fats low for the rest of the day.",
+            "当天剩余餐次尽量低脂。"
+        )
+        "Log the first meal or attach a food photo for portion estimation." -> language.t(
+            "Log the first meal or attach a food photo for portion estimation.",
+            "先记录第一餐；份量不确定就添加食物照片估算。"
+        )
+        "Stay close to targets; use photos only where portions are uncertain." -> language.t(
+            "Stay close to targets; use photos only where portions are uncertain.",
+            "继续贴近目标；只在份量不确定时使用照片。"
+        )
+        else -> nextMealFocus
+    }
+}
+
+private fun NextMealBuilder.localizedTitle(language: AppLanguage): String {
+    return when (title) {
+        "Lean recovery meal" -> language.t("Lean recovery meal", "低脂恢复餐")
+        "Protein-first meal" -> language.t("Protein-first meal", "蛋白质优先餐")
+        "Training-fuel meal" -> language.t("Training-fuel meal", "训练供能餐")
+        "Fiber + micronutrient meal" -> language.t("Fiber + micronutrient meal", "纤维与微量营养餐")
+        "Balanced target meal" -> language.t("Balanced target meal", "均衡目标餐")
+        else -> title
+    }
+}
+
+private fun NextMealBuilder.localizedSummary(language: AppLanguage): String {
+    return when (summary) {
+        "Keep calories controlled: lean protein, vegetables, minimal added fats." -> language.t(
+            "Keep calories controlled: lean protein, vegetables, minimal added fats.",
+            "控制热量：瘦蛋白、蔬菜，并减少额外脂肪。"
+        )
+        "Close the protein gap before adding extra carbs or fats." -> language.t(
+            "Close the protein gap before adding extra carbs or fats.",
+            "先补齐蛋白质缺口，再增加额外碳水或脂肪。"
+        )
+        "Place carbs around the remaining training work or post-workout window." -> language.t(
+            "Place carbs around the remaining training work or post-workout window.",
+            "把碳水放在剩余训练或训练后恢复窗口。"
+        )
+        "Add fruit, vegetables, oats, beans, or potatoes with a lean protein base." -> language.t(
+            "Add fruit, vegetables, oats, beans, or potatoes with a lean protein base.",
+            "以瘦蛋白为底，加入水果、蔬菜、燕麦、豆类或土豆。"
+        )
+        "Stay close to targets with a simple protein, carb, vegetable, and fat structure." -> language.t(
+            "Stay close to targets with a simple protein, carb, vegetable, and fat structure.",
+            "用蛋白质、碳水、蔬菜和脂肪的简单结构贴近目标。"
+        )
+        else -> summary
+    }
+}
+
+private fun NextMealBuilder.localizedTimingCue(language: AppLanguage): String {
+    return when (timingCue) {
+        "Use this 60-120 min pre-workout or within the post-workout meal window." -> language.t(
+            "Use this 60-120 min pre-workout or within the post-workout meal window.",
+            "适合训练前 60-120 分钟，或训练后的恢复餐窗口。"
+        )
+        "Use this as the next recovery meal after today's completed session." -> language.t(
+            "Use this as the next recovery meal after today's completed session.",
+            "适合作为今天训练完成后的下一顿恢复餐。"
+        )
+        "Use this as the next logged meal; keep portions measurable." -> language.t(
+            "Use this as the next logged meal; keep portions measurable.",
+            "作为下一顿记录餐，尽量让份量可称重或可估算。"
+        )
+        else -> timingCue
+    }
+}
+
+private fun NextMealBuilder.localizedPortionCue(language: AppLanguage): String {
+    return language.t(
+        "Aim near P $proteinGrams g, C $carbsGrams g, F $fatGrams g, fiber $fiberGrams g.",
+        "尽量接近：蛋白质 $proteinGrams g、碳水 $carbsGrams g、脂肪 $fatGrams g、纤维 $fiberGrams g。"
+    )
+}
+
+private fun NextMealBuilder.localizedPhotoCue(language: AppLanguage): String {
+    return when (photoCue) {
+        "Attach a food photo if this is your first meal and portions are uncertain." -> language.t(
+            "Attach a food photo if this is your first meal and portions are uncertain.",
+            "如果这是第一餐且份量不确定，添加食物照片。"
+        )
+        "Use a label/photo when oil, sauce, or restaurant portions are uncertain." -> language.t(
+            "Use a label/photo when oil, sauce, or restaurant portions are uncertain.",
+            "油、酱汁、外食份量不确定时，添加营养标签或照片。"
+        )
+        else -> photoCue
+    }
+}
+
+private fun NextMealBuilder.estimatedCalories(): Int {
+    return (proteinGrams * 4 + carbsGrams * 4 + fatGrams * 9).coerceAtLeast(120)
+}
+
+private fun DailyLog.recommendedMealTemplate(): MealTemplate {
+    val pacing = nutritionPacing()
+    val hasTrainingDemand = plannedHardSets() > 0 && completedHardSets() < plannedHardSets()
+    val templateId = when {
+        pacing.proteinRemaining > 35 && pacing.fatRemaining <= 20 -> "low-fat-protein"
+        hasTrainingDemand && pacing.carbsRemaining > 60 -> "pre-workout-carbs"
+        pacing.fiberRemaining > 10 -> "fiber-micronutrient"
+        pacing.fatRemaining > 22 && pacing.caloriesRemaining > 500 -> "salmon-potato"
+        else -> "lean-protein-bowl"
+    }
+    return mealTemplates().first { it.id == templateId }
+}
+
+private fun DailyLog.recommendedMealTemplateReason(language: AppLanguage): String {
+    val template = recommendedMealTemplate()
+    return when (template.id) {
+        "low-fat-protein" -> language.t(
+            "Protein is behind while fat room is limited, so this closes the gap cleanly.",
+            "蛋白质落后且脂肪空间有限，用这个模板能更干净地补齐缺口。"
+        )
+        "pre-workout-carbs" -> language.t(
+            "Training demand is still open and carbs are available, so this supports performance.",
+            "今天还有训练输出需求且碳水空间充足，用这个模板支持表现。"
+        )
+        "fiber-micronutrient" -> language.t(
+            "Fiber is behind, so add food quality before spending calories elsewhere.",
+            "纤维不足，先补食物质量，再把热量用到其他地方。"
+        )
+        "salmon-potato" -> language.t(
+            "Fat and calories are still available, so this can improve satiety and food quality.",
+            "脂肪和热量仍有空间，这个模板能提高饱腹感和食物质量。"
+        )
+        else -> language.t(
+            "A stable bodybuilding default: protein, carbs, vegetables, and controlled fats.",
+            "稳定的健美基础餐：蛋白质、碳水、蔬菜和可控脂肪。"
+        )
+    }
+}
+
+private fun MealTemplate.localizedTitle(language: AppLanguage): String {
+    return when (id) {
+        "lean-protein-bowl" -> language.t("Lean Protein Bowl", "瘦蛋白碗")
+        "pre-workout-carbs" -> language.t("Pre-Workout Carbs", "训练前碳水餐")
+        "low-fat-protein" -> language.t("Low-Fat Protein Fix", "低脂蛋白补齐")
+        "salmon-potato" -> language.t("Salmon Potato Plate", "三文鱼土豆餐盘")
+        "fiber-micronutrient" -> language.t("Fiber + Micronutrient Add", "纤维与微量营养补充")
+        else -> title
+    }
+}
+
+private fun MealTemplate.localizedSubtitle(language: AppLanguage): String {
+    return when (id) {
+        "lean-protein-bowl" -> language.t(
+            "Chicken, rice, vegetables; reliable bodybuilding staple",
+            "鸡肉、米饭、蔬菜；可靠的健美基础餐"
+        )
+        "pre-workout-carbs" -> language.t(
+            "Oats, whey, banana; useful before hard training",
+            "燕麦、乳清、香蕉；适合高强度训练前"
+        )
+        "low-fat-protein" -> language.t(
+            "Greek yogurt or lean protein when protein is behind",
+            "蛋白质落后时，用希腊酸奶或瘦蛋白补齐"
+        )
+        "salmon-potato" -> language.t(
+            "Higher-fat whole-food meal for satiety",
+            "脂肪稍高的完整食物餐，提高饱腹感"
+        )
+        "fiber-micronutrient" -> language.t(
+            "Fruit, vegetables, beans, or oats to close fiber gap",
+            "用水果、蔬菜、豆类或燕麦补齐纤维"
+        )
+        else -> subtitle
+    }
+}
+
+private fun MealTemplate.localizedNotes(language: AppLanguage): String {
+    return when (id) {
+        "lean-protein-bowl" -> language.t(
+            "Template estimate: adjust rice, oil, sauce, and meat weight when known.",
+            "模板估算：知道具体份量时，调整米饭、油、酱汁和肉类重量。"
+        )
+        "pre-workout-carbs" -> language.t(
+            "Template estimate: place 60-120 minutes before training if digestion is comfortable.",
+            "模板估算：消化舒适时，安排在训练前 60-120 分钟。"
+        )
+        "low-fat-protein" -> language.t(
+            "Template estimate: use when protein is behind and fats need to stay low.",
+            "模板估算：蛋白质落后且需要低脂时使用。"
+        )
+        "salmon-potato" -> language.t(
+            "Template estimate: fats vary with salmon size and added oil.",
+            "模板估算：脂肪会随三文鱼大小和额外用油变化。"
+        )
+        "fiber-micronutrient" -> language.t(
+            "Template estimate: add when fiber or food quality is behind.",
+            "模板估算：纤维或食物质量落后时添加。"
+        )
+        else -> notes
+    }
 }
 
 @Composable
@@ -1925,7 +2154,8 @@ private fun TodayDashboard(
         PhotoEvidenceCard(photoEvidence = log.photoEvidence, compact = true)
         BodyCompositionCard(
             guidance = bodyCompositionGuidance(log, state.recentLogs, state.athleteProfile),
-            subtitle = language.t("Trend-based target check before changing calories.", "调整热量前，先看趋势目标检查。")
+            subtitle = language.t("Trend-based target check before changing calories.", "调整热量前，先看趋势目标检查。"),
+            language = language
         )
         ConditioningHydrationCard(
             log = log,
@@ -2027,18 +2257,24 @@ private fun TodayExerciseVisualPrimerCard(
 }
 
 @Composable
-private fun NutritionPacingCard(log: DailyLog) {
+private fun NutritionPacingCard(log: DailyLog, language: AppLanguage) {
     val pacing = log.nutritionPacing()
-    SectionCard(title = "Nutrition Pacing", subtitle = "What is still available today and what the next meal should bias toward.") {
+    SectionCard(
+        title = language.t("Nutrition Pacing", "营养节奏"),
+        subtitle = language.t(
+            "What is still available today and what the next meal should bias toward.",
+            "今天还剩多少宏量空间，以及下一餐应该优先补什么。"
+        )
+    ) {
         MetricGrid(
             metrics = listOf(
-                "Pace" to "${pacing.adherenceScore}%",
-                "Status" to pacing.statusLabel,
-                "Kcal" to formatRemaining(pacing.caloriesRemaining, "kcal"),
-                "Protein" to formatRemaining(pacing.proteinRemaining, "g"),
-                "Carbs" to formatRemaining(pacing.carbsRemaining, "g"),
-                "Fat" to formatRemaining(pacing.fatRemaining, "g"),
-                "Fiber" to formatRemaining(pacing.fiberRemaining, "g")
+                language.t("Pace", "节奏") to "${pacing.adherenceScore}%",
+                language.t("Status", "状态") to pacing.localizedStatusLabel(language),
+                "Kcal" to formatRemainingLocalized(pacing.caloriesRemaining, "kcal", language),
+                language.t("Protein", "蛋白质") to formatRemainingLocalized(pacing.proteinRemaining, "g", language),
+                language.t("Carbs", "碳水") to formatRemainingLocalized(pacing.carbsRemaining, "g", language),
+                language.t("Fat", "脂肪") to formatRemainingLocalized(pacing.fatRemaining, "g", language),
+                language.t("Fiber", "纤维") to formatRemainingLocalized(pacing.fiberRemaining, "g", language)
             )
         )
         LinearProgressIndicator(
@@ -2046,12 +2282,18 @@ private fun NutritionPacingCard(log: DailyLog) {
             modifier = Modifier.fillMaxWidth()
         )
         Text(
-            text = "Next meal focus: ${pacing.nextMealFocus}",
+            text = language.t(
+                "Next meal focus: ${pacing.localizedNextMealFocus(language)}",
+                "下一餐重点：${pacing.localizedNextMealFocus(language)}"
+            ),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Negative remaining values mean the target is already exceeded; AI review uses this with training demand and recent trends before changing tomorrow's targets.",
+            text = language.t(
+                "Negative remaining values mean the target is already exceeded; AI review uses this with training demand and recent trends before changing tomorrow's targets.",
+                "剩余值为负数表示已经超出目标；AI 复盘会结合训练需求和近期趋势，再决定是否调整明天目标。"
+            ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -2059,35 +2301,41 @@ private fun NutritionPacingCard(log: DailyLog) {
 }
 
 @Composable
-private fun NextMealBuilderCard(log: DailyLog) {
+private fun NextMealBuilderCard(log: DailyLog, language: AppLanguage) {
     val builder = log.nextMealBuilder()
-    SectionCard(title = "Next Meal Builder", subtitle = "Turn remaining macros and training demand into the next practical meal.") {
-        Text(builder.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+    SectionCard(
+        title = language.t("Next Meal Builder", "下一餐构建器"),
+        subtitle = language.t(
+            "Turn remaining macros and training demand into the next practical meal.",
+            "把剩余宏量和训练需求转成下一顿真正能吃的餐。"
+        )
+    ) {
+        Text(builder.localizedTitle(language), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
         Text(
-            text = builder.summary,
+            text = builder.localizedSummary(language),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         MetricGrid(
             metrics = listOf(
-                "Protein" to "${builder.proteinGrams} g",
-                "Carbs" to "${builder.carbsGrams} g",
-                "Fat" to "${builder.fatGrams} g",
-                "Fiber" to "${builder.fiberGrams} g"
+                language.t("Protein", "蛋白质") to "${builder.proteinGrams} g",
+                language.t("Carbs", "碳水") to "${builder.carbsGrams} g",
+                language.t("Fat", "脂肪") to "${builder.fatGrams} g",
+                language.t("Fiber", "纤维") to "${builder.fiberGrams} g"
             )
         )
         Text(
-            text = builder.timingCue,
+            text = builder.localizedTimingCue(language),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = builder.portionCue,
+            text = builder.localizedPortionCue(language),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = builder.photoCue,
+            text = builder.localizedPhotoCue(language),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -2095,10 +2343,93 @@ private fun NextMealBuilderCard(log: DailyLog) {
 }
 
 @Composable
-private fun MealAssemblyGuideCard(guide: MealAssemblyGuide) {
+private fun MealLoggingCoachCard(
+    log: DailyLog,
+    language: AppLanguage,
+    onPrefillMeal: (NextMealBuilder) -> Unit,
+    onAddMealTemplate: (String) -> Unit,
+    onPickMealPhoto: (String) -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val pacing = log.nutritionPacing()
+    val builder = log.nextMealBuilder()
+    val template = log.recommendedMealTemplate()
+    val mealPhotoCount = log.photoEvidence.count { it.type == PhotoEvidenceType.MEAL || it.type == PhotoEvidenceType.MENU_LABEL }
     SectionCard(
-        title = "Meal Assembly Guide",
-        subtitle = "Turn the macro target into a simple plate, shopping cue, prep cue, and photo logging cue."
+        title = language.t("Meal Logging Coach", "餐食记录教练"),
+        subtitle = language.t(
+            "A guided loop for logging, photo evidence, and AI nutrition review.",
+            "把记录餐食、照片证据和 AI 营养复盘接成一个清晰流程。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Next target", "下一餐目标") to builder.localizedTitle(language),
+                language.t("Suggested kcal", "建议热量") to "${builder.estimatedCalories()} kcal",
+                language.t("Template", "推荐模板") to template.localizedTitle(language),
+                language.t("Food photos", "食物照片") to mealPhotoCount.toString()
+            )
+        )
+        Text(
+            text = builder.localizedSummary(language),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = log.recommendedMealTemplateReason(language),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                language.t("Weigh food when practical", "能称重时优先称重"),
+                language.t("Photo portions, oil, sauce, label, and bowl depth", "拍清份量、油、酱汁、标签和碗深"),
+                language.t("AI compares food data with training volume and body trend", "AI 会把饮食与训练容量、身体趋势联动分析"),
+                pacing.localizedStatusLabel(language)
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { onPrefillMeal(builder) }, modifier = Modifier.weight(1f)) {
+                Text(language.t("Prefill target", "填入建议餐"))
+            }
+            ElevatedButton(onClick = { onAddMealTemplate(template.id) }, modifier = Modifier.weight(1f)) {
+                Text(language.t("Add template", "添加模板"))
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ElevatedButton(
+                onClick = {
+                    onPickMealPhoto(
+                        "Food/menu/label photo for AI nutrition estimate. Next meal target: ${builder.title}; P ${builder.proteinGrams} g, C ${builder.carbsGrams} g, F ${builder.fatGrams} g, fiber ${builder.fiberGrams} g. Capture portion size, oil, sauce, label, menu, and bowl depth."
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Food photo", "食物照片"))
+            }
+            TextButton(onClick = onOpenAi, modifier = Modifier.weight(1f)) {
+                Text(language.t("AI review", "AI 复盘"))
+            }
+        }
+        Text(
+            text = language.t(
+                "AI link: daily review uses logged macros, meal/menu photos, training demand, health metrics, and body-composition trend before changing calories or macros.",
+                "AI 联动：每日复盘会结合已记录宏量、餐食/菜单照片、训练需求、健康数据和身体趋势，再决定是否调整热量或宏量。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun MealAssemblyGuideCard(guide: MealAssemblyGuide, language: AppLanguage) {
+    SectionCard(
+        title = language.t("Meal Assembly Guide", "餐盘组合指南"),
+        subtitle = language.t(
+            "Turn the macro target into a simple plate, shopping cue, prep cue, and photo logging cue.",
+            "把宏量目标转成餐盘结构、采购提示、备餐提示和拍照记录提示。"
+        )
     ) {
         Text(guide.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
         Text(
@@ -2115,22 +2446,22 @@ private fun MealAssemblyGuideCard(guide: MealAssemblyGuide) {
             )
         )
         Text(
-            text = "Shopping: ${guide.shoppingCue}",
+            text = language.t("Shopping: ${guide.shoppingCue}", "采购：${guide.shoppingCue}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Prep: ${guide.prepCue}",
+            text = language.t("Prep: ${guide.prepCue}", "备餐：${guide.prepCue}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Photo/logging: ${guide.photoLoggingCue}",
+            text = language.t("Photo/logging: ${guide.photoLoggingCue}", "照片/记录：${guide.photoLoggingCue}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Avoid: ${guide.avoidCue}",
+            text = language.t("Avoid: ${guide.avoidCue}", "避免：${guide.avoidCue}"),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold
         )
@@ -2138,18 +2469,18 @@ private fun MealAssemblyGuideCard(guide: MealAssemblyGuide) {
 }
 
 @Composable
-private fun BodyCompositionCard(guidance: BodyCompositionGuidance, subtitle: String) {
-    SectionCard(title = "Body Composition Guidance", subtitle = subtitle) {
+private fun BodyCompositionCard(guidance: BodyCompositionGuidance, subtitle: String, language: AppLanguage) {
+    SectionCard(title = language.t("Body Composition Guidance", "身体组成指导"), subtitle = subtitle) {
         MetricGrid(
             metrics = listOf(
-                "Status" to guidance.statusLabel,
-                "Phase" to guidance.phaseGoal,
-                "Weight trend" to guidance.weightChangeKg.formatSignedHistoryValue("kg"),
-                "Avg kcal" to guidance.averageCalories.formatHistoryValue("kcal"),
-                "Avg protein" to guidance.averageProtein.formatHistoryValue("g"),
-                "Set avg" to guidance.averageCompletedSets.formatHistoryValue("sets"),
-                "Kcal adjust" to guidance.calorieAdjustmentKcal.formatSignedInt("kcal"),
-                "Target" to "${guidance.targetCalories} kcal"
+                language.t("Status", "状态") to guidance.statusLabel,
+                language.t("Phase", "阶段") to guidance.phaseGoal,
+                language.t("Weight trend", "体重趋势") to guidance.weightChangeKg.formatSignedHistoryValue("kg"),
+                language.t("Avg kcal", "平均热量") to guidance.averageCalories.formatHistoryValue("kcal"),
+                language.t("Avg protein", "平均蛋白") to guidance.averageProtein.formatHistoryValue("g"),
+                language.t("Set avg", "平均组数") to guidance.averageCompletedSets.formatHistoryValue("sets"),
+                language.t("Kcal adjust", "热量调整") to guidance.calorieAdjustmentKcal.formatSignedInt("kcal"),
+                language.t("Target", "目标") to "${guidance.targetCalories} kcal"
             )
         )
         Text(
@@ -2158,7 +2489,7 @@ private fun BodyCompositionCard(guidance: BodyCompositionGuidance, subtitle: Str
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Next action: ${guidance.nextAction}",
+            text = language.t("Next action: ${guidance.nextAction}", "下一步：${guidance.nextAction}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -4155,19 +4486,22 @@ private fun SetRow(
 }
 
 @Composable
-private fun MealTemplateLibrary(onAddMealTemplate: (String) -> Unit) {
+private fun MealTemplateLibrary(language: AppLanguage, onAddMealTemplate: (String) -> Unit) {
     SectionCard(
-        title = "Meal Templates",
-        subtitle = "Quick-add reliable meals, then edit notes or use photos when portions are uncertain."
+        title = language.t("Meal Templates", "餐食模板"),
+        subtitle = language.t(
+            "Quick-add reliable meals, then edit notes or use photos when portions are uncertain.",
+            "快速添加可靠餐食；份量不确定时再编辑备注或添加照片。"
+        )
     ) {
         mealTemplates().forEach { template ->
-            MealTemplateCard(template = template, onAddMealTemplate = onAddMealTemplate)
+            MealTemplateCard(template = template, language = language, onAddMealTemplate = onAddMealTemplate)
         }
     }
 }
 
 @Composable
-private fun MealTemplateCard(template: MealTemplate, onAddMealTemplate: (String) -> Unit) {
+private fun MealTemplateCard(template: MealTemplate, language: AppLanguage, onAddMealTemplate: (String) -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -4177,28 +4511,28 @@ private fun MealTemplateCard(template: MealTemplate, onAddMealTemplate: (String)
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(template.title, fontWeight = FontWeight.SemiBold)
+                    Text(template.localizedTitle(language), fontWeight = FontWeight.SemiBold)
                     Text(
-                        text = template.subtitle,
+                        text = template.localizedSubtitle(language),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 TextButton(onClick = { onAddMealTemplate(template.id) }) {
-                    Text("Add")
+                    Text(language.t("Add", "添加"))
                 }
             }
             MetricGrid(
                 metrics = listOf(
                     "Kcal" to template.calories.toString(),
-                    "Protein" to "${formatDecimal(template.protein)} g",
-                    "Carbs" to "${formatDecimal(template.carbs)} g",
-                    "Fat" to "${formatDecimal(template.fat)} g",
-                    "Fiber" to "${formatDecimal(template.fiber)} g"
+                    language.t("Protein", "蛋白质") to "${formatDecimal(template.protein)} g",
+                    language.t("Carbs", "碳水") to "${formatDecimal(template.carbs)} g",
+                    language.t("Fat", "脂肪") to "${formatDecimal(template.fat)} g",
+                    language.t("Fiber", "纤维") to "${formatDecimal(template.fiber)} g"
                 )
             )
             Text(
-                text = template.notes,
+                text = template.localizedNotes(language),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -4214,8 +4548,10 @@ private fun NutritionPage(
     onAddMeal: (String, Int, Double, Double, Double, Double, String) -> Unit,
     onAddMealTemplate: (String) -> Unit,
     onRemoveMeal: (Int) -> Unit,
-    onPickMealPhoto: (String) -> Unit
+    onPickMealPhoto: (String) -> Unit,
+    onOpenAi: () -> Unit
 ) {
+    val language = state.appLanguage
     val targets = state.dailyLog.targets
     var mealName by remember { mutableStateOf("") }
     var calories by remember { mutableStateOf("") }
@@ -4227,12 +4563,35 @@ private fun NutritionPage(
     val totals = state.dailyLog.nutritionTotals()
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        NutritionPacingCard(log = state.dailyLog)
-        NextMealBuilderCard(log = state.dailyLog)
-        MealAssemblyGuideCard(guide = mealAssemblyGuide(state.dailyLog))
+        NutritionPacingCard(log = state.dailyLog, language = language)
+        NextMealBuilderCard(log = state.dailyLog, language = language)
+        MealLoggingCoachCard(
+            log = state.dailyLog,
+            language = language,
+            onPrefillMeal = { builder ->
+                mealName = builder.localizedTitle(language)
+                calories = builder.estimatedCalories().toString()
+                protein = builder.proteinGrams.toString()
+                carbs = builder.carbsGrams.toString()
+                fat = builder.fatGrams.toString()
+                fiber = builder.fiberGrams.toString()
+                notes = language.t(
+                    "Coach prefill: ${builder.localizedPortionCue(language)} ${builder.localizedTimingCue(language)} ${builder.localizedPhotoCue(language)}",
+                    "教练预填：${builder.localizedPortionCue(language)} ${builder.localizedTimingCue(language)} ${builder.localizedPhotoCue(language)}"
+                )
+            },
+            onAddMealTemplate = onAddMealTemplate,
+            onPickMealPhoto = onPickMealPhoto,
+            onOpenAi = onOpenAi
+        )
+        MealAssemblyGuideCard(guide = mealAssemblyGuide(state.dailyLog), language = language)
         BodyCompositionCard(
             guidance = bodyCompositionGuidance(state.dailyLog, state.recentLogs, state.athleteProfile),
-            subtitle = "Use body-weight trend, average intake, and phase goal before changing targets."
+            subtitle = language.t(
+                "Use body-weight trend, average intake, and phase goal before changing targets.",
+                "调整目标前，先结合体重趋势、平均摄入和当前阶段。"
+            ),
+            language = language
         )
         ConditioningHydrationCard(
             log = state.dailyLog,
@@ -4240,24 +4599,30 @@ private fun NutritionPage(
             profile = state.athleteProfile,
             onConditioningChange = onConditioningChange
         )
-        MealTemplateLibrary(onAddMealTemplate = onAddMealTemplate)
-        SectionCard(title = "Nutrition Targets", subtitle = "Use weighed food when possible; use photos for AI estimates when weighing is not practical.") {
-            MacroLine("Calories", totals.calories.toString(), targets.calories.toString(), "kcal")
-            MacroLine("Protein", totals.protein.toString(), targets.protein.toString(), "g")
-            MacroLine("Carbs", totals.carbs.toString(), targets.carbs.toString(), "g")
-            MacroLine("Fat", totals.fat.toString(), targets.fat.toString(), "g")
-            MacroLine("Fiber", totals.fiber.toString(), targets.fiber.toString(), "g")
+        MealTemplateLibrary(language = language, onAddMealTemplate = onAddMealTemplate)
+        SectionCard(
+            title = language.t("Nutrition Targets", "营养目标"),
+            subtitle = language.t(
+                "Use weighed food when possible; use photos for AI estimates when weighing is not practical.",
+                "能称重就称重；无法称重时，用照片帮助 AI 估算。"
+            )
+        ) {
+            MacroLine(language.t("Calories", "热量"), totals.calories.toString(), targets.calories.toString(), "kcal")
+            MacroLine(language.t("Protein", "蛋白质"), totals.protein.toString(), targets.protein.toString(), "g")
+            MacroLine(language.t("Carbs", "碳水"), totals.carbs.toString(), targets.carbs.toString(), "g")
+            MacroLine(language.t("Fat", "脂肪"), totals.fat.toString(), targets.fat.toString(), "g")
+            MacroLine(language.t("Fiber", "纤维"), totals.fiber.toString(), targets.fiber.toString(), "g")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField(
                     value = targets.calories.toString(),
                     onChange = { onTargetsChange(targets.copy(calories = it.toIntOrNull() ?: targets.calories)) },
-                    label = "Target kcal",
+                    label = language.t("Target kcal", "目标热量"),
                     modifier = Modifier.weight(1f)
                 )
                 NumberField(
                     value = targets.protein.toString(),
                     onChange = { onTargetsChange(targets.copy(protein = it.toIntOrNull() ?: targets.protein)) },
-                    label = "Protein",
+                    label = language.t("Protein", "蛋白质"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -4265,52 +4630,58 @@ private fun NutritionPage(
                 NumberField(
                     value = targets.carbs.toString(),
                     onChange = { onTargetsChange(targets.copy(carbs = it.toIntOrNull() ?: targets.carbs)) },
-                    label = "Carbs",
+                    label = language.t("Carbs", "碳水"),
                     modifier = Modifier.weight(1f)
                 )
                 NumberField(
                     value = targets.fat.toString(),
                     onChange = { onTargetsChange(targets.copy(fat = it.toIntOrNull() ?: targets.fat)) },
-                    label = "Fat",
+                    label = language.t("Fat", "脂肪"),
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
-        SectionCard(title = "Add Meal", subtitle = "Log macros manually or attach food photos for portion and label analysis.") {
+        SectionCard(
+            title = language.t("Add Meal", "添加餐食"),
+            subtitle = language.t(
+                "Use the coach prefill, then adjust macros manually or attach food photos for portion and label analysis.",
+                "先使用教练预填，再手动调整宏量；份量或标签不确定时添加照片。"
+            )
+        ) {
             OutlinedTextField(
                 value = mealName,
                 onValueChange = { mealName = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Meal") },
+                label = { Text(language.t("Meal", "餐食")) },
                 singleLine = true
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NumberField(value = calories, onChange = { calories = it }, label = "kcal", modifier = Modifier.weight(1f))
-                DecimalField(value = protein, onChange = { protein = it }, label = "Protein", modifier = Modifier.weight(1f))
+                DecimalField(value = protein, onChange = { protein = it }, label = language.t("Protein", "蛋白质"), modifier = Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DecimalField(value = carbs, onChange = { carbs = it }, label = "Carbs", modifier = Modifier.weight(1f))
-                DecimalField(value = fat, onChange = { fat = it }, label = "Fat", modifier = Modifier.weight(1f))
+                DecimalField(value = carbs, onChange = { carbs = it }, label = language.t("Carbs", "碳水"), modifier = Modifier.weight(1f))
+                DecimalField(value = fat, onChange = { fat = it }, label = language.t("Fat", "脂肪"), modifier = Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                DecimalField(value = fiber, onChange = { fiber = it }, label = "Fiber", modifier = Modifier.weight(1f))
+                DecimalField(value = fiber, onChange = { fiber = it }, label = language.t("Fiber", "纤维"), modifier = Modifier.weight(1f))
                 ElevatedButton(
                     onClick = {
                         onPickMealPhoto(
-                            "Meal photo for portion estimate. Meal field: ${mealName.ifBlank { "not named" }}. Notes: ${notes.ifBlank { "none" }}"
+                            "meal photo for portion estimate. Meal field: ${mealName.ifBlank { "not named" }}. Notes: ${notes.ifBlank { "none" }}"
                         )
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("meal photo")
+                    Text(language.t("Meal photo", "餐食照片"))
                 }
             }
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Food source, portion, oils, label, uncertainty") },
+                label = { Text(language.t("Food source, portion, oils, label, uncertainty", "食物来源、份量、油脂、标签、不确定点")) },
                 minLines = 2
             )
             Button(
@@ -4334,14 +4705,20 @@ private fun NutritionPage(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Add meal")
+                Text(language.t("Add meal", "添加餐食"))
             }
         }
 
         if (state.dailyLog.meals.isEmpty()) {
-            EmptyState("No meals logged yet. Add meals or attach photos before running a nutrition review.")
+            EmptyState(language.t(
+                "No meals logged yet. Add meals or attach photos before running a nutrition review.",
+                "今天还没有记录餐食。先添加餐食或照片，再运行营养复盘。"
+            ))
         } else {
-            SectionCard(title = "Meals", subtitle = "${state.dailyLog.meals.size} logged today") {
+            SectionCard(
+                title = language.t("Meals", "餐食记录"),
+                subtitle = language.t("${state.dailyLog.meals.size} logged today", "今天已记录 ${state.dailyLog.meals.size} 餐")
+            ) {
                 state.dailyLog.meals.forEachIndexed { index, meal ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
                         Text(
@@ -4349,7 +4726,7 @@ private fun NutritionPage(
                             modifier = Modifier.weight(1f)
                         )
                         TextButton(onClick = { onRemoveMeal(index) }) {
-                            Text("Remove")
+                            Text(language.t("Remove", "移除"))
                         }
                     }
                     if (meal.notes.isNotBlank()) {
