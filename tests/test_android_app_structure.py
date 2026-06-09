@@ -599,6 +599,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         app_tabs = re.findall(r"^\s*([A-Z_]+)\(", app_tab_match.group("body"), re.MULTILINE)
         self.assertEqual(["TRAINING", "NUTRITION", "METRICS", "AI_COACH"], app_tabs)
         self.assertIn("AppTab.entries.forEach", ui)
+        self.assertIn("Icon(", ui)
+        self.assertIn("ImageVector", ui)
+        self.assertNotIn("icon = { Text(tab.navIcon()) }", ui)
         expected_terms = [
             "Training",
             "Nutrition",
@@ -1165,6 +1168,59 @@ class AndroidAppStructureTest(unittest.TestCase):
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
+
+    def test_four_main_sections_use_semantic_navigation_icons(self) -> None:
+        gradle = (APP / "app/build.gradle.kts").read_text(encoding="utf-8")
+        ui = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt").read_text(
+            encoding="utf-8"
+        )
+        preview = (APP / "preview/index.html").read_text(encoding="utf-8")
+        combined_android = f"{gradle}\n{ui}"
+        expected_android_terms = [
+            "material-icons-extended",
+            "Icons.Filled.FitnessCenter",
+            "Icons.Filled.Restaurant",
+            "Icons.Filled.MonitorHeart",
+            "Icons.Filled.AutoAwesome",
+            "contentDescription = tab.localizedTitle(language)",
+            "AppTab.METRICS -> language.t(\"Metrics\", \"身体数据\")",
+            "AppTab.AI_COACH -> language.t(\"AI\", \"AI\")",
+        ]
+        for term in expected_android_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, combined_android)
+        for placeholder in [
+            'AppTab.TRAINING -> "T"',
+            'AppTab.NUTRITION -> "N"',
+            'AppTab.METRICS -> "M"',
+            'AppTab.AI_COACH -> "AI"',
+            "icon = { Text(tab.navIcon()) }",
+        ]:
+            with self.subTest(placeholder=placeholder):
+                self.assertNotIn(placeholder, ui)
+
+        self.assertEqual(4, len(re.findall(r'class="tab(?: active)?" type="button" data-tab=', preview)))
+        expected_preview_terms = [
+            'class="tab-icon"',
+            'class="tab-label"',
+            'data-tab="training"',
+            'data-tab="nutrition"',
+            'data-tab="metrics"',
+            'data-tab="ai"',
+            'data-aria-en="Training"',
+            'data-aria-zh="训练"',
+            'data-aria-zh="身体数据"',
+            'setAttribute("aria-label"',
+            'data-zh="身体数据"',
+        ]
+        for term in expected_preview_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, preview)
+        for placeholder in ["<span>T</span>", "<span>N</span>", "<span>M</span>", "<span>A</span>"]:
+            with self.subTest(placeholder=placeholder):
+                self.assertNotIn(placeholder, preview)
+        self.assertNotIn('data-tab="today"', preview)
+        self.assertNotIn('data-tab="plan"', preview)
 
     def test_health_connect_integration_is_structured_and_permissioned(self) -> None:
         gradle = (APP / "app/build.gradle.kts").read_text(encoding="utf-8")

@@ -21,6 +21,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +34,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -51,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -356,28 +363,33 @@ private fun BottomNavigation(selected: AppTab, language: AppLanguage, onSelect: 
             NavigationBarItem(
                 selected = selected == tab,
                 onClick = { onSelect(tab) },
-                icon = { Text(tab.navIcon()) },
+                icon = {
+                    Icon(
+                        imageVector = tab.navIcon(),
+                        contentDescription = tab.localizedTitle(language)
+                    )
+                },
                 label = { Text(tab.shortTitle(language)) }
             )
         }
     }
 }
 
-private fun AppTab.navIcon(): String {
+private fun AppTab.navIcon(): ImageVector {
     return when (this) {
-        AppTab.TRAINING -> "T"
-        AppTab.NUTRITION -> "N"
-        AppTab.METRICS -> "M"
-        AppTab.AI_COACH -> "AI"
+        AppTab.TRAINING -> Icons.Filled.FitnessCenter
+        AppTab.NUTRITION -> Icons.Filled.Restaurant
+        AppTab.METRICS -> Icons.Filled.MonitorHeart
+        AppTab.AI_COACH -> Icons.Filled.AutoAwesome
     }
 }
 
 private fun AppTab.shortTitle(language: AppLanguage): String {
     return when (this) {
-        AppTab.TRAINING -> language.t("Train", "训练")
-        AppTab.NUTRITION -> language.t("Food", "饮食")
-        AppTab.METRICS -> language.t("Metrics", "数据")
-        AppTab.AI_COACH -> language.t("Coach", "AI")
+        AppTab.TRAINING -> language.t("Training", "训练")
+        AppTab.NUTRITION -> language.t("Nutrition", "饮食")
+        AppTab.METRICS -> language.t("Metrics", "身体数据")
+        AppTab.AI_COACH -> language.t("AI", "AI")
     }
 }
 

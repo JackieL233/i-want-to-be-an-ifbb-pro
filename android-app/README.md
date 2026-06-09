@@ -6,7 +6,7 @@ This is a native Android companion app for the `I Want to be an IFBB PRO` skill.
 
 - Kotlin + Jetpack Compose Android app.
 - Bundled skill assets in `app/src/main/assets/skill/`.
-- Apple-inspired light UI theme with a quiet neutral background, blue action color, rounded grouped surfaces, and bottom navigation for the four main sections.
+- Apple-inspired light UI theme with a quiet neutral background, blue action color, rounded grouped surfaces, and semantic bottom-navigation icons for the four main sections.
 - The app has four main sections: Training / 训练, Nutrition / 饮食, Metrics / 身体数据, and AI. `Today Flow Coach` is folded into AI's daily overview/review layer, `Plan Flow Coach` is folded into Training's training-plan layer, and there is no separate `Today` or `Plan` primary tab.
 - Saved EN/中文 language switching through `AppLanguage`, `updateLanguage`, `loadLanguage`, and local SharedPreferences so the high-frequency app shell, Today workflow, rest timer, and safety copy can be used in English or Chinese.
 - A first-screen `Today Flow Coach` inside AI's daily overview/review layer with `TodayFlowCoachState` and `todayFlowCoachState`, showing the next best action, daily loop progress, readiness, training sets, nutrition gap, AI gate, and one primary button before any advanced cards.
