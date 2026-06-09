@@ -14,6 +14,7 @@ The preview mirrors the current Android app structure:
 - One-tap Training preview with `Workout Flow Coach`, `one-tap-hero`, `Complete set + start rest`, lightweight `action-shortcuts`, and an exercise image slot before the professional analysis layers
 - One-tap Nutrition preview with `Meal Flow Coach`, `NEXT MEAL ACTION`, `Prefill next meal`, food-photo and template shortcuts, and an AI nutrition review path before the nutrition analysis layers
 - One-tap Metrics preview with `Metrics Flow Coach`, `NEXT METRICS ACTION`, `Sync today`, progress-photo shortcut, and AI review path before body-data analysis layers
+- One-tap AI review preview with `AI Review Flow Coach`, `NEXT AI REVIEW ACTION`, `Run daily review`, photo and mode shortcuts, and the AI evidence bundle before setup or data-map details
 - AI Setup & Review Readiness with API key, base URL, model, photo context, missing setup, and AI review ready states
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
 - AI Review Action Queue with sourceLabel, confidenceLabel, primaryAction, actionLabel, training action, nutrition action, recovery action, tracking action, and plan action routing
@@ -52,6 +53,7 @@ The preview mirrors the current Android app structure:
 - Collapsed `Metrics detail layers` so health sync, recovery, conditioning, physique measurements, progress photos, photo evidence, trend, and manual metrics fields remain accessible without overwhelming a beginner
 - Recovery Guidance for sleep, soreness, stress, resting HR, and training-pressure decisions
 - Health Connect and vendor-data boundary
+- Collapsed `AI detail layers` so setup, photos, prompt, data map, action queue, and saved history remain accessible without overwhelming a beginner
 - AI Coach and AI Data Map
 
 This is not a replacement for real Android testing. Use it for fast visual iteration; use Android Studio or an Android test plugin for APK, emulator, and device validation.

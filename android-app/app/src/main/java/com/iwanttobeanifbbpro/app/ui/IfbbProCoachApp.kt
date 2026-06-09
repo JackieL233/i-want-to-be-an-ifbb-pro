@@ -394,6 +394,17 @@ private fun AppLanguage.t(en: String, zh: String): String {
     return if (this == AppLanguage.CHINESE) zh else en
 }
 
+private fun PhotoEvidenceType.localizedLabel(language: AppLanguage): String {
+    return when (this) {
+        PhotoEvidenceType.MEAL -> language.t("Food or label photo", "食物或标签照片")
+        PhotoEvidenceType.TRAINING_FORM -> language.t("Exercise form frame", "动作技术帧")
+        PhotoEvidenceType.EQUIPMENT -> language.t("Equipment photo", "器械照片")
+        PhotoEvidenceType.PHYSIQUE -> language.t("Physique progress photo", "体型进度照片")
+        PhotoEvidenceType.MENU_LABEL -> language.t("Menu or nutrition label", "菜单或营养标签")
+        PhotoEvidenceType.OTHER -> language.t("Other check-in photo", "其他打卡照片")
+    }
+}
+
 private data class DailyReadiness(
     val score: Int,
     val label: String,
@@ -2303,7 +2314,7 @@ private fun TodayDashboard(
                 }
             }
         }
-            PhotoEvidenceCard(photoEvidence = log.photoEvidence, compact = true)
+            PhotoEvidenceCard(photoEvidence = log.photoEvidence, language = language, compact = true)
             BodyCompositionCard(
             guidance = bodyCompositionGuidance(log, state.recentLogs, state.athleteProfile),
             subtitle = language.t("Trend-based target check before changing calories.", "调整热量前，先看趋势目标检查。"),
@@ -5246,7 +5257,7 @@ private fun NutritionPage(
             }
         }
 
-        PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence, compact = true)
+        PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence, language = language, compact = true)
     }
 }
 
@@ -5413,6 +5424,7 @@ private fun MetricsPage(
     onSyncHealthData: () -> Unit
 ) {
     val metrics = state.dailyLog.metrics
+    val language = state.appLanguage
     var showMetricsDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         MetricsFlowCoachCard(
@@ -5457,7 +5469,7 @@ private fun MetricsPage(
                 Text("Progress photo")
             }
         }
-        PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence, compact = true)
+        PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence, language = language, compact = true)
         TrendOverviewCard(logs = state.recentLogs)
         SectionCard(title = "Metrics", subtitle = "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.") {
             Text("Body composition", fontWeight = FontWeight.SemiBold)
@@ -5749,38 +5761,235 @@ private fun PhysiqueMeasurementSummaryCard(summary: PhysiqueMeasurementSummary) 
 }
 
 @Composable
-private fun PhotoEvidenceCard(photoEvidence: List<PhotoEvidenceEntry>, compact: Boolean = false) {
+private fun PhotoEvidenceCard(
+    photoEvidence: List<PhotoEvidenceEntry>,
+    language: AppLanguage = AppLanguage.ENGLISH,
+    compact: Boolean = false
+) {
     SectionCard(
-        title = "Photo Evidence",
-        subtitle = "Classified photos tell AI whether an image is food, form, equipment, label, or physique progress."
+        title = language.t("Photo Evidence", "照片证据"),
+        subtitle = language.t(
+            "Classified photos tell AI whether an image is food, form, equipment, label, or physique progress.",
+            "已分类照片会告诉 AI：这张图是食物、动作、器械、标签还是体型进度。"
+        )
     ) {
         if (photoEvidence.isEmpty()) {
-            EmptyState("No photo evidence saved today. Add meal, form, equipment, label, or progress photos when the data is uncertain.")
+            EmptyState(
+                language.t(
+                    "No photo evidence saved today. Add meal, form, equipment, label, or progress photos when the data is uncertain.",
+                    "今天还没有照片证据。数据不确定时添加餐食、动作、器械、标签或体型照片。"
+                )
+            )
         } else {
             val counts = PhotoEvidenceType.entries.map { type ->
-                "${type.label}: ${photoEvidence.count { it.type == type }}"
+                "${type.localizedLabel(language)}: ${photoEvidence.count { it.type == type }}"
             }.filterNot { it.endsWith(": 0") }
             DataChipGrid(items = counts)
             if (!compact) {
                 photoEvidence.takeLast(8).asReversed().forEach { photo ->
                     Text(
-                        text = "${photo.type.label} | ${photo.name} | ${photo.createdAt.ifBlank { "time not logged" }}",
+                        text = "${photo.type.localizedLabel(language)} | ${photo.name} | ${
+                            photo.createdAt.ifBlank { language.t("time not logged", "未记录时间") }
+                        }",
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = photo.note.ifBlank { "No note." },
+                        text = photo.note.ifBlank { language.t("No note.", "没有备注。") },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
                 Text(
-                    text = "${photoEvidence.size} photo evidence item(s) logged today. Latest: ${photoEvidence.last().type.label} (${photoEvidence.last().name}).",
+                    text = language.t(
+                        "${photoEvidence.size} photo evidence item(s) logged today. Latest: ${photoEvidence.last().type.label} (${photoEvidence.last().name}).",
+                        "今天已记录 ${photoEvidence.size} 条照片证据。最新：${photoEvidence.last().type.localizedLabel(language)}（${photoEvidence.last().name}）。"
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun AiReviewFlowCoachCard(
+    state: CoachUiState,
+    setup: AiSetupStatus,
+    executionPlan: DailyExecutionPlan,
+    reviewQueue: AiReviewActionQueue,
+    showDetails: Boolean,
+    onToggleDetails: () -> Unit,
+    onPickImages: () -> Unit,
+    onRunAnalysis: () -> Unit,
+    onDailyReview: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val language = state.appLanguage
+    val log = state.dailyLog
+    val plannedSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val hasReviewToday = state.reviewHistory.any { it.logDate == log.date }
+    val metricsReady = log.metrics.bodyWeightKg != null ||
+        log.metrics.sleepHours != null ||
+        log.metrics.steps > 0 ||
+        log.metrics.healthSyncedAt.isNotBlank()
+    val primaryTitle: String
+    val primaryDetail: String
+    val primaryLabel: String
+    val primaryEnabled: Boolean
+    val primaryAction: () -> Unit
+    val routeAction: () -> Unit = when (executionPlan.primaryActionRoute) {
+        DailyExecutionRoute.PLAN -> onOpenPlan
+        DailyExecutionRoute.TRAINING -> onOpenTraining
+        DailyExecutionRoute.NUTRITION -> onOpenNutrition
+        DailyExecutionRoute.METRICS -> onOpenMetrics
+        DailyExecutionRoute.AI_REVIEW -> if (executionPlan.primaryActionLabel == "View review") onOpenAi else onDailyReview
+    }
+    val queuePrimaryAction: () -> Unit = {
+        performAiReviewAction(
+            action = reviewQueue.primaryAction,
+            onDailyReview = onDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi
+        )
+    }
+    when {
+        state.isLoading -> {
+            primaryTitle = language.t("Reviewing today's evidence", "正在复盘今天证据")
+            primaryDetail = language.t(
+                "AI is reading training, nutrition, body metrics, photos, and recent trends. Keep this screen open until the review is saved.",
+                "AI 正在读取训练、饮食、身体数据、照片和近期趋势。保持当前页面，直到复盘保存完成。"
+            )
+            primaryLabel = language.t("Reviewing", "复盘中")
+            primaryEnabled = false
+            primaryAction = {}
+        }
+        !setup.canRunAi -> {
+            primaryTitle = language.t("Set API first", "先设置 API")
+            primaryDetail = setup.detail
+            primaryLabel = language.t("Open AI setup", "打开 AI 设置")
+            primaryEnabled = true
+            primaryAction = onToggleDetails
+        }
+        executionPlan.primaryActionRoute != DailyExecutionRoute.AI_REVIEW -> {
+            primaryTitle = language.t("Prepare evidence first", "先补齐复盘证据")
+            primaryDetail = executionPlan.nextBestAction
+            primaryLabel = executionPlan.primaryActionLabel
+            primaryEnabled = true
+            primaryAction = routeAction
+        }
+        hasReviewToday -> {
+            primaryTitle = language.t("Today's review is saved", "今天复盘已保存")
+            primaryDetail = language.t(
+                "Use the action queue to turn the saved review into tomorrow's training, food, recovery, tracking, or plan step.",
+                "用行动队列把已保存复盘转成明天的训练、饮食、恢复、追踪或计划动作。"
+            )
+            primaryLabel = reviewQueue.primaryAction.actionLabel
+            primaryEnabled = true
+            primaryAction = queuePrimaryAction
+        }
+        else -> {
+            primaryTitle = language.t("Run daily AI review", "运行每日 AI 复盘")
+            primaryDetail = language.t(
+                "Send the athlete profile, plan, set logs, meals, metrics, photos, and trend context to decide tomorrow's priorities.",
+                "发送训练者档案、计划、组数记录、餐食、身体数据、照片和趋势上下文，用来决定明天优先级。"
+            )
+            primaryLabel = language.t("Run daily review", "运行每日复盘")
+            primaryEnabled = true
+            primaryAction = onDailyReview
+        }
+    }
+    SectionCard(
+        title = language.t("AI Review Flow Coach", "AI 复盘流程教练"),
+        subtitle = language.t(
+            "One-tap review when evidence is ready; setup, photos, prompt, data map, and history stay underneath.",
+            "证据就绪后一键复盘；设置、照片、提示词、数据地图和历史记录放在下方。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Status", "状态") to if (setup.canRunAi) executionPlan.statusLabel else setup.statusLabel,
+                language.t("Readiness", "状态分") to executionPlan.readinessScore.toString(),
+                language.t("Sets", "组数") to "$completedSets/$plannedSets",
+                language.t("Meals", "餐数") to log.meals.size.toString(),
+                language.t("Metrics", "数据") to if (metricsReady) language.t("Ready", "可用") else language.t("Missing", "缺失"),
+                language.t("Photos", "照片") to "${state.images.size}/${log.photoEvidence.size}",
+                language.t("Review", "复盘") to if (hasReviewToday) language.t("Saved", "已保存") else language.t("Not yet", "未完成"),
+                language.t("Queue", "队列") to reviewQueue.confidenceLabel
+            )
+        )
+        Text(
+            text = primaryTitle,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = primaryDetail,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(onClick = primaryAction, enabled = primaryEnabled && !state.isLoading, modifier = Modifier.fillMaxWidth()) {
+            Text(primaryLabel)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onToggleDetails, modifier = Modifier.weight(1f)) {
+                Text(
+                    if (showDetails) {
+                        language.t("Hide AI details", "收起 AI 细节")
+                    } else {
+                        language.t("Show AI details", "展开 AI 细节")
+                    }
+                )
+            }
+            TextButton(onClick = onPickImages, modifier = Modifier.weight(1f)) {
+                Text(language.t("Add photos", "添加照片"))
+            }
+            TextButton(
+                onClick = onRunAnalysis,
+                enabled = setup.canRunAi && !state.isLoading,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Run mode", "模式分析"))
+            }
+        }
+        DataChipGrid(
+            items = listOf(
+                language.t("AI Review Flow Coach", "AI 复盘流程教练"),
+                language.t("Daily review evidence bundle", "每日复盘证据包"),
+                language.t("Training, food, metrics, photos, trends", "训练、饮食、身体数据、照片、趋势"),
+                language.t("Saved review becomes action queue", "已保存复盘转成行动队列"),
+                if (showDetails) {
+                    language.t("AI detail layers open", "AI 细节层已展开")
+                } else {
+                    language.t("AI detail layers hidden", "AI 细节层已收起")
+                }
+            )
+        )
+        state.reviewHistory.firstOrNull()?.let { review ->
+            HorizontalDivider()
+            Text(
+                text = language.t("Latest saved guidance", "最新保存建议"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = review.preview(),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        if (state.isLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -5811,7 +6020,33 @@ private fun AiCoachPage(
     )
     val language = state.appLanguage
     val aiSetup = state.aiSetupStatus(language)
+    val hasAiReviewToday = state.reviewHistory.any { it.logDate == state.dailyLog.date }
+    val executionPlan = dailyExecutionPlan(
+        log = state.dailyLog,
+        recentLogs = state.recentLogs,
+        profile = state.athleteProfile,
+        hasWeeklyPlan = state.trainingPlan.days.any { it.exercises.isNotEmpty() },
+        hasAiReviewToday = hasAiReviewToday
+    )
+    var showAiDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        AiReviewFlowCoachCard(
+            state = state,
+            setup = aiSetup,
+            executionPlan = executionPlan,
+            reviewQueue = reviewQueue,
+            showDetails = showAiDetails,
+            onToggleDetails = { showAiDetails = !showAiDetails },
+            onPickImages = onPickImages,
+            onRunAnalysis = onRunAnalysis,
+            onDailyReview = onDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi
+        )
+        if (showAiDetails) {
         AiSetupStatusCard(
             status = aiSetup,
             language = language,
@@ -5822,8 +6057,14 @@ private fun AiCoachPage(
             secondaryLabel = language.t("Run mode", "运行模式"),
             onSecondaryAction = if (aiSetup.canRunAi) onRunAnalysis else null
         )
-        SettingsCard(settings = state.settings, onChange = onSettingsChange)
-        SectionCard(title = "AI Coach", subtitle = "Use the bundled skill, daily logs, and optional photos together.") {
+        SettingsCard(settings = state.settings, language = language, onChange = onSettingsChange)
+        SectionCard(
+            title = language.t("AI Coach Details", "AI 教练细节"),
+            subtitle = language.t(
+                "Use the bundled skill, daily logs, and optional photos together.",
+                "把内置 skill、每日记录和可选照片一起用于分析。"
+            )
+        ) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 CoachMode.entries.forEach { mode ->
                     FilterChip(
@@ -5839,10 +6080,17 @@ private fun AiCoachPage(
                     .height(150.dp),
                 value = state.userInput,
                 onValueChange = onPromptChange,
-                label = { Text("Question, goal, or extra AI review instruction") },
+                label = {
+                    Text(
+                        language.t(
+                            "Question, goal, or extra AI review instruction",
+                            "问题、目标或额外 AI 复盘指令"
+                        )
+                    )
+                },
                 minLines = 5
             )
-            Text("Photo purpose", fontWeight = FontWeight.SemiBold)
+            Text(language.t("Photo purpose", "照片用途"), fontWeight = FontWeight.SemiBold)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PhotoEvidenceType.entries.forEach { type ->
                     FilterChip(
@@ -5851,7 +6099,7 @@ private fun AiCoachPage(
                             photoType = type
                             onPreparePhoto(type, photoNote)
                         },
-                        label = { Text(type.label) }
+                        label = { Text(type.localizedLabel(language)) }
                     )
                 }
             }
@@ -5862,23 +6110,30 @@ private fun AiCoachPage(
                     onPreparePhoto(photoType, it)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Photo note: meal, set, angle, lighting, label, uncertainty") },
+                label = {
+                    Text(
+                        language.t(
+                            "Photo note: meal, set, angle, lighting, label, uncertainty",
+                            "照片备注：餐食、组数、角度、光线、标签、不确定点"
+                        )
+                    )
+                },
                 minLines = 2
             )
-            ImageCard(images = state.images, onPick = onPickImages, onClear = onClearImages)
+            ImageCard(images = state.images, language = language, onPick = onPickImages, onClear = onClearImages)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onDailyReview, enabled = !state.isLoading && aiSetup.canRunAi, modifier = Modifier.weight(1f)) {
-                    Text("Daily review")
+                    Text(language.t("Daily review", "每日复盘"))
                 }
                 ElevatedButton(onClick = onRunAnalysis, enabled = !state.isLoading && aiSetup.canRunAi, modifier = Modifier.weight(1f)) {
-                    Text("Run mode")
+                    Text(language.t("Run mode", "模式分析"))
                 }
             }
             if (state.isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
-        PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence)
+        PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence, language = language)
         AiReviewActionQueueCard(
             queue = reviewQueue,
             isLoading = state.isLoading,
@@ -5890,8 +6145,14 @@ private fun AiCoachPage(
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi
         )
-        ReviewHistoryCard(reviews = state.reviewHistory)
-        SectionCard(title = "AI Data Map", subtitle = "These app records are designed to be linked in the same analysis request.") {
+        ReviewHistoryCard(reviews = state.reviewHistory, language = language)
+        SectionCard(
+            title = language.t("AI Data Map", "AI 数据地图"),
+            subtitle = language.t(
+                "These app records are designed to be linked in the same analysis request.",
+                "这些 App 记录会在同一个分析请求中联动使用。"
+            )
+        ) {
             DataChipGrid(
                 items = listOf(
                     "Exercise selection",
@@ -6034,14 +6295,21 @@ private fun AiCoachPage(
                 )
             )
         }
+        }
     }
 }
 
 @Composable
-private fun ReviewHistoryCard(reviews: List<AiReviewEntry>) {
-    SectionCard(title = "Saved AI Reviews", subtitle = "Recent guidance stays available after you close the app.") {
+private fun ReviewHistoryCard(reviews: List<AiReviewEntry>, language: AppLanguage) {
+    SectionCard(
+        title = language.t("Saved AI Reviews", "已保存 AI 复盘"),
+        subtitle = language.t(
+            "Recent guidance stays available after you close the app.",
+            "关闭 App 后，最近的教练建议仍会保留。"
+        )
+    ) {
         if (reviews.isEmpty()) {
-            EmptyState("Run a daily review to save the first AI coaching note.")
+            EmptyState(language.t("Run a daily review to save the first AI coaching note.", "运行每日复盘后，会保存第一条 AI 教练建议。"))
         } else {
             reviews.take(5).forEach { review ->
                 Text(
@@ -6062,8 +6330,14 @@ private fun ReviewHistoryCard(reviews: List<AiReviewEntry>) {
 }
 
 @Composable
-private fun SettingsCard(settings: AiSettings, onChange: (AiSettings) -> Unit) {
-    SectionCard(title = "API Settings", subtitle = "Bring your own AI provider key; credentials stay in local SharedPreferences.") {
+private fun SettingsCard(settings: AiSettings, language: AppLanguage, onChange: (AiSettings) -> Unit) {
+    SectionCard(
+        title = language.t("API Settings", "API 设置"),
+        subtitle = language.t(
+            "Bring your own AI provider key; credentials stay in local SharedPreferences.",
+            "使用你自己的 AI provider key；凭证只保存在本地 SharedPreferences。"
+        )
+    ) {
         OutlinedTextField(
             value = settings.baseUrl,
             onValueChange = { onChange(settings.copy(baseUrl = it)) },
@@ -6090,7 +6364,12 @@ private fun SettingsCard(settings: AiSettings, onChange: (AiSettings) -> Unit) {
 }
 
 @Composable
-private fun ImageCard(images: List<ImageAttachment>, onPick: () -> Unit, onClear: () -> Unit) {
+private fun ImageCard(
+    images: List<ImageAttachment>,
+    language: AppLanguage,
+    onPick: () -> Unit,
+    onClear: () -> Unit
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -6099,22 +6378,25 @@ private fun ImageCard(images: List<ImageAttachment>, onPick: () -> Unit, onClear
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 ElevatedButton(onClick = onPick) {
-                    Text("Add photos")
+                    Text(language.t("Add photos", "添加照片"))
                 }
                 TextButton(onClick = onClear, enabled = images.isNotEmpty()) {
-                    Text("Clear")
+                    Text(language.t("Clear", "清空"))
                 }
             }
             if (images.isEmpty()) {
                 Text(
-                    text = "Attach exercise frames, equipment photos, food photos, labels, menus, or progress photos.",
+                    text = language.t(
+                        "Attach exercise frames, equipment photos, food photos, labels, menus, or progress photos.",
+                        "可添加动作帧、器械照片、食物照片、标签、菜单或体型进度照片。"
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
                 images.forEach { image ->
                     Text(
-                        "${image.evidenceType.label}: ${image.name} (${image.mimeType})",
+                        "${image.evidenceType.localizedLabel(language)}: ${image.name} (${image.mimeType})",
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold
                     )
