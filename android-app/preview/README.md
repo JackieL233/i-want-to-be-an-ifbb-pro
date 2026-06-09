@@ -11,6 +11,7 @@ The preview mirrors the current Android app structure:
 - Daily detail layers that keep setup, checklist, evidence, trend, and tomorrow planning available without crowding the first screen
 - Start Here / 从这里开始 detail loop with plan, training, food, metrics, and AI review steps
 - Android structure parity for `AppLanguage`, `updateLanguage`, `DailyStartStep`, `StartHereCoachCard`, and `StartHereStepRow`
+- One-tap Plan preview with `Plan Flow Coach`, `NEXT PLAN ACTION`, `Apply today`, template and training shortcuts, and selected-day visual-map readiness before weekly-plan editing layers
 - One-tap Training preview with `Workout Flow Coach`, `one-tap-hero`, `Complete set + start rest`, lightweight `action-shortcuts`, and an exercise image slot before the professional analysis layers
 - One-tap Nutrition preview with `Meal Flow Coach`, `NEXT MEAL ACTION`, `Prefill next meal`, food-photo and template shortcuts, and an AI nutrition review path before the nutrition analysis layers
 - One-tap Metrics preview with `Metrics Flow Coach`, `NEXT METRICS ACTION`, `Sync today`, progress-photo shortcut, and AI review path before body-data analysis layers
@@ -23,6 +24,7 @@ The preview mirrors the current Android app structure:
 - Daily Coach Checklist for plan, training, food, metrics, and AI review completion
 - Athlete profile and weekly plan
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
+- Collapsed `Plan detail layers` so athlete profile, templates, weekly plan, training days, selected-day visual map, visual atlas, and exercise editing remain accessible without overwhelming a beginner
 - Unified exercise visual guide for equipment/action recognition, including stable visual guide IDs
 - Exercise Visual Legend / 统一动作图例 with compact VG-01 to VG-10 diagrams
 - Unified Exercise Visual Atlas with the same three-step recognition flow used by Android and AI review: match the simplified instance diagram, find the real equipment markers, and follow the intended movement path

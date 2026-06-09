@@ -194,7 +194,8 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                             onRemovePlannedExercise = viewModel::removePlannedExercise,
                             onApplyDay = viewModel::applyPlanDayToToday,
                             onApplyTemplate = viewModel::applyTrainingPlanTemplate,
-                            onResetPlan = viewModel::resetTrainingPlan
+                            onResetPlan = viewModel::resetTrainingPlan,
+                            onOpenTraining = { viewModel.selectTab(AppTab.TRAINING) }
                         )
                     }
                 }
@@ -3013,6 +3014,154 @@ private fun PlanTemplateCard(
     }
 }
 
+private fun recommendedPlanTemplateId(profile: AthleteProfile): String {
+    val experience = profile.trainingExperience.lowercase(Locale.US)
+    return when {
+        profile.weeklyTrainingDays <= 3 || experience.contains("beginner") || experience.contains("new") -> "beginner-full-body"
+        profile.weeklyTrainingDays >= 5 -> "physique-priority"
+        else -> "four-day-hypertrophy"
+    }
+}
+
+@Composable
+private fun PlanFlowCoachCard(
+    state: CoachUiState,
+    selectedDay: TrainingDay,
+    selectedIndex: Int,
+    showDetails: Boolean,
+    onToggleDetails: () -> Unit,
+    onApplyTemplate: (String) -> Unit,
+    onApplyDay: (Int) -> Unit,
+    onOpenTraining: () -> Unit
+) {
+    val language = state.appLanguage
+    val plan = state.trainingPlan
+    val profile = state.athleteProfile
+    val activeDays = plan.days.count { it.exercises.isNotEmpty() }
+    val plannedExercises = plan.days.sumOf { it.exercises.size }
+    val weeklyHardSets = plan.days.sumOf { day -> day.exercises.sumOf { it.sets } }
+    val selectedDayReady = selectedDay.exercises.isNotEmpty()
+    val todayLoaded = state.dailyLog.trainingSession.exercises.isNotEmpty()
+    val profileReady = profile.primaryGoal.isNotBlank() &&
+        profile.currentPhase.isNotBlank() &&
+        profile.availableEquipment.isNotBlank() &&
+        profile.weeklyTrainingDays in 1..7
+    val recommendedTemplate = trainingPlanTemplates().firstOrNull { it.id == recommendedPlanTemplateId(profile) }
+        ?: trainingPlanTemplates().first()
+    val primaryTitle: String
+    val primaryDetail: String
+    val primaryLabel: String
+    val primaryAction: () -> Unit
+    when {
+        !profileReady -> {
+            primaryTitle = language.t("Set physique target", "先设置体型目标")
+            primaryDetail = language.t(
+                "Add goal, phase, equipment, and training days so templates and AI review match your real life.",
+                "补齐目标、阶段、器械和每周训练天数，让模板和 AI 复盘贴合真实情况。"
+            )
+            primaryLabel = language.t("Open profile", "打开档案")
+            primaryAction = onToggleDetails
+        }
+        activeDays == 0 || plannedExercises == 0 -> {
+            primaryTitle = language.t("Choose starter plan", "选择起始计划")
+            primaryDetail = language.t(
+                "Use ${recommendedTemplate.title} as the first ready-to-train structure, then edit details only if needed.",
+                "先使用 ${recommendedTemplate.title} 作为可直接训练的结构；需要时再展开修改细节。"
+            )
+            primaryLabel = language.t("Use recommended template", "使用推荐模板")
+            primaryAction = { onApplyTemplate(recommendedTemplate.id) }
+        }
+        !selectedDayReady -> {
+            primaryTitle = language.t("Pick a training day", "选择训练日")
+            primaryDetail = language.t(
+                "The selected day has no exercises. Pick a day with movements or add exercises in the detail layer.",
+                "当前训练日没有动作。选择已有动作的训练日，或在细节层添加动作。"
+            )
+            primaryLabel = language.t("Show plan details", "展开计划细节")
+            primaryAction = onToggleDetails
+        }
+        !todayLoaded -> {
+            primaryTitle = language.t("Apply today's plan", "应用今天计划")
+            primaryDetail = language.t(
+                "${selectedDay.dayName} ${selectedDay.focus}: ${selectedDay.exercises.size} exercises and ${selectedDay.exercises.sumOf { it.sets }} hard sets will become today's set log.",
+                "${selectedDay.dayName} ${selectedDay.focus}：${selectedDay.exercises.size} 个动作、${selectedDay.exercises.sumOf { it.sets }} 个有效组会转换成今天训练记录。"
+            )
+            primaryLabel = language.t("Apply today", "应用到今天")
+            primaryAction = { onApplyDay(selectedIndex) }
+        }
+        else -> {
+            primaryTitle = language.t("Today's workout is loaded", "今天训练已载入")
+            primaryDetail = language.t(
+                "Open Training and follow the next set coach, rest timer, and closeout review.",
+                "打开训练页，跟随下一组教练、休息倒计时和训练收尾复盘。"
+            )
+            primaryLabel = language.t("Open Training", "打开训练")
+            primaryAction = onOpenTraining
+        }
+    }
+    SectionCard(
+        title = language.t("Plan Flow Coach", "计划流程教练"),
+        subtitle = language.t(
+            "Start from the right weekly structure, then apply one day into today's executable workout.",
+            "先选对周训练结构，再把其中一天应用成今天可执行的训练。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Phase", "阶段") to profile.currentPhase.ifBlank { "--" },
+                language.t("Days/wk", "每周天数") to profile.weeklyTrainingDays.toString(),
+                language.t("Plan", "计划") to plan.name,
+                language.t("Active days", "训练日") to activeDays.toString(),
+                language.t("Exercises", "动作") to plannedExercises.toString(),
+                language.t("Hard sets", "有效组") to weeklyHardSets.toString(),
+                language.t("Selected", "当前日") to selectedDay.dayName,
+                language.t("Today", "今天") to if (todayLoaded) language.t("Loaded", "已载入") else language.t("Not loaded", "未载入")
+            )
+        )
+        Text(
+            text = primaryTitle,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = primaryDetail,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(onClick = primaryAction, modifier = Modifier.fillMaxWidth()) {
+            Text(primaryLabel)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onToggleDetails, modifier = Modifier.weight(1f)) {
+                Text(if (showDetails) language.t("Hide plan details", "收起计划细节") else language.t("Show plan details", "展开计划细节"))
+            }
+            TextButton(
+                onClick = { onApplyDay(selectedIndex) },
+                enabled = selectedDayReady,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Apply today", "应用今天"))
+            }
+            TextButton(onClick = onOpenTraining, enabled = todayLoaded, modifier = Modifier.weight(1f)) {
+                Text(language.t("Training", "训练"))
+            }
+        }
+        DataChipGrid(
+            items = listOf(
+                language.t("Plan Flow Coach", "计划流程教练"),
+                language.t("Template -> weekly plan -> Apply today", "模板 -> 周计划 -> 应用今天"),
+                language.t("Visual guide IDs before gym floor", "进健身房前先看视觉图例 ID"),
+                language.t("Selected day visual map", "当前训练日视觉图"),
+                if (showDetails) {
+                    language.t("Plan detail layers open", "计划细节层已展开")
+                } else {
+                    language.t("Plan detail layers hidden", "计划细节层已收起")
+                }
+            )
+        )
+    }
+}
+
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun PlanPage(
@@ -3026,7 +3175,8 @@ private fun PlanPage(
     onRemovePlannedExercise: (Int, Int) -> Unit,
     onApplyDay: (Int) -> Unit,
     onApplyTemplate: (String) -> Unit,
-    onResetPlan: () -> Unit
+    onResetPlan: () -> Unit,
+    onOpenTraining: () -> Unit
 ) {
     val plan = state.trainingPlan
     val selectedIndex = state.selectedPlanDayIndex.coerceIn(0, (plan.days.size - 1).coerceAtLeast(0))
@@ -3040,8 +3190,20 @@ private fun PlanPage(
     var rir by remember(selectedIndex) { mutableStateOf("2") }
     var rest by remember(selectedIndex) { mutableStateOf("120") }
     var notes by remember(selectedIndex) { mutableStateOf("") }
+    var showPlanDetails by remember { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        PlanFlowCoachCard(
+            state = state,
+            selectedDay = selectedDay,
+            selectedIndex = selectedIndex,
+            showDetails = showPlanDetails,
+            onToggleDetails = { showPlanDetails = !showPlanDetails },
+            onApplyTemplate = onApplyTemplate,
+            onApplyDay = onApplyDay,
+            onOpenTraining = onOpenTraining
+        )
+        if (showPlanDetails) {
         AthleteProfileCard(profile = state.athleteProfile, onProfileChange = onProfileChange)
         PlanTemplateLibrary(
             currentPlanName = plan.name,
@@ -3192,6 +3354,7 @@ private fun PlanPage(
                     onRemove = { onRemovePlannedExercise(selectedIndex, exerciseIndex) }
                 )
             }
+        }
         }
     }
 }
