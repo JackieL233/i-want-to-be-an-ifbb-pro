@@ -12,6 +12,7 @@ The preview mirrors the current Android app structure:
 - Start Here / 从这里开始 detail loop with plan, training, food, metrics, and AI review steps
 - Android structure parity for `AppLanguage`, `updateLanguage`, `DailyStartStep`, `StartHereCoachCard`, and `StartHereStepRow`
 - One-tap Training preview with `Workout Flow Coach`, `one-tap-hero`, `Complete set + start rest`, lightweight `action-shortcuts`, and an exercise image slot before the professional analysis layers
+- One-tap Nutrition preview with `Meal Flow Coach`, `NEXT MEAL ACTION`, `Prefill next meal`, food-photo and template shortcuts, and an AI nutrition review path before the nutrition analysis layers
 - AI Setup & Review Readiness with API key, base URL, model, photo context, missing setup, and AI review ready states
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
 - AI Review Action Queue with sourceLabel, confidenceLabel, primaryAction, actionLabel, training action, nutrition action, recovery action, tracking action, and plan action routing
@@ -39,6 +40,7 @@ The preview mirrors the current Android app structure:
 - Rest countdown after completing a set
 - Photo Evidence for classified food, form, equipment, label/menu, and physique progress photos
 - Daily nutrition tracking
+- Collapsed `Nutrition detail layers` so macro pacing, next-meal building, meal logging, plate assembly, targets, hydration, and body-composition reasoning remain accessible without overwhelming a beginner
 - Meal Templates for quick-add high-protein meals
 - Next Meal Builder for practical next-meal macro targets, timing, portion uncertainty, and photo/label cues
 - Meal Logging Coach for coach prefill, recommended template selection, food/menu/label photo capture, and AI review linkage

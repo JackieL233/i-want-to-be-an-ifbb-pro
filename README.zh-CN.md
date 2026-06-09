@@ -40,6 +40,8 @@
 - `Daily detail layers / 今日细节层`：`Start Here / 从这里开始`、AI 设置、Command Center、Daily Execution Plan、Daily Coach Checklist、Tomorrow Coach Brief、Weekly Check-in、趋势、恢复、体成分等专业内容默认收在细节层里，需要看原因或做深度检查时再展开。
 - `Workout Flow Coach / 训练执行教练`：`Training` 第一屏只突出下一步动作，例如载入计划、热身、完成下一组、开始休息、训练收尾或运行 AI 复盘；正常训练时用户主要点击 `Complete set + start rest`，不用先读完所有分析模块。
 - `Professional detail layers / 专业细节层`：Training Readiness Builder、Warm-up Ramp Plan、Next Set Coach、Session Quality Dashboard 和 Training Closeout Coach 默认收在专业细节层里，需要理解原因或调整策略时再展开，避免新手一打开训练页就被信息淹没。
+- `Meal Flow Coach / 餐食流程教练`：`Nutrition` 第一屏只突出下一餐该怎么吃、下一餐宏量目标、推荐模板、食物照片入口和一个 `Prefill next meal / 填入下一餐` 主按钮；用户先执行下一餐，再决定是否展开细节。
+- `Nutrition detail layers / 饮食细节层`：Nutrition Pacing、Next Meal Builder、Meal Logging Coach、Meal Assembly Guide、Nutrition Targets、Body Composition Guidance、Conditioning & Hydration 和 Meal Templates 默认收在饮食细节层里，需要看宏量推理、目标设置或补水/有氧变量时再展开。
 - `AI Setup & Review Readiness / AI 设置与复盘就绪状态`：用 `AiSetupStatus`、`AiSetupStatusCard` 和 `AiSettings.isConfigured()` 检查 API key、base URL、model 和照片上下文；如果设置缺失，每日闭环会先引导用户去 `AI Coach` 设置，而不是到最后一步才报 API 错误，训练、饮食、身体数据和照片仍会继续本地保存。
 - `Today` Command Center：首页显示 readiness、下一步行动、训练、饮食、恢复和体成分卡片，让新手知道先做什么，也让进阶用户快速扫关键数据。
 - Daily Execution Plan：在 `Today` 中把当天训练执行、饮食缺口、恢复状态、数据完整度和 AI 复盘时机合成一个主决策层，显示 priority focus、primary action、training decision、nutrition decision、recovery decision、data quality gate、AI review gate 和 plan adjustment signal，让用户每天打开 app 后知道第一件事该做什么。
@@ -66,6 +68,7 @@
 - Progression Cue：每个训练动作会根据完成组数、实际次数、RIR 和疼痛/动作备注，提示下次应该加次数、加重量、保持、修改动作或先完成基础组数。
 - Exercise Substitution Coach：每个训练动作都会给出临场替代建议；如果器械被占、不可用、动作疼痛、动作技术不稳定或用户档案里的器械条件不匹配，App 会推荐一个 primaryOption 和多个 secondaryOptions，并标明 trigger reason、same target muscle、same movement pattern、preserve rep range、fatigue cost、keepIntentCue、loadAdjustmentCue 和 visual guide ID。它不会静默改掉训练日志，而是帮助用户在训练现场保持同样训练意图继续练，并让 AI 复盘知道这次替代为什么发生。
 - 休息倒计时：点击一组 `Complete` 后自动启动休息倒计时。
+- Meal Flow Coach：把 Nutrition Pacing、Next Meal Builder、推荐餐食模板、食物照片和 AI 饮食复盘压缩成一个下一餐动作，让新手打开饮食页先知道“下一餐吃什么、拍什么、点什么”。
 - Nutrition Pacing：显示今天热量、蛋白质、碳水、脂肪、纤维还剩多少或已经超出多少，给出宏量营养执行分数和下一餐建议，让用户知道接下来该优先吃什么。
 - Next Meal Builder：把剩余热量、蛋白质、碳水、脂肪、纤维和训练需求转换成下一餐可执行目标，包含下一餐大概 P/C/F/纤维克数、meal timing cue、portion uncertainty cue 和照片/标签提示。
 - Meal Assembly Guide：把 Next Meal Builder 的宏量目标翻译成新手可以直接照做的一盘饭，包括 plate structure、protein anchor、carb anchor、fat control、fiber/micros、shopping cue、prep cue、photo/logging cue 和 avoid cue，帮助用户知道下一餐该选什么食材、怎么控制油和酱料、什么时候需要拍照给 AI 估算。
