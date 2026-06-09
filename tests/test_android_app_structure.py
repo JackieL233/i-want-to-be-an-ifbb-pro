@@ -1778,6 +1778,12 @@ class AndroidAppStructureTest(unittest.TestCase):
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
+        self.assertIn('.panel[data-panel="ai"][aria-label="AI Coach"]', html)
+        self.assertIn('.panel[data-panel="ai"][aria-label="AI daily overview"]', html)
+        self.assertLess(
+            html.index('.panel[data-panel="ai"][aria-label="AI Coach"]'),
+            html.index('.panel[data-panel="ai"][aria-label="AI daily overview"]'),
+        )
 
     def test_skill_assets_define_exercise_visual_guide_categories(self) -> None:
         skill_library = (ROOT / "skills/i-want-to-be-an-ifbb-pro/references/exercise-library.md").read_text(

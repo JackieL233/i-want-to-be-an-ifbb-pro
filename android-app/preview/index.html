@@ -74,6 +74,8 @@
       overflow: auto;
       padding: 18px 16px 92px;
       scrollbar-width: thin;
+      display: flex;
+      flex-direction: column;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(245, 245, 247, 0.96) 34%),
         var(--bg);
@@ -251,6 +253,14 @@
     .panel.active {
       display: grid;
       gap: 12px;
+    }
+
+    .panel[data-panel="ai"][aria-label="AI Coach"] {
+      order: 1;
+    }
+
+    .panel[data-panel="ai"][aria-label="AI daily overview"] {
+      order: 2;
     }
 
     .section {
