@@ -1222,6 +1222,75 @@ class AndroidAppStructureTest(unittest.TestCase):
         self.assertNotIn('data-tab="today"', preview)
         self.assertNotIn('data-tab="plan"', preview)
 
+    def test_metrics_health_data_layer_uses_localized_labels(self) -> None:
+        ui = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt").read_text(
+            encoding="utf-8"
+        )
+        preview = (APP / "preview/index.html").read_text(encoding="utf-8")
+        expected_terms = [
+            "private fun ConditioningHydrationCard(",
+            "language: AppLanguage",
+            "private fun TrendOverviewCard(logs: List<DailyLog>, language: AppLanguage)",
+            "private fun RecoveryGuidanceCard(guidance: RecoveryGuidance, subtitle: String, language: AppLanguage)",
+            "private fun PhysiqueMeasurementSummaryCard(summary: PhysiqueMeasurementSummary, language: AppLanguage)",
+            "HealthSnapshot.localizedMessage",
+            'language.t("Health Connect", "健康数据连接")',
+            'language.t("Connect health data", "连接健康数据")',
+            'language.t("Sync today", "同步今天")',
+            'language.t("Physique Photo Check-in", "体型照片打卡")',
+            'language.t("Metrics", "身体数据")',
+            'language.t("Body composition", "身体组成")',
+            'language.t("Weight kg", "体重 kg")',
+            'language.t("Body fat %", "体脂 %")',
+            'language.t("Chest cm", "胸围 cm")',
+            'language.t("Shoulder cm", "肩围 cm")',
+            'language.t("Left arm cm", "左臂 cm")',
+            'language.t("Right thigh cm", "右大腿 cm")',
+            'language.t("Recovery inputs", "恢复输入")',
+            'language.t("Daily reflection", "每日反思")',
+            'language.t("7-Day Trend", "7 日趋势")',
+            'language.t("Manual fallback", "手动补录")',
+            "Vendor data is readable only when the source app writes compatible records into Health Connect",
+            "Huawei Health Kit can be added as a dedicated provider",
+        ]
+        for term in expected_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, ui)
+
+        forbidden_terms = [
+            'Text("Connect health data")',
+            'Text("Progress photo")',
+            'label = { Text("Daily reflection") }',
+            'title = "Health Connect"',
+            'title = "Physique Photo Check-in"',
+            'private fun TrendOverviewCard(logs: List<DailyLog>)',
+            'private fun RecoveryGuidanceCard(guidance: RecoveryGuidance, subtitle: String)',
+            'private fun PhysiqueMeasurementSummaryCard(summary: PhysiqueMeasurementSummary)',
+        ]
+        for term in forbidden_terms:
+            with self.subTest(term=term):
+                self.assertNotIn(term, ui)
+
+        preview_terms = [
+            'data-zh="健康数据连接"',
+            'data-zh="连接健康数据"',
+            'data-zh="同步今天"',
+            'data-zh="恢复建议"',
+            'data-zh="有氧、活动量与补水"',
+            'data-zh="体型围度摘要"',
+            'data-zh="体型照片打卡"',
+            'data-zh="体型围度"',
+            'data-zh="胸围 cm"',
+            'data-zh="肩围 cm"',
+            'data-zh="左臂 cm"',
+            'data-zh="右大腿 cm"',
+            'data-zh="恢复输入"',
+            'data-zh="手动补录"',
+        ]
+        for term in preview_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, preview)
+
     def test_health_connect_integration_is_structured_and_permissioned(self) -> None:
         gradle = (APP / "app/build.gradle.kts").read_text(encoding="utf-8")
         manifest = (APP / "app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")

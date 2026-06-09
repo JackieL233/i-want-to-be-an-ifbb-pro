@@ -121,6 +121,7 @@ import com.iwanttobeanifbbpro.app.data.TrainingDay
 import com.iwanttobeanifbbpro.app.data.mealTemplates
 import com.iwanttobeanifbbpro.app.data.trainingPlanTemplates
 import com.iwanttobeanifbbpro.app.health.HealthConnectRepository
+import com.iwanttobeanifbbpro.app.health.HealthSnapshot
 import java.util.Locale
 
 @Composable
@@ -813,23 +814,27 @@ private fun ConditioningHydrationCard(
     log: DailyLog,
     recentLogs: List<DailyLog>,
     profile: AthleteProfile,
+    language: AppLanguage,
     onConditioningChange: ((DailyConditioning) -> Unit)? = null,
     compact: Boolean = false
 ) {
     val guidance = conditioningHydrationGuidance(log, recentLogs, profile)
     val conditioning = log.conditioning
     SectionCard(
-        title = "Conditioning & Hydration",
-        subtitle = "Steps, cardio, water, sodium, caffeine, digestion, and scale-weight noise before changing calories or volume."
+        title = language.t("Conditioning & Hydration", "有氧、活动量与补水"),
+        subtitle = language.t(
+            "Steps, cardio, water, sodium, caffeine, digestion, and scale-weight noise before changing calories or volume.",
+            "调整热量或训练量前，先看步数、有氧、水、钠、咖啡因、消化和体重波动噪音。"
+        )
     ) {
         MetricGrid(
             metrics = listOf(
-                "Status" to guidance.statusLabel,
-                "Score" to guidance.conditioningScore.toString(),
-                "Steps" to "${log.metrics.steps}/${conditioning.stepGoal}",
-                "Cardio" to "${conditioning.cardioMinutes} min",
-                "Water" to formatOptional(conditioning.waterLiters, "L"),
-                "Caffeine" to (conditioning.caffeineMg?.let { "$it mg" } ?: "--")
+                language.t("Status", "状态") to guidance.statusLabel,
+                language.t("Score", "评分") to guidance.conditioningScore.toString(),
+                language.t("Steps", "步数") to "${log.metrics.steps}/${conditioning.stepGoal}",
+                language.t("Cardio", "有氧") to "${conditioning.cardioMinutes} min",
+                language.t("Water", "饮水") to formatOptional(conditioning.waterLiters, "L"),
+                language.t("Caffeine", "咖啡因") to (conditioning.caffeineMg?.let { "$it mg" } ?: "--")
             )
         )
         LinearProgressIndicator(
@@ -2083,11 +2088,22 @@ private fun BeginnerGuideCard(
 }
 
 @Composable
-private fun TrendOverviewCard(logs: List<DailyLog>) {
+private fun TrendOverviewCard(logs: List<DailyLog>, language: AppLanguage) {
     val window = logs.sortedBy { it.date }.takeLast(7)
     if (window.isEmpty()) {
-        SectionCard(title = "7-Day Trend", subtitle = "Recent logs will appear here after you save a few days.") {
-            EmptyState("Log training, meals, and metrics for several days to unlock trend-based AI adjustments.")
+        SectionCard(
+            title = language.t("7-Day Trend", "7 日趋势"),
+            subtitle = language.t(
+                "Recent logs will appear here after you save a few days.",
+                "保存几天记录后，近期趋势会显示在这里。"
+            )
+        ) {
+            EmptyState(
+                language.t(
+                    "Log training, meals, and metrics for several days to unlock trend-based AI adjustments.",
+                    "连续记录几天训练、餐食和身体数据后，AI 才能基于趋势做调整。"
+                )
+            )
         }
         return
     }
@@ -2105,22 +2121,32 @@ private fun TrendOverviewCard(logs: List<DailyLog>) {
     val avgSteps = window.map { it.metrics.steps }.averageIntOrNull()
     val totalCompletedSets = window.sumOf { it.completedHardSets() }
     val totalPlannedSets = window.sumOf { it.plannedHardSets() }
-    SectionCard(title = "7-Day Trend", subtitle = "Used by AI review to avoid overreacting to a single day.") {
+    SectionCard(
+        title = language.t("7-Day Trend", "7 日趋势"),
+        subtitle = language.t(
+            "Used by AI review to avoid overreacting to a single day.",
+            "用于 AI 复盘，避免因为单日波动过度调整。"
+        )
+    ) {
         MetricGrid(
             metrics = listOf(
-                "Days" to window.size.toString(),
-                "Weight" to weightChange,
-                "Avg kcal" to (avgCalories?.let { formatDecimal(it) } ?: "--"),
-                "Avg protein" to (avgProtein?.let { "${formatDecimal(it)} g" } ?: "--"),
-                "Avg sleep" to (avgSleep?.let { "${formatDecimal(it)} h" } ?: "--"),
-                "Avg steps" to (avgSteps?.let { formatDecimal(it) } ?: "--"),
-                "Hard sets" to "$totalCompletedSets/$totalPlannedSets"
+                language.t("Days", "天数") to window.size.toString(),
+                language.t("Weight", "体重") to weightChange,
+                language.t("Avg kcal", "平均热量") to (avgCalories?.let { formatDecimal(it) } ?: "--"),
+                language.t("Avg protein", "平均蛋白") to (avgProtein?.let { "${formatDecimal(it)} g" } ?: "--"),
+                language.t("Avg sleep", "平均睡眠") to (avgSleep?.let { "${formatDecimal(it)} h" } ?: "--"),
+                language.t("Avg steps", "平均步数") to (avgSteps?.let { formatDecimal(it) } ?: "--"),
+                language.t("Hard sets", "有效组") to "$totalCompletedSets/$totalPlannedSets"
             )
         )
         window.forEach { day ->
             val totals = day.nutritionTotals()
             Text(
-                text = "${day.date}: ${day.completedHardSets()}/${day.plannedHardSets()} sets, ${totals.calories} kcal, P ${totals.protein} g, sleep ${formatOptional(day.metrics.sleepHours, "h")}, weight ${formatOptional(day.metrics.bodyWeightKg, "kg")}",
+                text = if (language == AppLanguage.CHINESE) {
+                    "${day.date}: ${day.completedHardSets()}/${day.plannedHardSets()} 组, ${totals.calories} kcal, 蛋白 ${totals.protein} g, 睡眠 ${formatOptional(day.metrics.sleepHours, "h")}, 体重 ${formatOptional(day.metrics.bodyWeightKg, "kg")}"
+                } else {
+                    "${day.date}: ${day.completedHardSets()}/${day.plannedHardSets()} sets, ${totals.calories} kcal, P ${totals.protein} g, sleep ${formatOptional(day.metrics.sleepHours, "h")}, weight ${formatOptional(day.metrics.bodyWeightKg, "kg")}"
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -2336,6 +2362,7 @@ private fun TodayDashboard(
             log = log,
             recentLogs = state.recentLogs,
             profile = state.athleteProfile,
+            language = language,
             compact = true
         )
             RecoveryGuidanceCard(
@@ -2343,9 +2370,10 @@ private fun TodayDashboard(
             subtitle = language.t(
                 "Sleep, soreness, stress, resting HR, and set pressure before pushing harder.",
                 "继续加压前，先看睡眠、酸痛、压力、静息心率和训练组压力。"
-            )
+            ),
+            language = language
         )
-            TrendOverviewCard(logs = state.recentLogs)
+            TrendOverviewCard(logs = state.recentLogs, language = language)
             BeginnerGuideCard(
             language = language,
             onOpenPlan = onOpenPlan,
@@ -2776,18 +2804,18 @@ private fun BodyCompositionCard(guidance: BodyCompositionGuidance, subtitle: Str
 }
 
 @Composable
-private fun RecoveryGuidanceCard(guidance: RecoveryGuidance, subtitle: String) {
-    SectionCard(title = "Recovery Guidance", subtitle = subtitle) {
+private fun RecoveryGuidanceCard(guidance: RecoveryGuidance, subtitle: String, language: AppLanguage) {
+    SectionCard(title = language.t("Recovery Guidance", "恢复建议"), subtitle = subtitle) {
         MetricGrid(
             metrics = listOf(
-                "Status" to guidance.statusLabel,
-                "Score" to guidance.readinessScore.toString(),
-                "Pressure" to guidance.trainingPressure,
-                "Sleep signal" to guidance.sleepSignal,
-                "Stress signal" to guidance.stressSignal,
-                "Soreness" to guidance.sorenessSignal,
-                "HR signal" to guidance.heartRateSignal,
-                "Training action" to guidance.recommendedTrainingAction
+                language.t("Status", "状态") to guidance.statusLabel,
+                language.t("Score", "评分") to guidance.readinessScore.toString(),
+                language.t("Pressure", "训练压力") to guidance.trainingPressure,
+                language.t("Sleep signal", "睡眠信号") to guidance.sleepSignal,
+                language.t("Stress signal", "压力信号") to guidance.stressSignal,
+                language.t("Soreness", "酸痛") to guidance.sorenessSignal,
+                language.t("HR signal", "心率信号") to guidance.heartRateSignal,
+                language.t("Training action", "训练动作") to guidance.recommendedTrainingAction
             )
         )
         Text(
@@ -2796,7 +2824,7 @@ private fun RecoveryGuidanceCard(guidance: RecoveryGuidance, subtitle: String) {
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = "Next action: ${guidance.nextAction}",
+            text = language.t("Next action: ${guidance.nextAction}", "下一步：${guidance.nextAction}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -5287,6 +5315,7 @@ private fun NutritionPage(
                 log = state.dailyLog,
                 recentLogs = state.recentLogs,
                 profile = state.athleteProfile,
+                language = language,
                 onConditioningChange = onConditioningChange
             )
             MealTemplateLibrary(language = language, onAddMealTemplate = onAddMealTemplate)
@@ -5617,47 +5646,61 @@ private fun MetricsPage(
             )
         RecoveryGuidanceCard(
             guidance = recoveryGuidance(state.dailyLog, state.recentLogs),
-            subtitle = "Conservative training-pressure guidance from logged recovery and health signals."
+            subtitle = language.t(
+                "Conservative training-pressure guidance from logged recovery and health signals.",
+                "根据已记录的恢复和健康信号，给出保守的训练压力建议。"
+            ),
+            language = language
         )
         ConditioningHydrationCard(
             log = state.dailyLog,
             recentLogs = state.recentLogs,
             profile = state.athleteProfile,
+            language = language,
             onConditioningChange = onConditioningChange
         )
-        PhysiqueMeasurementSummaryCard(summary = physiqueMeasurementSummary(state.dailyLog, state.recentLogs))
+        PhysiqueMeasurementSummaryCard(summary = physiqueMeasurementSummary(state.dailyLog, state.recentLogs), language = language)
         SectionCard(
-            title = "Physique Photo Check-in",
-            subtitle = "Attach progress photos under consistent lighting, posture, distance, and pump state."
+            title = language.t("Physique Photo Check-in", "体型照片打卡"),
+            subtitle = language.t(
+                "Attach progress photos under consistent lighting, posture, distance, and pump state.",
+                "在一致的光线、姿势、距离和充血状态下添加进度照片。"
+            )
         ) {
             DataChipGrid(
                 items = listOf(
-                    "Front/side/back",
-                    "Same lighting",
-                    "Same distance",
-                    "Same pump state",
-                    "Compare with measurements"
+                    language.t("Front/side/back", "正面/侧面/背面"),
+                    language.t("Same lighting", "相同光线"),
+                    language.t("Same distance", "相同距离"),
+                    language.t("Same pump state", "相同充血状态"),
+                    language.t("Compare with measurements", "和围度一起比较")
                 )
             )
             ElevatedButton(onClick = onPickPhysiquePhoto, modifier = Modifier.fillMaxWidth()) {
-                Text("Progress photo")
+                Text(language.t("Progress photo", "体型照片"))
             }
         }
         PhotoEvidenceCard(photoEvidence = state.dailyLog.photoEvidence, language = language, compact = true)
-        TrendOverviewCard(logs = state.recentLogs)
-        SectionCard(title = "Metrics", subtitle = "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.") {
-            Text("Body composition", fontWeight = FontWeight.SemiBold)
+        TrendOverviewCard(logs = state.recentLogs, language = language)
+        SectionCard(
+            title = language.t("Metrics", "身体数据"),
+            subtitle = language.t(
+                "These recovery and physique signals help AI decide whether to push, hold, deload, or adjust food.",
+                "这些恢复和体型信号会帮助 AI 判断是推进、保持、减量、deload，还是调整饮食。"
+            )
+        ) {
+            Text(language.t("Body composition", "身体组成"), fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DecimalField(
                     value = metrics.bodyWeightKg?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(bodyWeightKg = it.toDoubleOrNull())) },
-                    label = "Weight kg",
+                    label = language.t("Weight kg", "体重 kg"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.bodyFatPercent?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(bodyFatPercent = it.toDoubleOrNull())) },
-                    label = "Body fat %",
+                    label = language.t("Body fat %", "体脂 %"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5665,19 +5708,22 @@ private fun MetricsPage(
                 DecimalField(
                     value = metrics.leanBodyMassKg?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(leanBodyMassKg = it.toDoubleOrNull())) },
-                    label = "Lean mass kg",
+                    label = language.t("Lean mass kg", "瘦体重 kg"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.waistCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(waistCm = it.toDoubleOrNull())) },
-                    label = "Waist cm",
+                    label = language.t("Waist cm", "腰围 cm"),
                     modifier = Modifier.weight(1f)
                 )
             }
-            Text("Physique Measurements", fontWeight = FontWeight.SemiBold)
+            Text(language.t("Physique Measurements", "体型围度"), fontWeight = FontWeight.SemiBold)
             Text(
-                text = "Track bodybuilding-relevant dimensions in cm so AI can compare waist control, shoulder/chest growth, arm/thigh symmetry, and physique proportion trends.",
+                text = language.t(
+                    "Track bodybuilding-relevant dimensions in cm so AI can compare waist control, shoulder/chest growth, arm/thigh symmetry, and physique proportion trends.",
+                    "用 cm 记录健美相关围度，让 AI 比较腰围控制、肩胸增长、手臂/大腿对称和体型比例趋势。"
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -5685,13 +5731,13 @@ private fun MetricsPage(
                 DecimalField(
                     value = metrics.chestCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(chestCm = it.toDoubleOrNull())) },
-                    label = "Chest cm",
+                    label = language.t("Chest cm", "胸围 cm"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.shoulderCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(shoulderCm = it.toDoubleOrNull())) },
-                    label = "Shoulder cm",
+                    label = language.t("Shoulder cm", "肩围 cm"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5699,13 +5745,13 @@ private fun MetricsPage(
                 DecimalField(
                     value = metrics.hipCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(hipCm = it.toDoubleOrNull())) },
-                    label = "Hip cm",
+                    label = language.t("Hip cm", "臀围 cm"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.neckCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(neckCm = it.toDoubleOrNull())) },
-                    label = "Neck cm",
+                    label = language.t("Neck cm", "颈围 cm"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5713,13 +5759,13 @@ private fun MetricsPage(
                 DecimalField(
                     value = metrics.leftArmCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(leftArmCm = it.toDoubleOrNull())) },
-                    label = "Left arm cm",
+                    label = language.t("Left arm cm", "左臂 cm"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.rightArmCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(rightArmCm = it.toDoubleOrNull())) },
-                    label = "Right arm cm",
+                    label = language.t("Right arm cm", "右臂 cm"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5727,38 +5773,38 @@ private fun MetricsPage(
                 DecimalField(
                     value = metrics.leftThighCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(leftThighCm = it.toDoubleOrNull())) },
-                    label = "Left thigh cm",
+                    label = language.t("Left thigh cm", "左大腿 cm"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.rightThighCm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(rightThighCm = it.toDoubleOrNull())) },
-                    label = "Right thigh cm",
+                    label = language.t("Right thigh cm", "右大腿 cm"),
                     modifier = Modifier.weight(1f)
                 )
             }
             DataChipGrid(
                 items = listOf(
-                    "waist-to-shoulder trend",
-                    "arm symmetry",
-                    "thigh symmetry",
-                    "chest/shoulder growth",
-                    "hip and waist control",
-                    "weekly tape-measure check-in"
+                    language.t("waist-to-shoulder trend", "肩腰比例趋势"),
+                    language.t("arm symmetry", "手臂对称"),
+                    language.t("thigh symmetry", "大腿对称"),
+                    language.t("chest/shoulder growth", "胸肩增长"),
+                    language.t("hip and waist control", "臀围与腰围控制"),
+                    language.t("weekly tape-measure check-in", "每周卷尺打卡")
                 )
             )
-            Text("Recovery inputs", fontWeight = FontWeight.SemiBold)
+            Text(language.t("Recovery inputs", "恢复输入"), fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DecimalField(
                     value = metrics.sleepHours?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(sleepHours = it.toDoubleOrNull())) },
-                    label = "Sleep h",
+                    label = language.t("Sleep h", "睡眠 h"),
                     modifier = Modifier.weight(1f)
                 )
                 NumberField(
                     value = metrics.steps.toString(),
                     onChange = { onMetricsChange(metrics.copy(steps = it.toIntOrNull() ?: metrics.steps)) },
-                    label = "Steps",
+                    label = language.t("Steps", "步数"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5766,13 +5812,13 @@ private fun MetricsPage(
                 DecimalField(
                     value = metrics.restingHeartRateBpm?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(restingHeartRateBpm = it.toDoubleOrNull())) },
-                    label = "Resting HR",
+                    label = language.t("Resting HR", "静息心率"),
                     modifier = Modifier.weight(1f)
                 )
                 DecimalField(
                     value = metrics.totalCaloriesBurnedKcal?.toString().orEmpty(),
                     onChange = { onMetricsChange(metrics.copy(totalCaloriesBurnedKcal = it.toDoubleOrNull())) },
-                    label = "Burned kcal",
+                    label = language.t("Burned kcal", "消耗 kcal"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5780,13 +5826,13 @@ private fun MetricsPage(
                 NumberField(
                     value = metrics.hunger.toString(),
                     onChange = { onMetricsChange(metrics.copy(hunger = it.toIntOrNull() ?: metrics.hunger)) },
-                    label = "Hunger 1-5",
+                    label = language.t("Hunger 1-5", "饥饿 1-5"),
                     modifier = Modifier.weight(1f)
                 )
                 NumberField(
                     value = metrics.fatigue.toString(),
                     onChange = { onMetricsChange(metrics.copy(fatigue = it.toIntOrNull() ?: metrics.fatigue)) },
-                    label = "Fatigue 1-5",
+                    label = language.t("Fatigue 1-5", "疲劳 1-5"),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -5794,19 +5840,22 @@ private fun MetricsPage(
                 NumberField(
                     value = metrics.soreness.toString(),
                     onChange = { onMetricsChange(metrics.copy(soreness = it.toIntOrNull() ?: metrics.soreness)) },
-                    label = "Soreness 1-5",
+                    label = language.t("Soreness 1-5", "酸痛 1-5"),
                     modifier = Modifier.weight(1f)
                 )
                 NumberField(
                     value = metrics.stress.toString(),
                     onChange = { onMetricsChange(metrics.copy(stress = it.toIntOrNull() ?: metrics.stress)) },
-                    label = "Stress 1-5",
+                    label = language.t("Stress 1-5", "压力 1-5"),
                     modifier = Modifier.weight(1f)
                 )
             }
             if (metrics.healthDataSource.isNotBlank()) {
                 Text(
-                    text = "Last health sync: ${metrics.healthDataSource} at ${metrics.healthSyncedAt.ifBlank { "--" }}",
+                    text = language.t(
+                        "Last health sync: ${metrics.healthDataSource} at ${metrics.healthSyncedAt.ifBlank { "--" }}",
+                        "最近健康同步：${metrics.healthDataSource}，时间 ${metrics.healthSyncedAt.ifBlank { "--" }}"
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -5815,12 +5864,70 @@ private fun MetricsPage(
                 value = state.dailyLog.reflection,
                 onValueChange = onReflectionChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Daily reflection") },
+                label = { Text(language.t("Daily reflection", "每日反思")) },
                 minLines = 3
             )
         }
     }
+    }
 }
+
+private fun HealthSnapshot.localizedMessage(language: AppLanguage): String {
+    return when {
+        message == "Health Connect not checked yet." -> language.t(
+            "Health Connect not checked yet.",
+            "尚未检查 Health Connect。"
+        )
+        message == "Health Connect ready." -> language.t(
+            "Health Connect ready.",
+            "Health Connect 已就绪。"
+        )
+        message == "Health Connect needs to be installed or updated before syncing." -> language.t(
+            "Health Connect needs to be installed or updated before syncing.",
+            "同步前需要安装或更新 Health Connect。"
+        )
+        message == "Health Connect is not available on this device." -> language.t(
+            "Health Connect is not available on this device.",
+            "此设备暂不可用 Health Connect。"
+        )
+        message == "Health Connect permissions granted." -> language.t(
+            "Health Connect permissions granted.",
+            "Health Connect 权限已授权。"
+        )
+        message == "Health Connect permissions granted. Sync today's metrics next." -> language.t(
+            "Health Connect permissions granted. Sync today's metrics next.",
+            "Health Connect 权限已授权。下一步同步今天的身体数据。"
+        )
+        message == "Some Health Connect permissions were not granted; manual metrics still work." -> language.t(
+            "Some Health Connect permissions were not granted; manual metrics still work.",
+            "部分 Health Connect 权限未授权；仍可手动记录身体数据。"
+        )
+        message.startsWith("Health Connect permissions needed:") -> language.t(
+            message,
+            "仍需授权 Health Connect 权限：${message.substringAfter(":").trim()}"
+        )
+        message == "Connect health data before syncing body and recovery metrics." -> language.t(
+            "Connect health data before syncing body and recovery metrics.",
+            "同步身体与恢复数据前，请先连接健康数据。"
+        )
+        message.startsWith("Synced Health Connect metrics.") -> language.t(
+            message,
+            "已同步 Health Connect 数据。小米、华为、体脂秤、手表和手机数据在来源 App 写入兼容记录后会显示在这里。"
+        )
+        message == "Connected, but no supported Health Connect records were found for today's sync window." -> language.t(
+            "Connected, but no supported Health Connect records were found for today's sync window.",
+            "已连接，但今天的同步窗口内没有找到受支持的 Health Connect 记录。"
+        )
+        message == "Health Connect sync failed." -> language.t(
+            "Health Connect sync failed.",
+            "Health Connect 同步失败。"
+        )
+        message.isBlank() -> language.t(
+            "Connect Health Connect to import metrics into the AI review.",
+            "连接 Health Connect，把身体数据导入 AI 复盘。"
+        )
+        else -> message
+    }
 }
 
 @Composable
@@ -5830,23 +5937,27 @@ private fun HealthConnectCard(
     onSyncHealthData: () -> Unit
 ) {
     val snapshot = state.healthSnapshot
+    val language = state.appLanguage
     SectionCard(
-        title = "Health Connect",
-        subtitle = "Read user-authorized body and recovery records from Health Connect, then feed them into daily AI review."
+        title = language.t("Health Connect", "健康数据连接"),
+        subtitle = language.t(
+            "Read user-authorized body and recovery records from Health Connect, then feed them into daily AI review.",
+            "读取用户授权的身体与恢复记录，并纳入每日 AI 复盘。"
+        )
     ) {
         MetricGrid(
             metrics = listOf(
-                "Status" to when {
-                    snapshot.permissionsGranted -> "Authorized"
-                    snapshot.available -> "Needs access"
-                    else -> "Unavailable"
+                language.t("Status", "状态") to when {
+                    snapshot.permissionsGranted -> language.t("Authorized", "已授权")
+                    snapshot.available -> language.t("Needs access", "需要授权")
+                    else -> language.t("Unavailable", "不可用")
                 },
-                "Weight" to formatOptional(snapshot.bodyWeightKg, "kg"),
-                "Body fat" to formatOptional(snapshot.bodyFatPercent, "%"),
-                "Steps" to (snapshot.steps?.toString() ?: "--"),
-                "Sleep" to formatOptional(snapshot.sleepHours, "h"),
-                "Resting HR" to formatOptional(snapshot.restingHeartRateBpm, "bpm"),
-                "Calories" to formatOptional(snapshot.totalCaloriesBurnedKcal, "kcal")
+                language.t("Weight", "体重") to formatOptional(snapshot.bodyWeightKg, "kg"),
+                language.t("Body fat", "体脂") to formatOptional(snapshot.bodyFatPercent, "%"),
+                language.t("Steps", "步数") to (snapshot.steps?.toString() ?: "--"),
+                language.t("Sleep", "睡眠") to formatOptional(snapshot.sleepHours, "h"),
+                language.t("Resting HR", "静息心率") to formatOptional(snapshot.restingHeartRateBpm, "bpm"),
+                language.t("Calories", "消耗热量") to formatOptional(snapshot.totalCaloriesBurnedKcal, "kcal")
             )
         )
         DataChipGrid(
@@ -5854,16 +5965,19 @@ private fun HealthConnectCard(
                 "Xiaomi/Mi Fitness -> Health Connect",
                 "Huawei Health -> Health Connect or Health Kit",
                 "Scale/watch/phone -> Health Connect",
-                "Manual fallback"
+                language.t("Manual fallback", "手动补录")
             )
         )
         Text(
-            text = snapshot.message.ifBlank { "Connect Health Connect to import metrics into the AI review." },
+            text = snapshot.localizedMessage(language),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Vendor data is readable only when the source app writes compatible records into Health Connect and you approve permissions. Huawei Health Kit can be added as a dedicated provider for deeper Huawei ecosystem syncing.",
+            text = language.t(
+                "Vendor data is readable only when the source app writes compatible records into Health Connect and you approve permissions. Huawei Health Kit can be added as a dedicated provider for deeper Huawei ecosystem syncing.",
+                "只有来源 App 写入兼容的 Health Connect 记录，并且你授权后，App 才能读取厂商健康数据。未来可以接入 Huawei Health Kit，支持更深的华为生态同步。"
+            ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -5873,14 +5987,14 @@ private fun HealthConnectCard(
                 enabled = !state.isHealthSyncing,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Connect health data")
+                Text(language.t("Connect health data", "连接健康数据"))
             }
             ElevatedButton(
                 onClick = onSyncHealthData,
                 enabled = !state.isHealthSyncing,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(if (state.isHealthSyncing) "Syncing" else "Sync today")
+                Text(if (state.isHealthSyncing) language.t("Syncing", "同步中") else language.t("Sync today", "同步今天"))
             }
         }
         if (state.isHealthSyncing) {
@@ -5890,45 +6004,48 @@ private fun HealthConnectCard(
 }
 
 @Composable
-private fun PhysiqueMeasurementSummaryCard(summary: PhysiqueMeasurementSummary) {
+private fun PhysiqueMeasurementSummaryCard(summary: PhysiqueMeasurementSummary, language: AppLanguage) {
     SectionCard(
-        title = "Physique Measurement Summary",
-        subtitle = "Tape-measure trend, proportion, and symmetry signals for bodybuilding-style physique goals."
+        title = language.t("Physique Measurement Summary", "体型围度摘要"),
+        subtitle = language.t(
+            "Tape-measure trend, proportion, and symmetry signals for bodybuilding-style physique goals.",
+            "用卷尺趋势、比例和对称性信号服务健美式体型目标。"
+        )
     ) {
         MetricGrid(
             metrics = listOf(
-                "Status" to summary.statusLabel,
-                "Score" to summary.measurementScore.toString(),
-                "Shoulder/Waist" to (summary.shoulderWaistRatio?.let { formatDecimal(it) } ?: "--"),
-                "Arm diff" to (summary.armDifferenceCm?.let { "${formatDecimal(it)} cm" } ?: "--"),
-                "Thigh diff" to (summary.thighDifferenceCm?.let { "${formatDecimal(it)} cm" } ?: "--"),
-                "Waist change" to (summary.waistChangeCm?.let { "${formatSigned(it)} cm" } ?: "--")
+                language.t("Status", "状态") to summary.statusLabel,
+                language.t("Score", "评分") to summary.measurementScore.toString(),
+                language.t("Shoulder/Waist", "肩腰比") to (summary.shoulderWaistRatio?.let { formatDecimal(it) } ?: "--"),
+                language.t("Arm diff", "手臂差") to (summary.armDifferenceCm?.let { "${formatDecimal(it)} cm" } ?: "--"),
+                language.t("Thigh diff", "大腿差") to (summary.thighDifferenceCm?.let { "${formatDecimal(it)} cm" } ?: "--"),
+                language.t("Waist change", "腰围变化") to (summary.waistChangeCm?.let { "${formatSigned(it)} cm" } ?: "--")
             )
         )
         Text(
-            text = "Proportion cue: ${summary.proportionCue}",
+            text = language.t("Proportion cue: ${summary.proportionCue}", "比例提示：${summary.proportionCue}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Symmetry cue: ${summary.symmetryCue}",
+            text = language.t("Symmetry cue: ${summary.symmetryCue}", "对称提示：${summary.symmetryCue}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = "Tracking cue: ${summary.trackingCue}",
+            text = language.t("Tracking cue: ${summary.trackingCue}", "记录提示：${summary.trackingCue}"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         DataChipGrid(
             items = listOf(
-                "waist change",
-                "chest change",
-                "shoulder change",
-                "hip change",
-                "left/right arm",
-                "left/right thigh",
-                "V-taper direction"
+                language.t("waist change", "腰围变化"),
+                language.t("chest change", "胸围变化"),
+                language.t("shoulder change", "肩围变化"),
+                language.t("hip change", "臀围变化"),
+                language.t("left/right arm", "左右手臂"),
+                language.t("left/right thigh", "左右大腿"),
+                language.t("V-taper direction", "倒三角方向")
             )
         )
     }
