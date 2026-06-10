@@ -864,6 +864,14 @@ private data class ReviewReadinessChecklistItem(
     val onAction: () -> Unit
 )
 
+private data class AiChangeReceiptItem(
+    val label: String,
+    val detail: String,
+    val status: String,
+    val actionLabel: String,
+    val onAction: () -> Unit
+)
+
 private data class NextMealBuilder(
     val title: String,
     val summary: String,
@@ -2545,6 +2553,169 @@ private fun ReviewReadinessChecklistCard(
                 "Photo/API context",
                 "Fix missing evidence before AI changes training or food",
                 "复盘准备度"
+            )
+        )
+    }
+}
+
+@Composable
+private fun AiChangeReceiptCard(
+    reviewQueue: AiReviewActionQueue,
+    decision: AiIntegratedDecisionMatrix,
+    tomorrowBrief: TomorrowCoachBrief,
+    hasAiReviewToday: Boolean,
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit,
+    onDailyReview: () -> Unit
+) {
+    val appliedLabel = language.t("Applied to next workout", "已应用到下一次训练")
+    val heldLabel = language.t("Held until more evidence", "证据更多前保持不变")
+    val defaultStatus = if (hasAiReviewToday) appliedLabel else heldLabel
+    val recoveryStatus = if (decision.recoveryLever.contains("hold", ignoreCase = true)) {
+        heldLabel
+    } else {
+        defaultStatus
+    }
+    val items = listOf(
+        AiChangeReceiptItem(
+            label = language.t("Training changes", "训练变更"),
+            detail = if (hasAiReviewToday) tomorrowBrief.trainingAction else decision.splitDecision,
+            status = defaultStatus,
+            actionLabel = language.t("Open training", "打开训练"),
+            onAction = onOpenTraining
+        ),
+        AiChangeReceiptItem(
+            label = language.t("Rest changes", "休息变更"),
+            detail = language.t(
+                "Next-session rest timers follow the latest AI rest prescription and closeout quality.",
+                "下一次训练的休息倒计时会跟随最新 AI 休息处方和训练收尾质量。"
+            ),
+            status = defaultStatus,
+            actionLabel = language.t("Check rest", "查看休息"),
+            onAction = onOpenTraining
+        ),
+        AiChangeReceiptItem(
+            label = language.t("Nutrition changes", "饮食变更"),
+            detail = tomorrowBrief.nutritionAction,
+            status = defaultStatus,
+            actionLabel = language.t("Open food", "打开饮食"),
+            onAction = onOpenNutrition
+        ),
+        AiChangeReceiptItem(
+            label = language.t("Recovery guardrail", "恢复护栏"),
+            detail = tomorrowBrief.recoveryAction,
+            status = recoveryStatus,
+            actionLabel = language.t("Check recovery", "查看恢复"),
+            onAction = onOpenMetrics
+        ),
+        AiChangeReceiptItem(
+            label = language.t("Tracking lock", "追踪锁定"),
+            detail = tomorrowBrief.trackingAction,
+            status = defaultStatus,
+            actionLabel = language.t("Open AI", "打开 AI"),
+            onAction = onOpenAi
+        )
+    )
+    val primaryAction = {
+        if (hasAiReviewToday) {
+            performAiReviewAction(
+                action = reviewQueue.primaryAction,
+                onDailyReview = onDailyReview,
+                onOpenPlan = onOpenPlan,
+                onOpenTraining = onOpenTraining,
+                onOpenNutrition = onOpenNutrition,
+                onOpenMetrics = onOpenMetrics,
+                onOpenAi = onOpenAi
+            )
+        } else {
+            onDailyReview()
+        }
+    }
+
+    SectionCard(
+        title = language.t("AI Change Receipt", "AI 变更回执"),
+        subtitle = language.t(
+            "What changed for next session, what stayed held, and where to follow it.",
+            "下一次训练改了什么、哪些保持不变，以及从哪里继续执行。"
+        )
+    ) {
+        Text(
+            text = language.t("AI CHANGE RECEIPT", "AI 变更回执"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Source", "来源") to reviewQueue.sourceLabel,
+                language.t("Confidence", "可信度") to reviewQueue.confidenceLabel,
+                language.t("Next", "下一步") to reviewQueue.primaryAction.title,
+                language.t("Plan", "计划") to decision.splitDecision
+            )
+        )
+        Text(
+            text = language.t("What changed for next session", "下一次训练变更摘要"),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        items.forEach { item ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                color = IfbbProGlassStrongSurface
+            ) {
+                Row(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(item.label, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            text = item.status,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = item.detail,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    TextButton(onClick = item.onAction) {
+                        Text(item.actionLabel)
+                    }
+                }
+            }
+        }
+        Button(onClick = primaryAction, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                if (hasAiReviewToday) {
+                    reviewQueue.primaryAction.actionLabel
+                } else {
+                    language.t("Run review to apply changes", "运行复盘以应用变更")
+                }
+            )
+        }
+        DataChipGrid(
+            items = listOf(
+                "AiChangeReceiptCard",
+                "AI CHANGE RECEIPT",
+                "What changed for next session",
+                "Training changes",
+                "Rest changes",
+                "Nutrition changes",
+                "Recovery guardrail",
+                "Tracking lock",
+                "Applied to next workout",
+                "Held until more evidence",
+                "AI 变更回执"
             )
         )
     }
@@ -7968,6 +8139,19 @@ private fun AiCoachPage(
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi,
             onPickImages = onPickImages,
+            onDailyReview = onDailyReview
+        )
+        AiChangeReceiptCard(
+            reviewQueue = reviewQueue,
+            decision = integratedDecision,
+            tomorrowBrief = tomorrowBrief,
+            hasAiReviewToday = hasAiReviewToday,
+            language = language,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi,
             onDailyReview = onDailyReview
         )
         NextDayHandoffCard(

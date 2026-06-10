@@ -21,6 +21,7 @@ The preview mirrors the current Android app structure:
 - One-tap Metrics preview with `Metrics Flow Coach`, `NEXT METRICS ACTION`, `Auto health refresh ready`, `Refresh now`, progress-photo shortcut, sleep data, and AI review path before body-data analysis layers
 - One-tap AI review preview with `AI Review Flow Coach`, `NEXT AI REVIEW ACTION`, `Run daily review`, photo and mode shortcuts, and the AI evidence bundle before setup or data-map details
 - Review Readiness Checklist / 复盘准备度清单 on the AI page, showing training evidence, nutrition evidence, metrics evidence, photo/API context, and the missing-evidence gate before AI changes training or food
+- AI Change Receipt / AI 变更回执 after review readiness, showing what changed for the next session, what stayed held until more evidence, and where to follow training, rest, nutrition, recovery, and tracking updates
 - AI Integrated Decision Matrix before the deep detail layer, linking training effect, nutrition, body trend, sleep/recovery, photos, data confidence, and the 3-day / 4-day / 5-day split decision so AI can decide whether to hold or change the current split
 - AI Setup & Review Readiness with API key, base URL, model, photo context, missing setup, and AI review ready states
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal

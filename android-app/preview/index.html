@@ -865,6 +865,52 @@
       box-shadow: 0 0 0 5px rgba(255, 159, 10, 0.14);
     }
 
+    .ai-change-receipt-card {
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .ai-change-receipt-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(52, 199, 89, 0.10), rgba(0, 122, 255, 0.08) 58%, rgba(255, 255, 255, 0.24));
+      pointer-events: none;
+    }
+
+    .ai-change-receipt-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .change-receipt-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(209, 209, 214, 0.66);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(14px) saturate(140%);
+    }
+
+    .change-receipt-row strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.24;
+    }
+
+    .change-status {
+      color: var(--blue);
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 780;
+      margin-top: 3px;
+    }
+
     .set-table {
       width: 100%;
       border-collapse: collapse;
@@ -3680,6 +3726,64 @@
               </div>
             </div>
             <button class="button primary" type="button" data-en="Fix missing evidence" data-zh="补齐缺失证据">Fix missing evidence</button>
+          </div>
+
+          <div class="section glass ai-change-receipt-card">
+            <div class="section-head">
+              <p class="eyebrow" data-en="AI CHANGE RECEIPT" data-zh="AI 变更回执">AI CHANGE RECEIPT</p>
+              <h2 data-en="AI Change Receipt" data-zh="AI 变更回执">AI Change Receipt</h2>
+              <p class="subtle" data-en="What changed for next session, what stayed held, and where to follow it." data-zh="下一次训练改了什么、哪些保持不变，以及从哪里继续执行。">What changed for next session, what stayed held, and where to follow it.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="Source" data-zh="来源">Source</span><span class="value" data-en="Today review" data-zh="今日复盘">Today review</span></div>
+              <div class="metric"><span class="label" data-en="Confidence" data-zh="可信度">Confidence</span><span class="value">78%</span></div>
+              <div class="metric"><span class="label" data-en="Next" data-zh="下一步">Next</span><span class="value" data-en="Start tomorrow" data-zh="开始明天">Start tomorrow</span></div>
+              <div class="metric"><span class="label" data-en="Plan" data-zh="计划">Plan</span><span class="value" data-en="Hold 4-day" data-zh="保持四分化">Hold 4-day</span></div>
+            </div>
+            <h3 data-en="What changed for next session" data-zh="下一次训练变更摘要">What changed for next session</h3>
+            <div class="rows compact-rows">
+              <div class="change-receipt-row">
+                <div>
+                  <strong data-en="Training changes" data-zh="训练变更">Training changes</strong>
+                  <p class="change-status" data-en="Applied to next workout" data-zh="已应用到下一次训练">Applied to next workout</p>
+                  <p class="subtle" data-en="Keep the 4-day split; progress only the clean exercises and avoid bonus sets." data-zh="保持四分化；只推进动作质量干净的动作，避免额外加组。">Keep the 4-day split; progress only the clean exercises and avoid bonus sets.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="training" data-en="Open" data-zh="打开">Open</button>
+              </div>
+              <div class="change-receipt-row">
+                <div>
+                  <strong data-en="Rest changes" data-zh="休息变更">Rest changes</strong>
+                  <p class="change-status" data-en="Applied to next workout" data-zh="已应用到下一次训练">Applied to next workout</p>
+                  <p class="subtle" data-en="Next-session rest timers follow the latest AI rest prescription and closeout quality." data-zh="下一次训练的休息倒计时会跟随最新 AI 休息处方和训练收尾质量。">Next-session rest timers follow the latest AI rest prescription and closeout quality.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="training" data-en="Check" data-zh="查看">Check</button>
+              </div>
+              <div class="change-receipt-row">
+                <div>
+                  <strong data-en="Nutrition changes" data-zh="饮食变更">Nutrition changes</strong>
+                  <p class="change-status" data-en="Applied to next workout" data-zh="已应用到下一次训练">Applied to next workout</p>
+                  <p class="subtle" data-en="Hit protein earlier and place more carbs around the workout window." data-zh="更早补齐蛋白质，并把更多碳水放在训练窗口附近。">Hit protein earlier and place more carbs around the workout window.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="nutrition" data-en="Open" data-zh="打开">Open</button>
+              </div>
+              <div class="change-receipt-row">
+                <div>
+                  <strong data-en="Recovery guardrail" data-zh="恢复护栏">Recovery guardrail</strong>
+                  <p class="change-status" data-en="Held until more evidence" data-zh="证据更多前保持不变">Held until more evidence</p>
+                  <p class="subtle" data-en="If sleep, soreness, or resting HR is off, hold load and reduce optional work." data-zh="如果睡眠、酸痛或静息心率异常，保持重量并减少可选训练。">If sleep, soreness, or resting HR is off, hold load and reduce optional work.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="metrics" data-en="Check" data-zh="查看">Check</button>
+              </div>
+              <div class="change-receipt-row">
+                <div>
+                  <strong data-en="Tracking lock" data-zh="追踪锁定">Tracking lock</strong>
+                  <p class="change-status" data-en="Applied to next workout" data-zh="已应用到下一次训练">Applied to next workout</p>
+                  <p class="subtle" data-en="Tomorrow requires set logs, food, sleep, body weight, and photo context before another plan change." data-zh="明天再次改计划前，需要组记录、饮食、睡眠、体重和照片上下文。">Tomorrow requires set logs, food, sleep, body weight, and photo context before another plan change.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="ai" data-en="AI" data-zh="AI">AI</button>
+              </div>
+            </div>
+            <button class="button primary" type="button" data-tab-target="training" data-en="Start next applied step" data-zh="开始下一步已应用动作">Start next applied step</button>
           </div>
 
           <div class="section glass">
