@@ -677,6 +677,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "showMetricsDetails",
             "Show metrics details",
             "Hide metrics details",
+            "NEXT METRICS ACTION",
             "Metrics detail layers hidden",
             "Connect health data",
             "Sync today's metrics",

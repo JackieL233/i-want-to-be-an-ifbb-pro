@@ -6775,22 +6775,11 @@ private fun MetricsFlowCoachCard(
             "自动刷新健康与睡眠数据，补齐最小身体记录，并让恢复证据可用于 AI。"
         )
     ) {
-        MetricGrid(
-            metrics = listOf(
-                language.t("Health", "健康") to when {
-                    state.isHealthSyncing -> language.t("Refreshing", "刷新中")
-                    snapshot.permissionsGranted -> language.t("Authorized", "已授权")
-                    snapshot.available -> language.t("Needs access", "需要授权")
-                    else -> language.t("Manual", "手动")
-                },
-                language.t("Weight", "体重") to formatOptional(metrics.bodyWeightKg ?: snapshot.bodyWeightKg, "kg"),
-                language.t("Body fat", "体脂") to formatOptional(metrics.bodyFatPercent ?: snapshot.bodyFatPercent, "%"),
-                language.t("Sleep", "睡眠") to formatOptional(metrics.sleepHours ?: snapshot.sleepHours, "h"),
-                language.t("Steps", "步数") to ((metrics.steps.takeIf { it > 0 } ?: snapshot.steps)?.toString() ?: "--"),
-                language.t("Photo", "照片") to physiquePhotoCount.toString(),
-                language.t("Recovery", "恢复") to recovery.readinessScore.toString(),
-                language.t("Physique", "体型") to physique.measurementScore.toString()
-            )
+        Text(
+            text = language.t("NEXT METRICS ACTION", "下一步数据动作"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
         )
         Text(
             text = primaryTitle,
@@ -6805,36 +6794,57 @@ private fun MetricsFlowCoachCard(
         Button(onClick = primaryAction, enabled = primaryEnabled, modifier = Modifier.fillMaxWidth()) {
             Text(primaryLabel)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onToggleDetails, modifier = Modifier.weight(1f)) {
-                Text(
-                    if (showDetails) {
-                        language.t("Hide metrics details", "收起数据细节")
-                    } else {
-                        language.t("Show metrics details", "展开数据细节")
-                    }
-                )
-            }
-            TextButton(onClick = onSyncHealthData, enabled = !state.isHealthSyncing, modifier = Modifier.weight(1f)) {
-                Text(language.t("Refresh", "刷新"))
-            }
-            TextButton(onClick = onPickPhysiquePhoto, modifier = Modifier.weight(1f)) {
-                Text(language.t("Photo", "照片"))
-            }
-        }
-        DataChipGrid(
-            items = listOf(
-                language.t("Health Connect or manual fallback", "Health Connect 或手动补录"),
-                language.t("Auto refresh on app open after permission", "授权后打开 App 自动刷新"),
-                language.t("Weight, waist, sleep, steps, HR", "体重、腰围、睡眠、步数、心率"),
-                language.t("Progress photo linked to measurements", "体型照片联动围度"),
+        TextButton(onClick = onToggleDetails, modifier = Modifier.fillMaxWidth()) {
+            Text(
                 if (showDetails) {
-                    language.t("Metrics detail layers open", "数据细节层已展开")
+                    language.t("Hide metrics details", "收起数据细节")
                 } else {
-                    language.t("Metrics detail layers hidden", "数据细节层已收起")
+                    language.t("Show metrics details", "展开数据细节")
                 }
             )
-        )
+        }
+        if (showDetails) {
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Health", "健康") to when {
+                        state.isHealthSyncing -> language.t("Refreshing", "刷新中")
+                        snapshot.permissionsGranted -> language.t("Authorized", "已授权")
+                        snapshot.available -> language.t("Needs access", "需要授权")
+                        else -> language.t("Manual", "手动")
+                    },
+                    language.t("Weight", "体重") to formatOptional(metrics.bodyWeightKg ?: snapshot.bodyWeightKg, "kg"),
+                    language.t("Body fat", "体脂") to formatOptional(metrics.bodyFatPercent ?: snapshot.bodyFatPercent, "%"),
+                    language.t("Sleep", "睡眠") to formatOptional(metrics.sleepHours ?: snapshot.sleepHours, "h"),
+                    language.t("Steps", "步数") to ((metrics.steps.takeIf { it > 0 } ?: snapshot.steps)?.toString() ?: "--"),
+                    language.t("Photo", "照片") to physiquePhotoCount.toString(),
+                    language.t("Recovery", "恢复") to recovery.readinessScore.toString(),
+                    language.t("Physique", "体型") to physique.measurementScore.toString()
+                )
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = onSyncHealthData, enabled = !state.isHealthSyncing, modifier = Modifier.weight(1f)) {
+                    Text(language.t("Refresh", "刷新"))
+                }
+                TextButton(onClick = onPickPhysiquePhoto, modifier = Modifier.weight(1f)) {
+                    Text(language.t("Photo", "照片"))
+                }
+            }
+            DataChipGrid(
+                items = listOf(
+                    language.t("Health Connect or manual fallback", "Health Connect 或手动补录"),
+                    language.t("Auto refresh on app open after permission", "授权后打开 App 自动刷新"),
+                    language.t("Weight, waist, sleep, steps, HR", "体重、腰围、睡眠、步数、心率"),
+                    language.t("Progress photo linked to measurements", "体型照片联动围度"),
+                    language.t("Metrics detail layers open", "数据细节层已展开")
+                )
+            )
+        } else {
+            Text(
+                text = language.t("Metrics detail layers hidden", "数据细节层已收起"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
