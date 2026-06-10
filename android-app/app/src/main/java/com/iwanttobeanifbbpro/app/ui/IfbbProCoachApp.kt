@@ -66,6 +66,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.AiReviewActionItem
 import com.iwanttobeanifbbpro.app.core.AiReviewActionQueue
 import com.iwanttobeanifbbpro.app.core.AiIntegratedDecisionMatrix
+import com.iwanttobeanifbbpro.app.core.AiPlanAdjustmentProposal
 import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.ConditioningHydrationGuidance
@@ -88,6 +89,7 @@ import com.iwanttobeanifbbpro.app.core.WarmUpRampPlan
 import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.aiReviewActionQueue
 import com.iwanttobeanifbbpro.app.core.aiIntegratedDecisionMatrix
+import com.iwanttobeanifbbpro.app.core.aiPlanAdjustmentProposal
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.conditioningHydrationGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
@@ -3718,6 +3720,78 @@ private fun recommendedPlanReason(profile: AthleteProfile, template: TrainingPla
 }
 
 @Composable
+private fun AiPlanAdjustmentProposalCard(
+    proposal: AiPlanAdjustmentProposal,
+    language: AppLanguage,
+    onApplyTemplate: (String) -> Unit,
+    onApplyToday: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Text(
+                text = language.t("AI Plan Adjustment Proposal", "AI 计划调整提案"),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Status", "状态") to proposal.statusLabel,
+                    language.t("Template", "模板") to proposal.recommendedTemplateName,
+                    language.t("Confidence", "置信度") to proposal.confidenceLabel,
+                    language.t("Primary", "主动作") to proposal.primaryActionLabel
+                )
+            )
+            Text(
+                text = proposal.proposalTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = language.t("Split action: ${proposal.splitAction}", "分化动作：${proposal.splitAction}"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = language.t("Volume action: ${proposal.volumeAction}", "容量动作：${proposal.volumeAction}"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = language.t("Exercise action: ${proposal.exerciseAction}", "动作动作：${proposal.exerciseAction}"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            DataChipGrid(
+                items = listOf(
+                    proposal.nutritionGuardrail,
+                    proposal.recoveryGuardrail,
+                    "AI Plan Adjustment Proposal",
+                    "Apply AI split template",
+                    "template proposal from linked evidence"
+                )
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = { onApplyTemplate(proposal.recommendedTemplateId) },
+                    enabled = proposal.primaryActionLabel != "Collect evidence first",
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(proposal.primaryActionLabel)
+                }
+                ElevatedButton(onClick = onApplyToday, modifier = Modifier.weight(1f)) {
+                    Text(language.t("Apply today", "应用今天"))
+                }
+            }
+        }
+    }
+}
+
+@Composable
 @OptIn(ExperimentalLayoutApi::class)
 private fun PlanFlowCoachCard(
     state: CoachUiState,
@@ -3744,6 +3818,12 @@ private fun PlanFlowCoachCard(
     val templates = trainingPlanTemplates()
     val recommendedTemplate = trainingPlanTemplates().firstOrNull { it.id == recommendedPlanTemplateId(profile) }
         ?: trainingPlanTemplates().first()
+    val planProposal = aiPlanAdjustmentProposal(
+        log = state.dailyLog,
+        recentLogs = state.recentLogs,
+        profile = profile,
+        plan = plan
+    )
     val primaryTitle: String
     val primaryDetail: String
     val primaryLabel: String
@@ -3838,6 +3918,12 @@ private fun PlanFlowCoachCard(
             text = recommendedTemplate.localizedSubtitle(language),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        AiPlanAdjustmentProposalCard(
+            proposal = planProposal,
+            language = language,
+            onApplyTemplate = onApplyTemplate,
+            onApplyToday = { onApplyDay(selectedIndex) }
         )
         Text(
             text = primaryTitle,

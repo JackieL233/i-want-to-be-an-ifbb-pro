@@ -38,6 +38,12 @@ class DailySummaryBuilder {
             profile = profile,
             plan = plan ?: WeeklyTrainingPlan()
         )
+        val planAdjustmentProposal = aiPlanAdjustmentProposal(
+            log = log,
+            recentLogs = recentLogs,
+            profile = profile,
+            plan = plan ?: WeeklyTrainingPlan()
+        )
         val tomorrowBrief = tomorrowCoachBrief(
             log = log,
             recentLogs = recentLogs,
@@ -141,6 +147,7 @@ class DailySummaryBuilder {
             - ${dailyExecution.promptLine()}
             - ${weeklyCheckIn.promptLine()}
             - ${integratedDecision.promptLine()}
+            - ${planAdjustmentProposal.promptLine()}
             - ${tomorrowBrief.promptLine()}
             Meals:
             $meals
@@ -228,7 +235,8 @@ class DailySummaryBuilder {
             16. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
             17. Use Weekly Check-in before changing plan-wide volume or calorie targets: check days logged, training completion, average calories/protein, weight trend, recovery average, data quality gate, weak-point focus, and next-week action.
             18. Use AI Integrated Decision Matrix as the final all-data-linked decision layer: explicitly judge training effect, whether to hold or change the weekly split, whether the better split is 3-day, 4-day, or 5-day, what evidence supports that decision, what nutrition lever matters, what recovery lever matters, the data confidence level, what AI may change now, and what must not change until more data exists.
-            19. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
+            19. Use AI Plan Adjustment Proposal to turn the split decision into an actionable next-week template proposal: recommended template, split action, volume action, exercise action, nutrition guardrail, recovery guardrail, confidence, and whether the user should apply it now or collect more evidence.
+            20. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
         """.trimIndent()
     }
 

@@ -3,6 +3,7 @@ package com.iwanttobeanifbbpro.app.core
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
 import com.iwanttobeanifbbpro.app.data.DailyLog
 import com.iwanttobeanifbbpro.app.data.WeeklyTrainingPlan
+import com.iwanttobeanifbbpro.app.data.trainingPlanTemplates
 
 data class AiIntegratedDecisionMatrix(
     val statusLabel: String,
@@ -21,6 +22,25 @@ data class AiIntegratedDecisionMatrix(
 ) {
     fun promptLine(): String {
         return "AI Integrated Decision Matrix: $statusLabel | training effect: $trainingEffectVerdict | Split decision: $splitDecision | 3-day / 4-day / 5-day split decision | current split $currentSplit | recommended split $recommendedSplit | Nutrition lever: $nutritionLever | Recovery lever: $recoveryLever | data confidence $dataConfidencePercent% ($dataConfidenceLabel) | allowed changes now: $allowedChangesNow | do not change split until: $holdUntil | all data linked evidence: ${linkedEvidence.joinToString("; ")} | next action: $nextAction"
+    }
+}
+
+data class AiPlanAdjustmentProposal(
+    val statusLabel: String,
+    val proposalTitle: String,
+    val recommendedTemplateId: String,
+    val recommendedTemplateName: String,
+    val splitAction: String,
+    val volumeAction: String,
+    val exerciseAction: String,
+    val nutritionGuardrail: String,
+    val recoveryGuardrail: String,
+    val confidenceLabel: String,
+    val evidence: List<String>,
+    val primaryActionLabel: String
+) {
+    fun promptLine(): String {
+        return "AI Plan Adjustment Proposal: $statusLabel | proposal $proposalTitle | recommended template $recommendedTemplateName ($recommendedTemplateId) | split action: $splitAction | volume action: $volumeAction | exercise action: $exerciseAction | nutrition guardrail: $nutritionGuardrail | recovery guardrail: $recoveryGuardrail | confidence $confidenceLabel | evidence: ${evidence.joinToString("; ")} | primary action: $primaryActionLabel"
     }
 }
 
@@ -166,6 +186,74 @@ fun aiIntegratedDecisionMatrix(
         holdUntil = holdUntil,
         linkedEvidence = linkedEvidence,
         nextAction = nextAction
+    )
+}
+
+fun aiPlanAdjustmentProposal(
+    log: DailyLog,
+    recentLogs: List<DailyLog>,
+    profile: AthleteProfile,
+    plan: WeeklyTrainingPlan
+): AiPlanAdjustmentProposal {
+    val decision = aiIntegratedDecisionMatrix(log, recentLogs, profile, plan)
+    val templates = trainingPlanTemplates()
+    val currentTemplate = templates.firstOrNull { it.plan.name == plan.name }
+    val targetTemplateId = when {
+        decision.splitDecision.contains("3-day", ignoreCase = true) ||
+            decision.recommendedSplit.contains("3-day", ignoreCase = true) -> "beginner-full-body"
+        decision.splitDecision.contains("5-day", ignoreCase = true) ||
+            decision.recommendedSplit.contains("5-day", ignoreCase = true) -> "physique-priority"
+        else -> "four-day-hypertrophy"
+    }
+    val targetTemplate = templates.firstOrNull { it.id == targetTemplateId } ?: templates.first()
+    val shouldApplyTemplate = currentTemplate?.id != targetTemplate.id &&
+        decision.dataConfidencePercent >= 62 &&
+        !decision.splitDecision.startsWith("Hold", ignoreCase = true)
+    val statusLabel = when {
+        decision.dataConfidencePercent < 55 -> "Collect evidence before plan rewrite"
+        shouldApplyTemplate -> "Ready to draft split change"
+        decision.splitDecision.startsWith("Hold", ignoreCase = true) -> "Hold current split"
+        else -> "Review before applying"
+    }
+    val proposalTitle = when {
+        shouldApplyTemplate -> "Switch toward ${targetTemplate.title}"
+        statusLabel == "Hold current split" -> "Keep ${currentTemplate?.title ?: plan.name}"
+        else -> "Prepare ${targetTemplate.title} but wait for stronger evidence"
+    }
+    val splitAction = when {
+        shouldApplyTemplate -> "Apply ${targetTemplate.title} as the next weekly structure, then edit only exercises that conflict with equipment or pain."
+        statusLabel == "Hold current split" -> "Keep the current split and make only exercise-specific progression or substitutions."
+        else -> "Do not apply a new split yet; collect complete sets, food logs, body trend, and sleep/recovery."
+    }
+    val volumeAction = when {
+        decision.recoveryLever.contains("Trim", ignoreCase = true) ||
+            decision.recoveryLever.contains("deload", ignoreCase = true) -> "Reduce optional hard sets before increasing frequency."
+        shouldApplyTemplate -> "Keep starting volume conservative for the new split; do not add bonus sets in week 1."
+        else -> "Hold weekly hard sets and adjust only the weakest bottleneck."
+    }
+    val exerciseAction = when {
+        decision.trainingEffectVerdict.contains("pain", ignoreCase = true) -> "Use Exercise Substitution Coach before progressing painful movements."
+        decision.trainingEffectVerdict.contains("under-logged", ignoreCase = true) -> "Keep exercises stable until load, reps, and RIR logs are complete."
+        else -> "Use Exercise History and visual guide IDs to progress or substitute one movement at a time."
+    }
+    val primaryActionLabel = when {
+        shouldApplyTemplate -> "Apply AI split template"
+        statusLabel == "Hold current split" -> "Keep split and apply today"
+        else -> "Collect evidence first"
+    }
+    return AiPlanAdjustmentProposal(
+        statusLabel = statusLabel,
+        proposalTitle = proposalTitle,
+        recommendedTemplateId = targetTemplate.id,
+        recommendedTemplateName = targetTemplate.title,
+        splitAction = splitAction,
+        volumeAction = volumeAction,
+        exerciseAction = exerciseAction,
+        nutritionGuardrail = decision.nutritionLever,
+        recoveryGuardrail = decision.recoveryLever,
+        confidenceLabel = "${decision.dataConfidencePercent}% ${decision.dataConfidenceLabel}",
+        evidence = decision.linkedEvidence,
+        primaryActionLabel = primaryActionLabel
     )
 }
 
