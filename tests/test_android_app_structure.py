@@ -1056,8 +1056,14 @@ class AndroidAppStructureTest(unittest.TestCase):
             "After-set logging cue",
             "TomorrowCoachBrief",
             "TomorrowCoachBriefCard",
+            "NextDayHandoffCard",
             "tomorrowCoachBrief",
             "Tomorrow Coach Brief",
+            "Next Day Handoff",
+            "Wake up and follow this",
+            "tomorrow handoff action",
+            "one-tap next day plan",
+            "AI links training, food, recovery, and tracking into tomorrow",
             "Tomorrow training focus",
             "Tomorrow nutrition target",
             "Tomorrow recovery gate",
@@ -1283,6 +1289,43 @@ class AndroidAppStructureTest(unittest.TestCase):
         self.assertIn("target.appendChild(layer)", preview)
         self.assertNotIn('data-panel="training-plan"', preview)
         self.assertNotIn('data-panel="daily-overview"', preview)
+
+    def test_next_day_handoff_is_visible_in_ai_flow_and_preview(self) -> None:
+        ui = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt").read_text(
+            encoding="utf-8"
+        )
+        preview = (APP / "preview/index.html").read_text(encoding="utf-8")
+        expected_ui_terms = [
+            "private fun NextDayHandoffCard(",
+            'language.t("Next Day Handoff"',
+            'language.t("Wake up and follow this"',
+            "tomorrow handoff action",
+            "one-tap next day plan",
+            "AI links training, food, recovery, and tracking into tomorrow",
+            "Tomorrow training focus",
+            "Tomorrow nutrition target",
+            "Tomorrow recovery gate",
+            "Tomorrow tracking action",
+            "NextDayHandoffCard(",
+        ]
+        for term in expected_ui_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, ui)
+
+        expected_preview_terms = [
+            "Next Day Handoff",
+            "Wake up and follow this",
+            "tomorrow handoff action",
+            "one-tap next day plan",
+            "AI links training, food, recovery, and tracking into tomorrow",
+            "Tomorrow training focus",
+            "Tomorrow nutrition target",
+            "Tomorrow recovery gate",
+            "Tomorrow tracking action",
+        ]
+        for term in expected_preview_terms:
+            with self.subTest(term=term):
+                self.assertIn(term, preview)
 
     def test_metrics_health_data_layer_uses_localized_labels(self) -> None:
         ui = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt").read_text(

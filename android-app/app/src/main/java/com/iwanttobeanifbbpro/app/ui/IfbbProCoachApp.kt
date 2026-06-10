@@ -2410,6 +2410,88 @@ private fun TomorrowCoachBriefCard(
 }
 
 @Composable
+private fun NextDayHandoffCard(
+    brief: TomorrowCoachBrief,
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit
+) {
+    SectionCard(
+        title = language.t("Next Day Handoff", "明日交接"),
+        subtitle = language.t(
+            "Wake up and follow this one-tap next day plan after AI links training, food, recovery, and tracking into tomorrow.",
+            "明天醒来直接按这里执行：AI 会把训练、饮食、恢复和追踪联动成一个一键式明日计划。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Plan day", "训练日") to brief.planDayName,
+                language.t("Focus", "重点") to brief.planFocus,
+                language.t("Food target", "饮食目标") to "${brief.targetCalories} kcal / ${brief.targetProtein} g",
+                language.t("Gate", "闸门") to brief.readinessGate
+            )
+        )
+        Text(
+            text = language.t("Wake up and follow this", "醒来后按这个执行"),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = brief.primaryAction,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                language.t("tomorrow handoff action", "明日交接动作"),
+                language.t("one-tap next day plan", "一键式明日计划"),
+                language.t("AI links training, food, recovery, and tracking into tomorrow", "AI 将训练、饮食、恢复和追踪联动到明天"),
+                language.t("Tomorrow training focus", "明天训练重点"),
+                language.t("Tomorrow nutrition target", "明天饮食目标"),
+                language.t("Tomorrow recovery gate", "明天恢复闸门"),
+                language.t("Tomorrow tracking action", "明天追踪动作")
+            )
+        )
+        Text(
+            text = language.t("Training: ${brief.trainingAction}", "训练：${brief.trainingAction}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t("Nutrition: ${brief.nutritionAction}", "饮食：${brief.nutritionAction}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t("Recovery: ${brief.recoveryAction}", "恢复：${brief.recoveryAction}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t("Tracking: ${brief.trackingAction}", "追踪：${brief.trackingAction}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(onClick = onOpenTraining, modifier = Modifier.fillMaxWidth()) {
+            Text(language.t("Start tomorrow training", "开始明天训练"))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onOpenPlan, modifier = Modifier.weight(1f)) {
+                Text(language.t("Plan", "计划"))
+            }
+            TextButton(onClick = onOpenNutrition, modifier = Modifier.weight(1f)) {
+                Text(language.t("Food", "饮食"))
+            }
+            TextButton(onClick = onOpenMetrics, modifier = Modifier.weight(1f)) {
+                Text(language.t("Metrics", "数据"))
+            }
+        }
+    }
+}
+
+@Composable
 private fun WeeklyCheckInCard(
     summary: WeeklyCheckInSummary,
     language: AppLanguage,
@@ -7331,6 +7413,12 @@ private fun AiCoachPage(
         profile = state.athleteProfile,
         plan = state.trainingPlan
     )
+    val tomorrowBrief = tomorrowCoachBrief(
+        log = state.dailyLog,
+        recentLogs = state.recentLogs,
+        profile = state.athleteProfile,
+        plan = state.trainingPlan
+    )
     var showAiDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AiReviewFlowCoachCard(
@@ -7348,6 +7436,14 @@ private fun AiCoachPage(
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi
+        )
+        NextDayHandoffCard(
+            brief = tomorrowBrief,
+            language = language,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics
         )
         SettingsCard(settings = state.settings, language = language, onChange = onSettingsChange)
         AiIntegratedDecisionMatrixCard(
