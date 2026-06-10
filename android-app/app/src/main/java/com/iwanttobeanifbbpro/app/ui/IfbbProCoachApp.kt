@@ -3404,19 +3404,11 @@ private fun MealFlowCoachCard(
             "打开饮食页后先执行下一餐；需要原因时再展开宏量营养推理。"
         )
     ) {
-        MetricGrid(
-            metrics = listOf(
-                language.t("Next meal", "下一餐") to builder.localizedTitle(language),
-                "Kcal" to formatRemainingLocalized(pacing.caloriesRemaining, "kcal", language),
-                language.t("Protein", "蛋白质") to formatRemainingLocalized(pacing.proteinRemaining, "g", language),
-                language.t("Template", "模板") to template.localizedTitle(language),
-                language.t("Food photos", "食物照片") to mealPhotoCount.toString(),
-                language.t("AI gate", "AI 门控") to aiGate
-            )
-        )
-        LinearProgressIndicator(
-            progress = { pacing.adherenceScore / 100f },
-            modifier = Modifier.fillMaxWidth()
+        Text(
+            text = language.t("NEXT MEAL ACTION", "下一餐动作"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
         )
         Text(
             text = builder.localizedTitle(language),
@@ -3433,50 +3425,66 @@ private fun MealFlowCoachCard(
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold
         )
+        LinearProgressIndicator(
+            progress = { pacing.adherenceScore / 100f },
+            modifier = Modifier.fillMaxWidth()
+        )
         Button(onClick = { onPrefillMeal(builder) }, modifier = Modifier.fillMaxWidth()) {
             Text(language.t("Prefill next meal", "填入下一餐"))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ElevatedButton(
-                onClick = {
-                    onPickMealPhoto(
-                        "Food/menu/label photo for AI nutrition estimate. Next meal target: ${builder.title}; P ${builder.proteinGrams} g, C ${builder.carbsGrams} g, F ${builder.fatGrams} g, fiber ${builder.fiberGrams} g. Capture portion size, oil, sauce, label, menu, and bowl depth."
-                    )
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(language.t("Food photo", "食物照片"))
-            }
-            ElevatedButton(onClick = { onAddMealTemplate(template.id) }, modifier = Modifier.weight(1f)) {
-                Text(language.t("Add template", "添加模板"))
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onToggleDetails, modifier = Modifier.weight(1f)) {
-                Text(
-                    if (showDetails) {
-                        language.t("Hide nutrition details", "收起饮食细节")
-                    } else {
-                        language.t("Show nutrition details", "展开饮食细节")
-                    }
-                )
-            }
-            TextButton(onClick = onOpenAi, modifier = Modifier.weight(1f)) {
-                Text(language.t("AI nutrition review", "AI 饮食复盘"))
-            }
-        }
-        DataChipGrid(
-            items = listOf(
-                language.t("Next meal macro targets", "下一餐宏量目标"),
-                language.t("Portion uncertainty cue", "份量不确定提示"),
-                language.t("Food photo nutrition estimate", "食物照片营养估算"),
+        TextButton(onClick = onToggleDetails, modifier = Modifier.fillMaxWidth()) {
+            Text(
                 if (showDetails) {
-                    language.t("Nutrition detail layers open", "饮食细节层已展开")
+                    language.t("Hide nutrition details", "收起饮食细节")
                 } else {
-                    language.t("Nutrition detail layers hidden", "饮食细节层已收起")
+                    language.t("Show nutrition details", "展开饮食细节")
                 }
             )
-        )
+        }
+        if (showDetails) {
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Next meal", "下一餐") to builder.localizedTitle(language),
+                    "Kcal" to formatRemainingLocalized(pacing.caloriesRemaining, "kcal", language),
+                    language.t("Protein", "蛋白质") to formatRemainingLocalized(pacing.proteinRemaining, "g", language),
+                    language.t("Template", "模板") to template.localizedTitle(language),
+                    language.t("Food photos", "食物照片") to mealPhotoCount.toString(),
+                    language.t("AI gate", "AI 门控") to aiGate
+                )
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ElevatedButton(
+                    onClick = {
+                        onPickMealPhoto(
+                            "Food/menu/label photo for AI nutrition estimate. Next meal target: ${builder.title}; P ${builder.proteinGrams} g, C ${builder.carbsGrams} g, F ${builder.fatGrams} g, fiber ${builder.fiberGrams} g. Capture portion size, oil, sauce, label, menu, and bowl depth."
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(language.t("Food photo", "食物照片"))
+                }
+                ElevatedButton(onClick = { onAddMealTemplate(template.id) }, modifier = Modifier.weight(1f)) {
+                    Text(language.t("Add template", "添加模板"))
+                }
+            }
+            TextButton(onClick = onOpenAi, modifier = Modifier.fillMaxWidth()) {
+                Text(language.t("AI nutrition review", "AI 饮食复盘"))
+            }
+            DataChipGrid(
+                items = listOf(
+                    language.t("Next meal macro targets", "下一餐宏量目标"),
+                    language.t("Portion uncertainty cue", "份量不确定提示"),
+                    language.t("Food photo nutrition estimate", "食物照片营养估算"),
+                    language.t("Nutrition detail layers open", "饮食细节层已展开")
+                )
+            )
+        } else {
+            Text(
+                text = language.t("Nutrition detail layers hidden", "饮食细节层已收起"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -7426,17 +7434,11 @@ private fun AiReviewFlowCoachCard(
             "证据就绪后一键复盘；设置、照片、提示词、数据地图和历史记录放在下方。"
         )
     ) {
-        MetricGrid(
-            metrics = listOf(
-                language.t("Status", "状态") to if (setup.canRunAi) executionPlan.statusLabel else setup.statusLabel,
-                language.t("Readiness", "状态分") to executionPlan.readinessScore.toString(),
-                language.t("Sets", "组数") to "$completedSets/$plannedSets",
-                language.t("Meals", "餐数") to log.meals.size.toString(),
-                language.t("Metrics", "数据") to if (metricsReady) language.t("Ready", "可用") else language.t("Missing", "缺失"),
-                language.t("Photos", "照片") to "${state.images.size}/${log.photoEvidence.size}",
-                language.t("Review", "复盘") to if (hasReviewToday) language.t("Saved", "已保存") else language.t("Not yet", "未完成"),
-                language.t("Queue", "队列") to reviewQueue.confidenceLabel
-            )
+        Text(
+            text = language.t("NEXT AI REVIEW ACTION", "下一步 AI 复盘动作"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
         )
         Text(
             text = primaryTitle,
@@ -7451,40 +7453,56 @@ private fun AiReviewFlowCoachCard(
         Button(onClick = primaryAction, enabled = primaryEnabled && !state.isLoading, modifier = Modifier.fillMaxWidth()) {
             Text(primaryLabel)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onToggleDetails, modifier = Modifier.weight(1f)) {
-                Text(
-                    if (showDetails) {
-                        language.t("Hide AI details", "收起 AI 细节")
-                    } else {
-                        language.t("Show AI details", "展开 AI 细节")
-                    }
-                )
-            }
-            TextButton(onClick = onPickImages, modifier = Modifier.weight(1f)) {
-                Text(language.t("Add photos", "添加照片"))
-            }
-            TextButton(
-                onClick = onRunAnalysis,
-                enabled = setup.canRunAi && !state.isLoading,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(language.t("Run mode", "模式分析"))
-            }
-        }
-        DataChipGrid(
-            items = listOf(
-                language.t("AI Review Flow Coach", "AI 复盘流程教练"),
-                language.t("Daily review evidence bundle", "每日复盘证据包"),
-                language.t("Training, food, metrics, photos, trends", "训练、饮食、身体数据、照片、趋势"),
-                language.t("Saved review becomes action queue", "已保存复盘转成行动队列"),
+        TextButton(onClick = onToggleDetails, modifier = Modifier.fillMaxWidth()) {
+            Text(
                 if (showDetails) {
-                    language.t("AI detail layers open", "AI 细节层已展开")
+                    language.t("Hide AI details", "收起 AI 细节")
                 } else {
-                    language.t("AI detail layers hidden", "AI 细节层已收起")
+                    language.t("Show AI details", "展开 AI 细节")
                 }
             )
-        )
+        }
+        if (showDetails) {
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Status", "状态") to if (setup.canRunAi) executionPlan.statusLabel else setup.statusLabel,
+                    language.t("Readiness", "状态分") to executionPlan.readinessScore.toString(),
+                    language.t("Sets", "组数") to "$completedSets/$plannedSets",
+                    language.t("Meals", "餐数") to log.meals.size.toString(),
+                    language.t("Metrics", "数据") to if (metricsReady) language.t("Ready", "可用") else language.t("Missing", "缺失"),
+                    language.t("Photos", "照片") to "${state.images.size}/${log.photoEvidence.size}",
+                    language.t("Review", "复盘") to if (hasReviewToday) language.t("Saved", "已保存") else language.t("Not yet", "未完成"),
+                    language.t("Queue", "队列") to reviewQueue.confidenceLabel
+                )
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = onPickImages, modifier = Modifier.weight(1f)) {
+                    Text(language.t("Add photos", "添加照片"))
+                }
+                TextButton(
+                    onClick = onRunAnalysis,
+                    enabled = setup.canRunAi && !state.isLoading,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(language.t("Run mode", "模式分析"))
+                }
+            }
+            DataChipGrid(
+                items = listOf(
+                    language.t("AI Review Flow Coach", "AI 复盘流程教练"),
+                    language.t("Daily review evidence bundle", "每日复盘证据包"),
+                    language.t("Training, food, metrics, photos, trends", "训练、饮食、身体数据、照片、趋势"),
+                    language.t("Saved review becomes action queue", "已保存复盘转成行动队列"),
+                    language.t("AI detail layers open", "AI 细节层已展开")
+                )
+            )
+        } else {
+            Text(
+                text = language.t("AI detail layers hidden", "AI 细节层已收起"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         state.reviewHistory.firstOrNull()?.let { review ->
             HorizontalDivider()
             Text(
