@@ -430,6 +430,7 @@ private fun GlobalNextActionStrip(
         onRunAiReview = onRunAiReview,
         onOpenAi = onOpenAi
     )
+    var showDailyEvidenceDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         TodayCommandStrip(steps = steps, language = language)
         DailyCoachDecisionReceiptCard(
@@ -437,26 +438,78 @@ private fun GlobalNextActionStrip(
             steps = steps,
             language = language
         )
-        DailyLaunchCloseoutCard(
-            state = state,
-            steps = steps,
+        DailyEvidenceDetailsToggle(
+            showDetails = showDailyEvidenceDetails,
             language = language,
-            onOpenPlan = onOpenPlan,
-            onOpenTraining = onOpenTraining,
-            onOpenNutrition = onOpenNutrition,
-            onOpenMetrics = onOpenMetrics,
-            onRunAiReview = onRunAiReview,
-            onOpenAi = onOpenAi
+            onToggle = { showDailyEvidenceDetails = !showDailyEvidenceDetails }
         )
-        GlobalReviewReadinessCard(
-            state = state,
-            language = language,
-            onOpenTraining = onOpenTraining,
-            onOpenNutrition = onOpenNutrition,
-            onOpenMetrics = onOpenMetrics,
-            onRunAiReview = onRunAiReview,
-            onOpenAi = onOpenAi
-        )
+        if (showDailyEvidenceDetails) {
+            DailyLaunchCloseoutCard(
+                state = state,
+                steps = steps,
+                language = language,
+                onOpenPlan = onOpenPlan,
+                onOpenTraining = onOpenTraining,
+                onOpenNutrition = onOpenNutrition,
+                onOpenMetrics = onOpenMetrics,
+                onRunAiReview = onRunAiReview,
+                onOpenAi = onOpenAi
+            )
+            GlobalReviewReadinessCard(
+                state = state,
+                language = language,
+                onOpenTraining = onOpenTraining,
+                onOpenNutrition = onOpenNutrition,
+                onOpenMetrics = onOpenMetrics,
+                onRunAiReview = onRunAiReview,
+                onOpenAi = onOpenAi
+            )
+        }
+    }
+}
+
+@Composable
+private fun DailyEvidenceDetailsToggle(
+    showDetails: Boolean,
+    language: AppLanguage,
+    onToggle: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, IfbbProGlassBorder),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = language.t("Daily evidence details", "每日证据细节"),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = language.t(
+                        "Professional evidence stays folded until the user wants the reasoning.",
+                        "专业证据默认收起，只在用户想看推理时展开。"
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            TextButton(onClick = onToggle) {
+                Text(
+                    if (showDetails) {
+                        language.t("Hide daily evidence details", "收起每日证据细节")
+                    } else {
+                        language.t("Show daily evidence details", "展开每日证据细节")
+                    }
+                )
+            }
+        }
     }
 }
 
