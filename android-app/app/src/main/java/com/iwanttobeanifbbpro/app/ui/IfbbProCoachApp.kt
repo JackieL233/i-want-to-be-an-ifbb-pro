@@ -856,6 +856,14 @@ private data class AiSetupStatus(
     val photoContextLabel: String
 )
 
+private data class ReviewReadinessChecklistItem(
+    val label: String,
+    val detail: String,
+    val ready: Boolean,
+    val actionLabel: String,
+    val onAction: () -> Unit
+)
+
 private data class NextMealBuilder(
     val title: String,
     val summary: String,
@@ -2393,6 +2401,151 @@ private fun AiReviewActionQueueCard(
             text = queue.aiReviewFocus,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun ReviewReadinessChecklistCard(
+    state: CoachUiState,
+    setup: AiSetupStatus,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit,
+    onPickImages: () -> Unit,
+    onDailyReview: () -> Unit
+) {
+    val language = state.appLanguage
+    val log = state.dailyLog
+    val plannedSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val trainingReady = plannedSets > 0 && completedSets >= plannedSets
+    val nutritionReady = log.meals.isNotEmpty() && log.nutritionPacing().adherenceScore >= 65
+    val metricsReady = log.metrics.bodyWeightKg != null ||
+        log.metrics.sleepHours != null ||
+        log.metrics.steps > 0 ||
+        log.metrics.healthSyncedAt.isNotBlank()
+    val photoReady = state.images.isNotEmpty() || log.photoEvidence.isNotEmpty()
+    val items = listOf(
+        ReviewReadinessChecklistItem(
+            label = language.t("Training evidence", "训练证据"),
+            detail = if (plannedSets == 0) {
+                language.t("No workout loaded. Apply a plan day before AI changes training.", "还没有载入训练。AI 改训练前先应用一个训练日。")
+            } else {
+                language.t("$completedSets/$plannedSets planned sets logged.", "已记录 $completedSets/$plannedSets 个计划组。")
+            },
+            ready = trainingReady,
+            actionLabel = if (trainingReady) language.t("Review sets", "查看组记录") else language.t("Finish training", "完成训练"),
+            onAction = onOpenTraining
+        ),
+        ReviewReadinessChecklistItem(
+            label = language.t("Nutrition evidence", "饮食证据"),
+            detail = if (log.meals.isEmpty()) {
+                language.t("No meal logged. Add food or a food photo before changing macros.", "还没有饮食记录。改宏量前先记录餐食或食物照片。")
+            } else {
+                val totals = log.nutritionTotals()
+                language.t("${log.meals.size} meal(s), ${totals.calories} kcal, P ${totals.protein} g logged.", "已记录 ${log.meals.size} 餐，${totals.calories} kcal，蛋白质 ${totals.protein} g。")
+            },
+            ready = nutritionReady,
+            actionLabel = if (nutritionReady) language.t("Review food", "查看饮食") else language.t("Log food", "记录饮食"),
+            onAction = onOpenNutrition
+        ),
+        ReviewReadinessChecklistItem(
+            label = language.t("Metrics evidence", "身体数据证据"),
+            detail = if (metricsReady) {
+                language.t("Body, sleep, steps, or health sync data is available.", "已有体重、睡眠、步数或健康同步数据。")
+            } else {
+                language.t("Sync health data or add weight, sleep, HR, soreness, and stress.", "同步健康数据，或补体重、睡眠、心率、酸痛和压力。")
+            },
+            ready = metricsReady,
+            actionLabel = if (metricsReady) language.t("Check metrics", "查看数据") else language.t("Sync metrics", "同步数据"),
+            onAction = onOpenMetrics
+        ),
+        ReviewReadinessChecklistItem(
+            label = language.t("Photo/API context", "照片/API 上下文"),
+            detail = language.t(
+                "Photos ${state.images.size}/${log.photoEvidence.size}; API ${setup.statusLabel}.",
+                "照片 ${state.images.size}/${log.photoEvidence.size}；API ${setup.statusLabel}。"
+            ),
+            ready = setup.canRunAi && photoReady,
+            actionLabel = when {
+                !setup.canRunAi -> language.t("Set API first", "先设置 API")
+                !photoReady -> language.t("Add photos", "添加照片")
+                else -> language.t("Context ready", "上下文就绪")
+            },
+            onAction = if (setup.canRunAi && !photoReady) onPickImages else onOpenAi
+        )
+    )
+    val readyCount = items.count { it.ready }
+    val allReady = readyCount == items.size
+
+    SectionCard(
+        title = language.t("Review Readiness Checklist", "复盘准备度清单"),
+        subtitle = language.t(
+            "Fix missing evidence before AI changes training or food.",
+            "AI 改训练或饮食前，先补齐缺失证据。"
+        )
+    ) {
+        Text(
+            text = language.t("REVIEW READINESS", "复盘准备度"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Ready", "已就绪") to "$readyCount/${items.size}",
+                language.t("Training", "训练") to if (trainingReady) language.t("Ready", "就绪") else language.t("Missing", "缺失"),
+                language.t("Nutrition", "饮食") to if (nutritionReady) language.t("Ready", "就绪") else language.t("Missing", "缺失"),
+                language.t("Metrics", "数据") to if (metricsReady) language.t("Ready", "就绪") else language.t("Missing", "缺失")
+            )
+        )
+        LinearProgressIndicator(progress = { readyCount / items.size.toFloat() }, modifier = Modifier.fillMaxWidth())
+        items.forEach { item ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                color = if (item.ready) IfbbProGlassStrongSurface else MaterialTheme.colorScheme.surface
+            ) {
+                Row(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(item.label, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            text = item.detail,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    TextButton(onClick = item.onAction) {
+                        Text(if (item.ready) language.t("View", "查看") else item.actionLabel)
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = onDailyReview,
+            enabled = allReady && setup.canRunAi && !state.isLoading,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (allReady) language.t("Run daily review", "运行每日复盘") else language.t("Fix missing evidence", "补齐缺失证据"))
+        }
+        DataChipGrid(
+            items = listOf(
+                "ReviewReadinessChecklistCard",
+                "REVIEW READINESS",
+                "Training evidence",
+                "Nutrition evidence",
+                "Metrics evidence",
+                "Photo/API context",
+                "Fix missing evidence before AI changes training or food",
+                "复盘准备度"
+            )
         )
     }
 }
@@ -7806,6 +7959,16 @@ private fun AiCoachPage(
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi
+        )
+        ReviewReadinessChecklistCard(
+            state = state,
+            setup = aiSetup,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi,
+            onPickImages = onPickImages,
+            onDailyReview = onDailyReview
         )
         NextDayHandoffCard(
             brief = tomorrowBrief,

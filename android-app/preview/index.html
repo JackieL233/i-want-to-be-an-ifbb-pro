@@ -815,6 +815,56 @@
       background: var(--amber);
     }
 
+    .review-readiness-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .review-readiness-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(0, 122, 255, 0.10), rgba(52, 199, 89, 0.08) 56%, rgba(255, 255, 255, 0.18));
+      pointer-events: none;
+    }
+
+    .review-readiness-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .readiness-row {
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(209, 209, 214, 0.68);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(14px) saturate(140%);
+    }
+
+    .readiness-row strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.24;
+    }
+
+    .readiness-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(52, 199, 89, 0.12);
+    }
+
+    .readiness-dot.missing {
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(255, 159, 10, 0.14);
+    }
+
     .set-table {
       width: 100%;
       border-collapse: collapse;
@@ -3580,6 +3630,56 @@
               <button class="button" type="button" data-en="Add photos" data-zh="添加照片">Add photos</button>
               <button class="button ghost" type="button" data-en="Run mode" data-zh="模式分析">Run mode</button>
             </div>
+          </div>
+
+          <div class="section glass review-readiness-card">
+            <div class="section-head">
+              <p class="eyebrow" data-en="REVIEW READINESS" data-zh="复盘准备度">REVIEW READINESS</p>
+              <h2 data-en="Review Readiness Checklist" data-zh="复盘准备度清单">Review Readiness Checklist</h2>
+              <p class="subtle" data-en="Fix missing evidence before AI changes training or food." data-zh="AI 改训练或饮食前，先补齐缺失证据。">Fix missing evidence before AI changes training or food.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="Ready" data-zh="已就绪">Ready</span><span class="value">3/4</span></div>
+              <div class="metric"><span class="label" data-en="Training" data-zh="训练">Training</span><span class="value" data-en="Ready" data-zh="就绪">Ready</span></div>
+              <div class="metric"><span class="label" data-en="Nutrition" data-zh="饮食">Nutrition</span><span class="value" data-en="Ready" data-zh="就绪">Ready</span></div>
+              <div class="metric"><span class="label" data-en="Metrics" data-zh="数据">Metrics</span><span class="value" data-en="Ready" data-zh="就绪">Ready</span></div>
+            </div>
+            <div class="progress green" aria-label="AI review readiness progress"><span style="width: 75%"></span></div>
+            <div class="rows compact-rows">
+              <div class="readiness-row">
+                <span class="readiness-dot"></span>
+                <div>
+                  <strong data-en="Training evidence" data-zh="训练证据">Training evidence</strong>
+                  <p class="subtle" data-en="18/18 planned sets logged; AI can judge volume and next-session rest." data-zh="18/18 个计划组已记录；AI 可以判断容量和下一次休息时间。">18/18 planned sets logged; AI can judge volume and next-session rest.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="training" data-en="View" data-zh="查看">View</button>
+              </div>
+              <div class="readiness-row">
+                <span class="readiness-dot"></span>
+                <div>
+                  <strong data-en="Nutrition evidence" data-zh="饮食证据">Nutrition evidence</strong>
+                  <p class="subtle" data-en="4 meals logged; calories, protein, carbs, and fats are ready for pacing." data-zh="已记录 4 餐；热量、蛋白质、碳水和脂肪可以用于节奏判断。">4 meals logged; calories, protein, carbs, and fats are ready for pacing.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="nutrition" data-en="View" data-zh="查看">View</button>
+              </div>
+              <div class="readiness-row">
+                <span class="readiness-dot"></span>
+                <div>
+                  <strong data-en="Metrics evidence" data-zh="身体数据证据">Metrics evidence</strong>
+                  <p class="subtle" data-en="Weight, sleep, steps, soreness, and health sync are available." data-zh="体重、睡眠、步数、酸痛和健康同步数据可用。">Weight, sleep, steps, soreness, and health sync are available.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="metrics" data-en="View" data-zh="查看">View</button>
+              </div>
+              <div class="readiness-row">
+                <span class="readiness-dot missing"></span>
+                <div>
+                  <strong data-en="Photo/API context" data-zh="照片/API 上下文">Photo/API context</strong>
+                  <p class="subtle" data-en="API is ready; add one form, food, equipment, or physique photo when visual uncertainty matters." data-zh="API 已就绪；视觉不确定时补一张动作、食物、器械或体型照片。">API is ready; add one form, food, equipment, or physique photo when visual uncertainty matters.</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="ai" data-en="Add" data-zh="添加">Add</button>
+              </div>
+            </div>
+            <button class="button primary" type="button" data-en="Fix missing evidence" data-zh="补齐缺失证据">Fix missing evidence</button>
           </div>
 
           <div class="section glass">
