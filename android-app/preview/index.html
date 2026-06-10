@@ -653,6 +653,52 @@
       line-height: 1.24;
     }
 
+    .daily-autopilot-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(18px) saturate(150%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        0 12px 32px rgba(29, 29, 31, 0.08);
+    }
+
+    .daily-autopilot-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(0, 122, 255, 0.10), rgba(255, 159, 10, 0.08) 54%, rgba(52, 199, 89, 0.08));
+      pointer-events: none;
+    }
+
+    .daily-autopilot-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .autopilot-step-row {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(209, 209, 214, 0.66);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.70);
+    }
+
+    .autopilot-step-row strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.24;
+    }
+
     .food-icon,
     .sync-icon {
       width: 38px;
@@ -3832,6 +3878,44 @@
               <button class="button" type="button" data-en="Show AI details" data-zh="展开 AI 细节">Show AI details</button>
               <button class="button" type="button" data-en="Add photos" data-zh="添加照片">Add photos</button>
               <button class="button ghost" type="button" data-en="Run mode" data-zh="模式分析">Run mode</button>
+            </div>
+          </div>
+
+          <div class="daily-autopilot-card" data-component="DailyAutopilotCard">
+            <div class="section-head">
+              <p class="eyebrow" data-en="DAILY AUTOPILOT" data-zh="每日自动教练">DAILY AUTOPILOT</p>
+              <h2 data-en="Daily Autopilot" data-zh="每日自动教练">Daily Autopilot</h2>
+              <p class="subtle" data-en="One screen daily loop: follow the order, fill evidence gaps, then let AI update tomorrow." data-zh="一个屏幕完成每日闭环：按顺序执行、补齐证据缺口，再让 AI 更新明天。">One screen daily loop: follow the order, fill evidence gaps, then let AI update tomorrow.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="Loop" data-zh="闭环">Loop</span><span class="value" data-en="Train -> Eat -> Sync -> Review" data-zh="训练 -> 饮食 -> 同步 -> 复盘">Train -> Eat -> Sync -> Review</span></div>
+              <div class="metric"><span class="label" data-en="Progress" data-zh="进度">Progress</span><span class="value">3/5</span></div>
+              <div class="metric"><span class="label" data-en="Current next step" data-zh="当前下一步">Current next step</span><span class="value" data-en="Training executed" data-zh="训练已执行">Training executed</span></div>
+              <div class="metric"><span class="label" data-en="Today's evidence gaps" data-zh="今日证据缺口">Today's evidence gaps</span><span class="value">2</span></div>
+            </div>
+            <div class="progress"><span style="width:60%"></span></div>
+            <p class="subtle"><strong data-en="Follow this order today" data-zh="今天按这个顺序执行">Follow this order today</strong></p>
+            <div class="coach-lane" aria-label="Daily autopilot order">
+              <span class="active" data-en="Train" data-zh="训练">Train</span>
+              <span data-en="Eat" data-zh="饮食">Eat</span>
+              <span data-en="Sync" data-zh="同步">Sync</span>
+              <span data-en="Review" data-zh="复盘">Review</span>
+            </div>
+            <div class="autopilot-step-row">
+              <span class="step-number">1</span>
+              <div>
+                <strong data-en="Autopilot action" data-zh="自动教练动作">Autopilot action</strong>
+                <p class="subtle" data-en="Finish the remaining working sets and keep RIR honest before AI changes training." data-zh="先完成剩余工作组，并如实记录 RIR，再让 AI 改训练。">Finish the remaining working sets and keep RIR honest before AI changes training.</p>
+              </div>
+              <button class="button ghost" type="button" data-tab-target="training" data-en="Log sets" data-zh="记录组">Log sets</button>
+            </div>
+            <div class="autopilot-step-row">
+              <span class="step-number">2</span>
+              <div>
+                <strong data-en="Today's evidence gaps" data-zh="今日证据缺口">Today's evidence gaps</strong>
+                <p class="subtle" data-en="Training completion and one useful photo are still missing for the cleanest review." data-zh="为了让复盘更干净，还缺训练完成度和一张有用照片。">Training completion and one useful photo are still missing for the cleanest review.</p>
+              </div>
+              <button class="button ghost" type="button" data-tab-target="ai" data-en="Add" data-zh="添加">Add</button>
             </div>
           </div>
 

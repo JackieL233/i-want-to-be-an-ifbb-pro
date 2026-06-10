@@ -3082,6 +3082,96 @@ private fun DailyCoachChecklistCard(tasks: List<DailyCoachTask>, language: AppLa
 }
 
 @Composable
+private fun DailyAutopilotCard(tasks: List<DailyCoachTask>, language: AppLanguage) {
+    val completed = tasks.count { it.done }
+    val nextTask = tasks.firstOrNull { !it.done && it.actionEnabled } ?: tasks.firstOrNull { !it.done } ?: tasks.lastOrNull()
+    val gaps = tasks.filterNot { it.done }.take(3)
+    SectionCard(
+        title = language.t("Daily Autopilot", "每日自动教练"),
+        subtitle = language.t(
+            "One screen daily loop: follow the order, fill evidence gaps, then let AI update tomorrow.",
+            "一个屏幕完成每日闭环：按顺序执行、补齐证据缺口，再让 AI 更新明天。"
+        )
+    ) {
+        Text(
+            text = language.t("DAILY AUTOPILOT", "每日自动教练"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Loop", "闭环") to language.t("Train -> Eat -> Sync -> Review", "训练 -> 饮食 -> 同步 -> 复盘"),
+                language.t("Progress", "进度") to "$completed/${tasks.size}",
+                language.t("Current next step", "当前下一步") to (nextTask?.title ?: language.t("Review complete", "复盘完成")),
+                language.t("Today's evidence gaps", "今日证据缺口") to gaps.size.toString()
+            )
+        )
+        LinearProgressIndicator(
+            progress = { if (tasks.isEmpty()) 0f else completed.toFloat() / tasks.size.toFloat() },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = language.t("Follow this order today", "今天按这个顺序执行"),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        DataChipGrid(
+            items = listOf(
+                language.t("Training", "训练"),
+                language.t("Nutrition", "饮食"),
+                language.t("Metrics", "身体数据"),
+                language.t("AI review", "AI 复盘")
+            )
+        )
+        nextTask?.let { task ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                color = IfbbProGlassStrongSurface
+            ) {
+                Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(language.t("Autopilot action", "自动教练动作"), fontWeight = FontWeight.SemiBold)
+                    Text(task.title, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = task.detail,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Button(onClick = task.onAction, enabled = task.actionEnabled, modifier = Modifier.fillMaxWidth()) {
+                        Text(task.actionLabel)
+                    }
+                }
+            }
+        }
+        if (gaps.isEmpty()) {
+            Text(
+                text = language.t(
+                    "All core evidence is ready. Run or review AI before changing training, calories, or split.",
+                    "核心证据已就绪。改变训练、热量或分化前，先运行或查看 AI 复盘。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        } else {
+            Text(
+                text = language.t("Today's evidence gaps", "今日证据缺口"),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            gaps.forEach { gap ->
+                Text(
+                    text = "${gap.title}: ${gap.detail}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun TodayActionGrid(
     state: CoachUiState,
     language: AppLanguage,
@@ -8395,6 +8485,15 @@ private fun AiCoachPage(
         profile = state.athleteProfile,
         plan = state.trainingPlan
     )
+    val autopilotTasks = state.dailyCoachTasks(
+        language = language,
+        onOpenPlan = onOpenPlan,
+        onOpenTraining = onOpenTraining,
+        onOpenNutrition = onOpenNutrition,
+        onOpenMetrics = onOpenMetrics,
+        onRunAiReview = onDailyReview,
+        onOpenAi = onOpenAi
+    )
     var showAiDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AiReviewFlowCoachCard(
@@ -8413,6 +8512,7 @@ private fun AiCoachPage(
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi
         )
+        DailyAutopilotCard(tasks = autopilotTasks, language = language)
         ReviewReadinessChecklistCard(
             state = state,
             setup = aiSetup,
