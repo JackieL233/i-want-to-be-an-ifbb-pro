@@ -561,6 +561,52 @@
       padding: 9px;
     }
 
+    .meal-estimate-receipt-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(18px) saturate(150%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        0 12px 32px rgba(29, 29, 31, 0.08);
+    }
+
+    .meal-estimate-receipt-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(52, 199, 89, 0.10), rgba(0, 122, 255, 0.08) 62%, rgba(255, 255, 255, 0.18));
+      pointer-events: none;
+    }
+
+    .meal-estimate-receipt-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .meal-estimate-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(209, 209, 214, 0.66);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.70);
+    }
+
+    .meal-estimate-row strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.24;
+    }
+
     .food-icon,
     .sync-icon {
       width: 38px;
@@ -3213,6 +3259,38 @@
             </div>
             <div class="progress green"><span style="width:84%"></span></div>
             <p class="subtle" data-en="AI estimate preview: Protein-first meal | 820 kcal | P 57 g | C 95 g | F 24 g. Photograph oil, sauce, labels, menu, and bowl depth when uncertain." data-zh="AI 估算预览：蛋白质优先餐 | 820 kcal | 蛋白质 57 g | 碳水 95 g | 脂肪 24 g。油、酱料、标签、菜单和碗深不确定时拍照。">AI estimate preview: Protein-first meal | 820 kcal | P 57 g | C 95 g | F 24 g. Photograph oil, sauce, labels, menu, and bowl depth when uncertain.</p>
+            <div class="meal-estimate-receipt-card">
+              <div class="section-head">
+                <p class="eyebrow" data-en="AI MEAL ESTIMATE" data-zh="AI 餐食估算">AI MEAL ESTIMATE</p>
+                <h2 data-en="Meal estimate receipt" data-zh="餐食估算回执">Meal estimate receipt</h2>
+                <p class="subtle" data-en="Confirm portions, oil, sauce, and labels before treating the AI estimate as exact." data-zh="把 AI 估算当作精确记录前，先确认份量、油、酱汁和标签。">Confirm portions, oil, sauce, and labels before treating the AI estimate as exact.</p>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><span class="label" data-en="Meal" data-zh="餐食">Meal</span><span class="value" data-en="Chicken rice bowl" data-zh="鸡肉米饭碗">Chicken rice bowl</span></div>
+                <div class="metric"><span class="label" data-en="Confidence" data-zh="可信度">Confidence</span><span class="value" data-en="Photo + text" data-zh="照片 + 文字">Photo + text</span></div>
+                <div class="metric"><span class="label" data-en="Status" data-zh="状态">Status</span><span class="value" data-en="Logged to today" data-zh="已计入今日目标">Logged to today</span></div>
+                <div class="metric"><span class="label" data-en="Photo" data-zh="照片">Photo</span><span class="value" data-en="Food label" data-zh="食物标签">Food label</span></div>
+              </div>
+              <div class="meal-estimate-row">
+                <div>
+                  <strong data-en="Estimated macros" data-zh="估算宏量营养">Estimated macros</strong>
+                  <p class="subtle" data-en="820 kcal | P 57 g | C 95 g | F 24 g | fiber 14 g" data-zh="820 kcal | 蛋白质 57 g | 碳水 95 g | 脂肪 24 g | 纤维 14 g">820 kcal | P 57 g | C 95 g | F 24 g | fiber 14 g</p>
+                </div>
+                <button class="button ghost" type="button" data-en="Edit" data-zh="修正">Edit</button>
+              </div>
+              <div class="meal-estimate-row">
+                <div>
+                  <strong data-en="Remaining after this meal" data-zh="这餐后剩余目标">Remaining after this meal</strong>
+                  <p class="subtle" data-en="50 kcal left | protein on target | 10 g carbs left | fat on target" data-zh="还剩 50 kcal | 蛋白质达标 | 碳水还剩 10 g | 脂肪达标">50 kcal left | protein on target | 10 g carbs left | fat on target</p>
+                </div>
+                <button class="button ghost" type="button" data-tab-target="ai" data-en="Review" data-zh="复盘">Review</button>
+              </div>
+              <p class="subtle" data-en="Confirm portions, oil, sauce, and labels. If uncertain, attach a food/menu/label photo before AI changes calories or macros." data-zh="确认份量、油、酱汁和标签。不确定时先添加食物/菜单/标签照片，再让 AI 改热量或宏量。">Confirm portions, oil, sauce, and labels. If uncertain, attach a food/menu/label photo before AI changes calories or macros.</p>
+              <div class="action-row">
+                <button class="button primary" type="button" data-en="Log estimate" data-zh="计入估算">Log estimate</button>
+                <button class="button" type="button" data-en="Add photo" data-zh="添加照片">Add photo</button>
+              </div>
+            </div>
             <div class="food-log-item">
               <div class="food-icon">AI</div>
               <div>

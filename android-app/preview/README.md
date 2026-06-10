@@ -18,6 +18,7 @@ The preview mirrors the current Android app structure:
 - AI Plan Adjustment Proposal on the plan entry, turning linked AI evidence into a next-week template proposal, split action, volume action, nutrition guardrail, recovery guardrail, and `Apply AI split template` action
 - One-tap Training preview with `Workout Flow Coach`, `one-tap-hero`, `Complete set + start rest`, lightweight `action-shortcuts`, and an exercise image slot before the professional analysis layers
 - One-tap Nutrition preview with `Meal Flow Coach`, `NEXT MEAL ACTION`, food photo, `Describe meal`, `Use AI estimate`, a remaining macro summary, and an AI nutrition review path before the nutrition analysis layers
+- Meal estimate receipt / 餐食估算回执 after quick capture, showing AI meal estimate confidence, estimated macros, logged-to-today status, remaining macros after the meal, and portion/oil/sauce/label confirmation before calorie or macro changes
 - One-tap Metrics preview with `Metrics Flow Coach`, `NEXT METRICS ACTION`, `Auto health refresh ready`, `Refresh now`, progress-photo shortcut, sleep data, and AI review path before body-data analysis layers
 - One-tap AI review preview with `AI Review Flow Coach`, `NEXT AI REVIEW ACTION`, `Run daily review`, photo and mode shortcuts, and the AI evidence bundle before setup or data-map details
 - Review Readiness Checklist / 复盘准备度清单 on the AI page, showing training evidence, nutrition evidence, metrics evidence, photo/API context, and the missing-evidence gate before AI changes training or food

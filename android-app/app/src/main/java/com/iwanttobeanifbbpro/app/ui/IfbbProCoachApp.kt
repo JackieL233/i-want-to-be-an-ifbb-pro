@@ -4001,6 +4001,135 @@ private fun QuickMealCaptureCard(
 }
 
 @Composable
+private fun MealEstimateReceiptCard(
+    log: DailyLog,
+    language: AppLanguage,
+    mealDescription: String,
+    onUseAiEstimate: () -> Unit,
+    onPickMealPhoto: (String) -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val builder = log.nextMealBuilder()
+    val totals = log.nutritionTotals()
+    val targets = log.targets
+    val estimateCalories = builder.estimatedCalories()
+    val caloriesAfter = targets.calories - totals.calories - estimateCalories
+    val proteinAfter = targets.protein - totals.protein - builder.proteinGrams
+    val carbsAfter = targets.carbs - totals.carbs - builder.carbsGrams
+    val fatAfter = targets.fat - totals.fat - builder.fatGrams
+    val latestMealPhoto = log.photoEvidence.lastOrNull {
+        it.type == PhotoEvidenceType.MEAL || it.type == PhotoEvidenceType.MENU_LABEL
+    }
+    val loggedStatus = if (log.meals.any { it.notes.contains("AI estimate", ignoreCase = true) }) {
+        language.t("Logged to today", "已计入今日目标")
+    } else {
+        language.t("Ready to confirm", "等待确认计入")
+    }
+    val confidence = when {
+        latestMealPhoto != null && mealDescription.isNotBlank() -> language.t("High with photo + text", "照片 + 文字，较高")
+        latestMealPhoto != null -> language.t("Medium with photo", "照片估算，中等")
+        mealDescription.isNotBlank() -> language.t("Medium with text", "文字估算，中等")
+        else -> language.t("Low until photo or description", "需照片或描述提高可信度")
+    }
+
+    SectionCard(
+        title = language.t("Meal estimate receipt", "餐食估算回执"),
+        subtitle = language.t(
+            "Confirm portions, oil, sauce, and labels before treating the AI estimate as exact.",
+            "把 AI 估算当作精确记录前，先确认份量、油、酱汁和标签。"
+        )
+    ) {
+        Text(
+            text = language.t("AI MEAL ESTIMATE", "AI 餐食估算"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Meal", "餐食") to mealDescription.ifBlank { builder.localizedTitle(language) },
+                language.t("Confidence", "可信度") to confidence,
+                language.t("Status", "状态") to loggedStatus,
+                language.t("Photo", "照片") to (latestMealPhoto?.type?.localizedLabel(language) ?: language.t("Not attached", "未添加"))
+            )
+        )
+        Text(
+            text = language.t("Estimated macros", "估算宏量营养"),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                "Kcal" to "$estimateCalories",
+                language.t("Protein", "蛋白质") to "${builder.proteinGrams} g",
+                language.t("Carbs", "碳水") to "${builder.carbsGrams} g",
+                language.t("Fat", "脂肪") to "${builder.fatGrams} g",
+                language.t("Fiber", "纤维") to "${builder.fiberGrams} g"
+            )
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            color = IfbbProGlassStrongSurface
+        ) {
+            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(language.t("Remaining after this meal", "这餐后剩余目标"), fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = listOf(
+                        "Kcal ${formatRemainingLocalized(caloriesAfter, "kcal", language)}",
+                        "${language.t("Protein", "蛋白质")} ${formatRemainingLocalized(proteinAfter, "g", language)}",
+                        "${language.t("Carbs", "碳水")} ${formatRemainingLocalized(carbsAfter, "g", language)}",
+                        "${language.t("Fat", "脂肪")} ${formatRemainingLocalized(fatAfter, "g", language)}"
+                    ).joinToString(" | "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Text(
+            text = language.t(
+                "Confirm portions, oil, sauce, and labels. If uncertain, attach a food/menu/label photo before AI changes calories or macros.",
+                "确认份量、油、酱汁和标签。不确定时先添加食物/菜单/标签照片，再让 AI 改热量或宏量。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = onUseAiEstimate, modifier = Modifier.weight(1f)) {
+                Text(language.t("Log estimate", "计入估算"))
+            }
+            ElevatedButton(
+                onClick = {
+                    onPickMealPhoto(
+                        "Food/menu/label photo to improve AI meal estimate. Current estimate: ${builder.localizedTitle(language)} | $estimateCalories kcal | P ${builder.proteinGrams} g | C ${builder.carbsGrams} g | F ${builder.fatGrams} g. Confirm portions, oil, sauce, and labels."
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Add photo", "添加照片"))
+            }
+        }
+        TextButton(onClick = onOpenAi, modifier = Modifier.fillMaxWidth()) {
+            Text(language.t("Ask AI to review meal", "让 AI 复盘这餐"))
+        }
+        DataChipGrid(
+            items = listOf(
+                "MealEstimateReceiptCard",
+                "AI MEAL ESTIMATE",
+                "Meal estimate receipt",
+                "Estimated macros",
+                "Confidence",
+                "Logged to today",
+                "Remaining after this meal",
+                "Confirm portions, oil, sauce, and labels",
+                "餐食估算回执"
+            )
+        )
+    }
+}
+
+@Composable
 private fun MealAssemblyGuideCard(guide: MealAssemblyGuide, language: AppLanguage) {
     SectionCard(
         title = language.t("Meal Assembly Guide", "餐盘组合指南"),
@@ -7039,6 +7168,29 @@ private fun NutritionPage(
                     language.t(
                         "AI estimate from quick capture. Confirm portion, oil, sauce, label, and plate size when possible.",
                         "快速记录的 AI 估算。方便时确认份量、油、酱汁、标签和餐盘大小。"
+                    )
+                )
+                mealDescription = ""
+            },
+            onPickMealPhoto = onPickMealPhoto,
+            onOpenAi = onOpenAi
+        )
+        MealEstimateReceiptCard(
+            log = state.dailyLog,
+            language = language,
+            mealDescription = mealDescription,
+            onUseAiEstimate = {
+                val builder = state.dailyLog.nextMealBuilder()
+                onAddMeal(
+                    mealDescription.ifBlank { builder.localizedTitle(language) },
+                    builder.estimatedCalories(),
+                    builder.proteinGrams.toDouble(),
+                    builder.carbsGrams.toDouble(),
+                    builder.fatGrams.toDouble(),
+                    builder.fiberGrams.toDouble(),
+                    language.t(
+                        "AI estimate receipt. Confirm portions, oil, sauce, labels, and plate size when possible.",
+                        "AI 估算回执。方便时确认份量、油、酱汁、标签和餐盘大小。"
                     )
                 )
                 mealDescription = ""
