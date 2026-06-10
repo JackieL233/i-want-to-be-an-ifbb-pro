@@ -1092,7 +1092,8 @@
       background: rgba(255, 255, 255, 0.54);
     }
 
-    .live-meal-coach-card {
+    .live-meal-coach-card,
+    .one-tap-meal-capture-card {
       position: relative;
       overflow: hidden;
       padding: 12px;
@@ -1109,7 +1110,8 @@
         0 14px 34px rgba(29, 29, 31, 0.10);
     }
 
-    .live-meal-coach-card::before {
+    .live-meal-coach-card::before,
+    .one-tap-meal-capture-card::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -1117,12 +1119,14 @@
       pointer-events: none;
     }
 
-    .live-meal-coach-card > * {
+    .live-meal-coach-card > *,
+    .one-tap-meal-capture-card > * {
       position: relative;
       z-index: 1;
     }
 
-    .live-meal-target {
+    .live-meal-target,
+    .meal-capture-target-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
@@ -1132,6 +1136,23 @@
       border-radius: var(--radius);
       background: rgba(255, 255, 255, 0.62);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .meal-capture-target-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .meal-capture-target-grid .metric {
+      min-height: 58px;
+    }
+
+    .meal-capture-receipt {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(52, 199, 89, 0.26);
+      border-radius: var(--radius);
+      background: rgba(232, 248, 237, 0.64);
     }
 
     .live-meal-title {
@@ -4347,29 +4368,31 @@
         </section>
 
         <section class="panel" data-panel="nutrition" aria-label="Nutrition">
-          <div class="live-meal-coach-card" data-component="LiveMealCoachCard">
+          <div class="one-tap-meal-capture-card live-meal-coach-card" data-component="OneTapMealCaptureCard LiveMealCoachCard">
             <div class="section-head">
+              <p class="eyebrow" data-en="ONE-TAP MEAL CAPTURE" data-zh="一键餐食记录">ONE-TAP MEAL CAPTURE</p>
+              <h2 data-en="One-Tap Meal Capture" data-zh="一键餐食记录">One-Tap Meal Capture</h2>
               <p class="eyebrow" data-en="LIVE MEAL COACH" data-zh="当前餐教练">LIVE MEAL COACH</p>
-              <h2 data-en="Live Meal Coach" data-zh="当前餐教练">Live Meal Coach</h2>
               <p class="subtle" data-en="Eat or log this meal now; AI uses training demand, sleep, health metrics, and body trend before changing tomorrow." data-zh="现在吃或记录这一餐；AI 会结合训练需求、睡眠、健康数据和身体趋势，再决定明天是否调整。">Eat or log this meal now; AI uses training demand, sleep, health metrics, and body trend before changing tomorrow.</p>
             </div>
             <div class="live-meal-target">
               <div>
+                <span class="label" data-en="Live Meal Coach" data-zh="当前餐教练">Live Meal Coach</span>
                 <span class="label" data-en="Eat or log this meal now" data-zh="现在吃或记录这一餐">Eat or log this meal now</span>
+                <span class="label" data-en="Photograph or describe this meal" data-zh="拍照或描述这一餐">Photograph or describe this meal</span>
                 <div class="live-meal-title" data-en="Protein-first meal" data-zh="蛋白质优先餐">Protein-first meal</div>
                 <p class="subtle" data-en="Close the protein gap before adding extra carbs or fats." data-zh="先补齐蛋白质缺口，再考虑额外碳水或脂肪。">Close the protein gap before adding extra carbs or fats.</p>
               </div>
               <div class="food-icon">AI</div>
             </div>
-            <div class="metric-grid">
-              <div class="metric"><span class="label" data-en="Estimated kcal" data-zh="估算热量">Estimated kcal</span><span class="value">820 kcal</span></div>
+            <div class="meal-capture-target-grid" aria-label="Meal target / P / C / F">
+              <div class="metric"><span class="label" data-en="Meal target" data-zh="本餐目标">Meal target</span><span class="value">820 kcal</span></div>
               <div class="metric"><span class="label" data-en="Protein" data-zh="蛋白质">Protein</span><span class="value">57 g</span></div>
               <div class="metric"><span class="label" data-en="Carbs" data-zh="碳水">Carbs</span><span class="value">95 g</span></div>
               <div class="metric"><span class="label" data-en="Fat" data-zh="脂肪">Fat</span><span class="value">24 g</span></div>
-              <div class="metric"><span class="label" data-en="Remaining after" data-zh="餐后剩余">Remaining after</span><span class="value" data-en="50 kcal | P on target | C 10g | F on target" data-zh="50 kcal | 蛋白达标 | 碳水 10g | 脂肪达标">50 kcal | P on target | C 10g | F on target</span></div>
-              <div class="metric"><span class="label" data-en="One-tap meal evidence" data-zh="一键餐食证据">One-tap meal evidence</span><span class="value" data-en="Photo + text ready" data-zh="照片 + 文字就绪">Photo + text ready</span></div>
             </div>
-            <textarea class="live-meal-input" aria-label="Photo or text meal note" data-en="Chicken rice bowl, sauce on side" data-zh="鸡肉米饭碗，酱汁另放">Chicken rice bowl, sauce on side</textarea>
+            <p class="subtle" data-en="Meal target / P / C / F" data-zh="本餐目标 / 蛋白 / 碳水 / 脂肪">Meal target / P / C / F</p>
+            <textarea class="live-meal-input" aria-label="Photograph or describe this meal" data-en="Chicken rice bowl, sauce on side" data-zh="鸡肉米饭碗，酱汁另放">Chicken rice bowl, sauce on side</textarea>
             <div class="coach-lane">
               <span data-en="Photo or text" data-zh="照片或文字">Photo or text</span>
               <span data-en="AI estimate" data-zh="AI 估算">AI estimate</span>
@@ -4378,7 +4401,13 @@
             </div>
             <div class="action-row">
               <button class="button" type="button" data-en="Food photo" data-zh="食物照片">Food photo</button>
-              <button class="button primary" type="button" data-en="Log this meal estimate" data-zh="记录这餐估算">Log this meal estimate</button>
+              <button id="log-ai-meal-estimate" class="button primary" type="button" data-en="Log AI estimate + update remaining macros" data-zh="记录 AI 估算并更新剩余宏量">Log AI estimate + update remaining macros</button>
+            </div>
+            <p class="subtle" data-en="Log this meal estimate" data-zh="记录这餐估算">Log this meal estimate</p>
+            <div id="meal-capture-receipt" class="meal-capture-receipt" aria-live="polite">
+              <strong data-en="Remaining macros update immediately" data-zh="剩余宏量立即更新">Remaining macros update immediately</strong>
+              <p class="subtle" data-en="One-tap meal evidence: photo + text ready" data-zh="一键餐食证据：照片 + 文字就绪">One-tap meal evidence: photo + text ready</p>
+              <p class="subtle" data-meal-macro-receipt data-en="Ready: 50 kcal left | protein on target | 10 g carbs left | fat on target" data-zh="就绪：还剩 50 kcal | 蛋白质达标 | 碳水还剩 10 g | 脂肪达标">Ready: 50 kcal left | protein on target | 10 g carbs left | fat on target</p>
             </div>
             <p class="subtle" data-en="Photo or text -> AI estimate -> meal log. This evidence is linked to training volume, sleep, weight trend, and daily macros before AI changes targets." data-zh="照片或文字 -> AI 估算 -> 餐食记录。证据会联动训练容量、睡眠、体重趋势和每日宏量，再让 AI 调整目标。">Photo or text -> AI estimate -> meal log. This evidence is linked to training volume, sleep, weight trend, and daily macros before AI changes targets.</p>
           </div>
@@ -6027,6 +6056,8 @@
     const completeSet = document.getElementById("complete-set");
     const heroCompleteSet = document.getElementById("hero-complete-set");
     const liveCompleteSet = document.getElementById("live-complete-set");
+    const logAiMealEstimate = document.getElementById("log-ai-meal-estimate");
+    const mealCaptureReceipt = document.getElementById("meal-capture-receipt");
     let timerId = 0;
 
     function formatTime(seconds) {
@@ -6060,6 +6091,25 @@
     completeSet.addEventListener("click", startRestTimer);
     heroCompleteSet.addEventListener("click", startRestTimer);
     liveCompleteSet.addEventListener("click", startRestTimer);
+
+    function logMealEstimate() {
+      if (logAiMealEstimate) {
+        logAiMealEstimate.dataset.en = "Logged + macros updated";
+        logAiMealEstimate.dataset.zh = "已记录 + 宏量已更新";
+        logAiMealEstimate.textContent = currentLang === "zh" ? logAiMealEstimate.dataset.zh : logAiMealEstimate.dataset.en;
+        logAiMealEstimate.disabled = true;
+      }
+      if (mealCaptureReceipt) {
+        const receiptText = mealCaptureReceipt.querySelector("[data-meal-macro-receipt]");
+        if (receiptText) {
+          receiptText.dataset.en = "Logged to today: 50 kcal left | protein on target | 10 g carbs left | fat on target";
+          receiptText.dataset.zh = "已计入今日：还剩 50 kcal | 蛋白质达标 | 碳水还剩 10 g | 脂肪达标";
+          receiptText.textContent = currentLang === "zh" ? receiptText.dataset.zh : receiptText.dataset.en;
+        }
+      }
+    }
+
+    logAiMealEstimate.addEventListener("click", logMealEstimate);
     mountFoldedPanels();
     setLanguage("en");
     activateTab(currentTab, false);

@@ -4530,18 +4530,59 @@ private fun LiveMealCoachCard(
         it.type == PhotoEvidenceType.MEAL || it.type == PhotoEvidenceType.MENU_LABEL
     }
 
+    OneTapMealCaptureCard(
+        builder = builder,
+        pacing = pacing,
+        language = language,
+        mealDescription = mealDescription,
+        estimateCalories = estimateCalories,
+        caloriesAfter = caloriesAfter,
+        proteinAfter = proteinAfter,
+        carbsAfter = carbsAfter,
+        fatAfter = fatAfter,
+        evidenceCount = evidenceCount,
+        onMealDescriptionChange = onMealDescriptionChange,
+        onUseAiEstimate = onUseAiEstimate,
+        onPickMealPhoto = onPickMealPhoto,
+        onOpenAi = onOpenAi
+    )
+}
+
+@Composable
+private fun OneTapMealCaptureCard(
+    builder: NextMealBuilder,
+    pacing: NutritionPacing,
+    language: AppLanguage,
+    mealDescription: String,
+    estimateCalories: Int,
+    caloriesAfter: Int,
+    proteinAfter: Int,
+    carbsAfter: Int,
+    fatAfter: Int,
+    evidenceCount: Int,
+    onMealDescriptionChange: (String) -> Unit,
+    onUseAiEstimate: () -> Unit,
+    onPickMealPhoto: (String) -> Unit,
+    onOpenAi: () -> Unit
+) {
     SectionCard(
-        title = language.t("Live Meal Coach", "当前餐教练"),
+        title = language.t("One-Tap Meal Capture", "一键餐食记录"),
         subtitle = language.t(
             "Eat or log this meal now; AI uses the estimate with training demand, sleep, health metrics, and body trend before changing tomorrow.",
             "现在吃或记录这一餐；AI 会把估算与训练需求、睡眠、健康数据和身体趋势联动后，再决定明天是否调整。"
         )
     ) {
         Text(
-            text = language.t("LIVE MEAL COACH", "当前餐教练"),
+            text = language.t("ONE-TAP MEAL CAPTURE", "一键餐食记录"),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = language.t("Live Meal Coach", "当前餐教练"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.SemiBold
         )
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -4551,6 +4592,7 @@ private fun LiveMealCoachCard(
         ) {
             Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                 Text(language.t("Eat or log this meal now", "现在吃或记录这一餐"), fontWeight = FontWeight.SemiBold)
+                Text(language.t("Photograph or describe this meal", "拍照或描述这一餐"), fontWeight = FontWeight.SemiBold)
                 Text(
                     text = builder.localizedTitle(language),
                     style = MaterialTheme.typography.titleMedium,
@@ -4570,6 +4612,7 @@ private fun LiveMealCoachCard(
         }
         MetricGrid(
             metrics = listOf(
+                language.t("Meal target / P / C / F", "本餐目标 / 蛋白 / 碳水 / 脂肪") to "$estimateCalories kcal / P ${builder.proteinGrams} g / C ${builder.carbsGrams} g / F ${builder.fatGrams} g",
                 language.t("Estimated kcal", "估算热量") to "$estimateCalories kcal",
                 language.t("Protein", "蛋白质") to "${builder.proteinGrams} g",
                 language.t("Carbs", "碳水") to "${builder.carbsGrams} g",
@@ -4583,11 +4626,16 @@ private fun LiveMealCoachCard(
                 language.t("One-tap meal evidence", "一键餐食证据") to "$evidenceCount"
             )
         )
+        Text(
+            text = language.t("Remaining macros update immediately", "剩余宏量立即更新"),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
+        )
         OutlinedTextField(
             value = mealDescription,
             onValueChange = onMealDescriptionChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text(language.t("Photo or text meal note", "拍照或文字记录这一餐")) },
+            label = { Text(language.t("Photograph or describe this meal", "拍照或描述这一餐")) },
             placeholder = {
                 Text(language.t("chicken rice bowl, sauce on side", "鸡肉米饭碗，酱汁另放"))
             },
@@ -4605,7 +4653,7 @@ private fun LiveMealCoachCard(
                 Text(language.t("Food photo", "食物照片"))
             }
             Button(onClick = onUseAiEstimate, modifier = Modifier.weight(1f)) {
-                Text(language.t("Log this meal estimate", "记录这餐估算"))
+                Text(language.t("Log AI estimate + update remaining macros", "记录 AI 估算并更新剩余宏量"))
             }
         }
         TextButton(onClick = onOpenAi, modifier = Modifier.fillMaxWidth()) {
@@ -4613,12 +4661,20 @@ private fun LiveMealCoachCard(
         }
         DataChipGrid(
             items = listOf(
+                "OneTapMealCaptureCard",
+                "ONE-TAP MEAL CAPTURE",
                 "LiveMealCoachCard",
                 "LIVE MEAL COACH",
+                language.t("Photograph or describe this meal", "拍照或描述这一餐"),
+                language.t("Meal target / P / C / F", "本餐目标 / 蛋白 / 碳水 / 脂肪"),
+                language.t("Log AI estimate + update remaining macros", "记录 AI 估算并更新剩余宏量"),
+                language.t("Log this meal estimate", "记录这餐估算"),
+                language.t("Remaining macros update immediately", "剩余宏量立即更新"),
                 language.t("Photo or text -> AI estimate -> meal log", "照片或文字 -> AI 估算 -> 餐食记录"),
                 language.t("One-tap meal evidence", "一键餐食证据"),
                 pacing.localizedStatusLabel(language),
                 language.t("当前餐教练", "当前餐教练"),
+                language.t("一键餐食记录", "一键餐食记录"),
                 language.t("记录这餐估算", "记录这餐估算")
             )
         )
