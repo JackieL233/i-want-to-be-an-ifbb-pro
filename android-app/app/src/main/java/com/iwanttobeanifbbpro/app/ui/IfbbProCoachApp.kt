@@ -9231,6 +9231,191 @@ private fun PhotoEvidenceCard(
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
+private fun LiveAIReviewCoachCard(
+    state: CoachUiState,
+    setup: AiSetupStatus,
+    executionPlan: DailyExecutionPlan,
+    reviewQueue: AiReviewActionQueue,
+    onShowSetup: () -> Unit,
+    onPickImages: () -> Unit,
+    onRunAnalysis: () -> Unit,
+    onDailyReview: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val language = state.appLanguage
+    val log = state.dailyLog
+    val plannedSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val hasReviewToday = state.reviewHistory.any { it.logDate == log.date }
+    val metricsReady = log.metrics.bodyWeightKg != null ||
+        log.metrics.sleepHours != null ||
+        log.metrics.steps > 0 ||
+        log.metrics.healthSyncedAt.isNotBlank()
+    val photoEvidenceCount = log.photoEvidence.size + state.images.size
+    val evidenceReadyCount = listOf(
+        plannedSets > 0 && completedSets >= plannedSets,
+        log.meals.isNotEmpty(),
+        metricsReady,
+        setup.canRunAi
+    ).count { it }
+    val routeAction: () -> Unit = when (executionPlan.primaryActionRoute) {
+        DailyExecutionRoute.PLAN -> onOpenPlan
+        DailyExecutionRoute.TRAINING -> onOpenTraining
+        DailyExecutionRoute.NUTRITION -> onOpenNutrition
+        DailyExecutionRoute.METRICS -> onOpenMetrics
+        DailyExecutionRoute.AI_REVIEW -> if (executionPlan.primaryActionLabel == "View review") onOpenAi else onDailyReview
+    }
+    val queueAction: () -> Unit = {
+        performAiReviewAction(
+            action = reviewQueue.primaryAction,
+            onDailyReview = onDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi
+        )
+    }
+    val primaryTitle: String
+    val primaryDetail: String
+    val primaryLabel: String
+    val primaryEnabled: Boolean
+    val primaryAction: () -> Unit
+    when {
+        state.isLoading -> {
+            primaryTitle = language.t("Reviewing today's evidence", "正在复盘今天的证据")
+            primaryDetail = language.t(
+                "AI is reading training, food, body data, photos, and recent trends. Keep the review open until it is saved.",
+                "AI 正在读取训练、饮食、身体数据、照片和近期趋势。保持复盘页打开，直到保存完成。"
+            )
+            primaryLabel = language.t("Reviewing", "复盘中")
+            primaryEnabled = false
+            primaryAction = {}
+        }
+        !setup.canRunAi -> {
+            primaryTitle = language.t("Set API before review", "复盘前先设置 API")
+            primaryDetail = setup.detail
+            primaryLabel = language.t("Set API first", "先设置 API")
+            primaryEnabled = true
+            primaryAction = onShowSetup
+        }
+        executionPlan.primaryActionRoute != DailyExecutionRoute.AI_REVIEW -> {
+            primaryTitle = language.t("Evidence needs one more step", "证据还差一步")
+            primaryDetail = executionPlan.nextBestAction
+            primaryLabel = executionPlan.primaryActionLabel
+            primaryEnabled = true
+            primaryAction = routeAction
+        }
+        hasReviewToday -> {
+            primaryTitle = language.t("Today's AI review is saved", "今天的 AI 复盘已保存")
+            primaryDetail = language.t(
+                "Use the action queue to apply the review to training, food, recovery, tracking, or planning.",
+                "用行动队列把复盘结果应用到训练、饮食、恢复、追踪或计划。"
+            )
+            primaryLabel = reviewQueue.primaryAction.actionLabel
+            primaryEnabled = true
+            primaryAction = queueAction
+        }
+        else -> {
+            primaryTitle = language.t("Run daily AI review", "运行每日 AI 复盘")
+            primaryDetail = language.t(
+                "Send today's plan, set logs, meals, metrics, photos, and trends so AI can decide tomorrow's changes.",
+                "发送今天的计划、组记录、饮食、身体数据、照片和趋势，让 AI 判断明天需要怎么调整。"
+            )
+            primaryLabel = language.t("Run daily review", "运行每日复盘")
+            primaryEnabled = true
+            primaryAction = onDailyReview
+        }
+    }
+
+    SectionCard(
+        title = language.t("Live AI Review Coach", "当前 AI 复盘教练"),
+        subtitle = language.t(
+            "Set API or run review now; keep setup, evidence, review, and applied changes in one simple path.",
+            "现在设置 API 或运行复盘；把设置、证据、复盘和应用变更收成一条简单路径。"
+        )
+    ) {
+        Text(
+            text = language.t("LIVE AI REVIEW COACH", "当前 AI 复盘教练"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            color = IfbbProGlassStrongSurface
+        ) {
+            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(language.t("Set API or run review now", "设置 API 或运行复盘"), fontWeight = FontWeight.SemiBold)
+                Text(primaryTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = primaryDetail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(onClick = primaryAction, enabled = primaryEnabled && !state.isLoading, modifier = Modifier.fillMaxWidth()) {
+                    Text(primaryLabel)
+                }
+            }
+        }
+        MetricGrid(
+            metrics = listOf(
+                language.t("API", "API") to setup.statusLabel,
+                language.t("Evidence bundle ready", "证据包就绪") to "$evidenceReadyCount/4",
+                language.t("Training", "训练") to "$completedSets/$plannedSets",
+                language.t("Food", "饮食") to log.meals.size.toString(),
+                language.t("Metrics", "身体数据") to if (metricsReady) language.t("Ready", "就绪") else language.t("Missing", "缺失"),
+                language.t("Photos", "照片") to photoEvidenceCount.toString(),
+                language.t("One-tap AI review", "一键 AI 复盘") to if (hasReviewToday) {
+                    language.t("Saved", "已保存")
+                } else {
+                    language.t("Ready path", "路径就绪")
+                },
+                language.t("Apply", "应用") to reviewQueue.confidenceLabel
+            )
+        )
+        LinearProgressIndicator(
+            progress = { evidenceReadyCount / 4f },
+            modifier = Modifier.fillMaxWidth()
+        )
+        DataChipGrid(
+            items = listOf(
+                "LiveAIReviewCoachCard",
+                "LIVE AI REVIEW COACH",
+                language.t("Setup -> evidence -> review -> apply", "设置 -> 证据 -> 复盘 -> 应用"),
+                language.t("Evidence bundle ready", "证据包就绪"),
+                language.t("One-tap AI review", "一键 AI 复盘"),
+                language.t("当前 AI 复盘教练", "当前 AI 复盘教练"),
+                language.t("设置 API 或运行复盘", "设置 API 或运行复盘")
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ElevatedButton(onClick = onPickImages, modifier = Modifier.weight(1f)) {
+                Text(language.t("Add photos", "添加照片"))
+            }
+            TextButton(onClick = onRunAnalysis, enabled = setup.canRunAi && !state.isLoading, modifier = Modifier.weight(1f)) {
+                Text(language.t("Run mode", "模式分析"))
+            }
+        }
+        Text(
+            text = language.t(
+                "AI changes training split, volume, rest, calories, or macros only after reading training, food, metrics, photos, and trend evidence together.",
+                "AI 只有在联动读取训练、饮食、身体数据、照片和趋势证据后，才调整分化、容量、休息、热量或宏量。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun AiReviewFlowCoachCard(
     state: CoachUiState,
     setup: AiSetupStatus,
@@ -9476,6 +9661,21 @@ private fun AiCoachPage(
     )
     var showAiDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LiveAIReviewCoachCard(
+            state = state,
+            setup = aiSetup,
+            executionPlan = executionPlan,
+            reviewQueue = reviewQueue,
+            onShowSetup = { showAiDetails = true },
+            onPickImages = onPickImages,
+            onRunAnalysis = onRunAnalysis,
+            onDailyReview = onDailyReview,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onOpenAi = onOpenAi
+        )
         AiReviewFlowCoachCard(
             state = state,
             setup = aiSetup,

@@ -978,6 +978,64 @@
       min-height: 58px;
     }
 
+    .live-ai-review-coach-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(88, 86, 214, 0.13), rgba(255, 255, 255, 0.72) 48%, rgba(0, 122, 255, 0.13)),
+        rgba(255, 255, 255, 0.74);
+      backdrop-filter: blur(20px) saturate(155%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.88),
+        0 14px 34px rgba(29, 29, 31, 0.10);
+    }
+
+    .live-ai-review-coach-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
+    .live-ai-review-coach-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .live-ai-review-target {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .live-ai-review-title {
+      font-size: 24px;
+      line-height: 1.05;
+      font-weight: 820;
+    }
+
+    .live-ai-review-evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .live-ai-review-evidence-grid .metric {
+      min-height: 58px;
+    }
+
     .metrics-step-row {
       display: grid;
       grid-template-columns: 32px minmax(0, 1fr) auto;
@@ -4494,6 +4552,42 @@
         </section>
 
         <section class="panel" data-panel="ai" aria-label="AI Coach">
+          <div class="live-ai-review-coach-card" data-component="LiveAIReviewCoachCard">
+            <div class="section-head">
+              <p class="eyebrow" data-en="LIVE AI REVIEW COACH" data-zh="当前 AI 复盘教练">LIVE AI REVIEW COACH</p>
+              <h2 data-en="Live AI Review Coach" data-zh="当前 AI 复盘教练">Live AI Review Coach</h2>
+              <p class="subtle" data-en="Set API or run review now; setup, evidence, review, and applied changes stay in one simple path." data-zh="现在设置 API 或运行复盘；设置、证据、复盘和应用变更保持在一条简单路径里。">Set API or run review now; setup, evidence, review, and applied changes stay in one simple path.</p>
+            </div>
+            <div class="live-ai-review-target">
+              <div>
+                <span class="label" data-en="Set API or run review now" data-zh="设置 API 或运行复盘">Set API or run review now</span>
+                <div class="live-ai-review-title" data-en="Run daily AI review" data-zh="运行每日 AI 复盘">Run daily AI review</div>
+                <p class="subtle" data-en="Training, food, body data, photos, and recent trends are ready enough to decide tomorrow's priorities." data-zh="训练、饮食、身体数据、照片和近期趋势已足够用于决定明天的优先级。">Training, food, body data, photos, and recent trends are ready enough to decide tomorrow's priorities.</p>
+              </div>
+              <div class="sync-icon">AI</div>
+            </div>
+            <div class="live-ai-review-evidence-grid">
+              <div class="metric"><span class="label" data-en="API" data-zh="API">API</span><span class="value" data-en="Ready" data-zh="就绪">Ready</span></div>
+              <div class="metric"><span class="label" data-en="Evidence bundle ready" data-zh="证据包就绪">Evidence bundle ready</span><span class="value">4/4</span></div>
+              <div class="metric"><span class="label" data-en="Training" data-zh="训练">Training</span><span class="value">18/18</span></div>
+              <div class="metric"><span class="label" data-en="Food" data-zh="饮食">Food</span><span class="value">4</span></div>
+              <div class="metric"><span class="label" data-en="Metrics" data-zh="身体数据">Metrics</span><span class="value" data-en="Ready" data-zh="就绪">Ready</span></div>
+              <div class="metric"><span class="label" data-en="One-tap AI review" data-zh="一键 AI 复盘">One-tap AI review</span><span class="value" data-en="Ready path" data-zh="路径就绪">Ready path</span></div>
+            </div>
+            <div class="progress green"><span style="width:100%"></span></div>
+            <div class="coach-lane">
+              <span data-en="Setup" data-zh="设置">Setup</span>
+              <span data-en="Evidence" data-zh="证据">Evidence</span>
+              <span data-en="Review" data-zh="复盘">Review</span>
+              <span data-en="Apply" data-zh="应用">Apply</span>
+            </div>
+            <div class="action-row">
+              <button class="button primary" type="button" data-en="Run daily review" data-zh="运行每日复盘">Run daily review</button>
+              <button class="button" type="button" data-en="Add photos" data-zh="添加照片">Add photos</button>
+            </div>
+            <p class="subtle" data-en="Setup -> evidence -> review -> apply. AI changes split, volume, rest, calories, or macros only after reading training, food, metrics, photos, and trends together." data-zh="设置 -> 证据 -> 复盘 -> 应用。AI 只有在联动读取训练、饮食、身体数据、照片和趋势后，才调整分化、容量、休息、热量或宏量。">Setup -> evidence -> review -> apply. AI changes split, volume, rest, calories, or macros only after reading training, food, metrics, photos, and trends together.</p>
+          </div>
+
           <div class="section glass one-tap-hero ai-hero">
             <div class="section-head">
               <h2 data-en="AI Review Flow Coach" data-zh="AI 复盘流程教练">AI Review Flow Coach</h2>
