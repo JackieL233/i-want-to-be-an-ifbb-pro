@@ -443,6 +443,15 @@ private fun GlobalNextActionStrip(
             onRunAiReview = onRunAiReview,
             onOpenAi = onOpenAi
         )
+        GlobalReviewReadinessCard(
+            state = state,
+            language = language,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onRunAiReview = onRunAiReview,
+            onOpenAi = onOpenAi
+        )
     }
 }
 
@@ -692,6 +701,196 @@ private fun DailyLaunchCloseoutCard(
                 ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun GlobalReviewReadinessCard(
+    state: CoachUiState,
+    language: AppLanguage,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onRunAiReview: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val log = state.dailyLog
+    val plannedSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val totals = log.nutritionTotals()
+    val setup = state.aiSetupStatus(language)
+    val trainingReady = plannedSets > 0 && completedSets >= plannedSets
+    val foodReady = log.meals.isNotEmpty() && totals.calories > 0 && totals.protein > 0
+    val bodyReady = log.metrics.bodyWeightKg != null ||
+        log.metrics.sleepHours != null ||
+        log.metrics.steps > 0 ||
+        log.metrics.healthSyncedAt.isNotBlank()
+    val photoApiReady = setup.canRunAi && (state.images.isNotEmpty() || log.photoEvidence.isNotEmpty())
+    val hasReviewToday = state.reviewHistory.any { it.logDate == log.date }
+    val items = listOf(
+        ReviewReadinessChecklistItem(
+            label = language.t("Training evidence", "训练证据"),
+            detail = if (plannedSets > 0) {
+                language.t("$completedSets/$plannedSets planned sets logged.", "已记录 $completedSets/$plannedSets 个计划组。")
+            } else {
+                language.t("Load or finish today's workout before changing tomorrow.", "先载入或完成今天训练，再更改明天计划。")
+            },
+            ready = trainingReady,
+            actionLabel = language.t("Open training", "打开训练"),
+            onAction = onOpenTraining
+        ),
+        ReviewReadinessChecklistItem(
+            label = language.t("Food evidence", "饮食证据"),
+            detail = if (foodReady) {
+                language.t("${log.meals.size} meal(s), ${totals.calories} kcal, P ${totals.protein} g.", "已记录 ${log.meals.size} 餐，${totals.calories} kcal，蛋白质 ${totals.protein} g。")
+            } else {
+                language.t("Add a meal photo or text log so macros can be compared.", "添加一张餐食照片或文字记录，用于对照宏量营养。")
+            },
+            ready = foodReady,
+            actionLabel = language.t("Open food", "打开饮食"),
+            onAction = onOpenNutrition
+        ),
+        ReviewReadinessChecklistItem(
+            label = language.t("Body evidence", "身体证据"),
+            detail = if (bodyReady) {
+                language.t("Body, sleep, steps, or health sync data is linked.", "体重、睡眠、步数或健康同步数据已联动。")
+            } else {
+                language.t("Sync health data or add weight, sleep, soreness, and stress.", "同步健康数据，或补充体重、睡眠、酸痛和压力。")
+            },
+            ready = bodyReady,
+            actionLabel = language.t("Open body data", "打开身体数据"),
+            onAction = onOpenMetrics
+        ),
+        ReviewReadinessChecklistItem(
+            label = language.t("Photo/API evidence", "照片/API 证据"),
+            detail = language.t(
+                "API ${setup.statusLabel}; photos ${state.images.size + log.photoEvidence.size}.",
+                "API ${setup.statusLabel}；照片 ${state.images.size + log.photoEvidence.size}。"
+            ),
+            ready = photoApiReady,
+            actionLabel = language.t("Open AI setup", "打开 AI 设置"),
+            onAction = onOpenAi
+        )
+    )
+    val readyCount = items.count { it.ready }
+    val allEvidenceReady = readyCount == items.size
+    val primaryItem = items.firstOrNull { !it.ready }
+    val primaryLabel: String
+    val primaryAction: () -> Unit
+    when {
+        primaryItem != null -> {
+            primaryLabel = primaryItem.actionLabel
+            primaryAction = primaryItem.onAction
+        }
+        !hasReviewToday && setup.canRunAi -> {
+            primaryLabel = language.t("Run review", "运行复盘")
+            primaryAction = onRunAiReview
+        }
+        else -> {
+            primaryLabel = language.t("Open AI", "打开 AI")
+            primaryAction = onOpenAi
+        }
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, IfbbProGlassBorder),
+        color = IfbbProGlassStrongSurface
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(
+                        text = language.t("GLOBAL REVIEW READINESS", "全局复盘准备度"),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = language.t("AI Review Readiness", "今晚能否复盘"),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = language.t(
+                            "Tonight review can update tomorrow only after evidence is linked.",
+                            "只有训练、饮食、身体数据和照片/API 证据联动后，今晚复盘才会更新明天。"
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = "$readyCount/${items.size}",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Ready to review tonight", "今晚能否复盘") to if (allEvidenceReady && setup.canRunAi) {
+                        language.t("Ready", "就绪")
+                    } else {
+                        language.t("Not yet", "暂未就绪")
+                    },
+                    language.t("Safe AI change gate", "安全 AI 变更门槛") to "$readyCount/${items.size}",
+                    language.t("Today review", "今日复盘") to if (hasReviewToday) {
+                        language.t("Saved", "已保存")
+                    } else {
+                        language.t("Pending", "待复盘")
+                    },
+                    language.t("API", "API") to setup.statusLabel
+                )
+            )
+            LinearProgressIndicator(progress = { readyCount / items.size.toFloat() }, modifier = Modifier.fillMaxWidth())
+            items.forEach { item ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = if (item.ready) 0.72f else 0.56f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(item.label, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                text = item.detail,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        TextButton(onClick = item.onAction) {
+                            Text(if (item.ready) language.t("View", "查看") else item.actionLabel)
+                        }
+                    }
+                }
+            }
+            Button(
+                onClick = primaryAction,
+                enabled = !state.isLoading,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(primaryLabel)
+            }
+            DataChipGrid(
+                items = listOf(
+                    "GlobalReviewReadinessCard",
+                    language.t("GLOBAL REVIEW READINESS", "全局复盘准备度"),
+                    language.t("AI Review Readiness", "今晚能否复盘"),
+                    language.t("Training evidence", "训练证据"),
+                    language.t("Food evidence", "饮食证据"),
+                    language.t("Body evidence", "身体证据"),
+                    language.t("Photo/API evidence", "照片/API 证据"),
+                    language.t("Safe AI change gate", "安全 AI 变更门槛")
+                )
             )
         }
     }
