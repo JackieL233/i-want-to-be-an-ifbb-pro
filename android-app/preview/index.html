@@ -607,6 +607,52 @@
       line-height: 1.24;
     }
 
+    .health-sync-receipt-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(18px) saturate(150%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        0 12px 32px rgba(29, 29, 31, 0.08);
+    }
+
+    .health-sync-receipt-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(0, 122, 255, 0.10), rgba(52, 199, 89, 0.08) 58%, rgba(255, 255, 255, 0.2));
+      pointer-events: none;
+    }
+
+    .health-sync-receipt-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .health-sync-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(209, 209, 214, 0.66);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.70);
+    }
+
+    .health-sync-row strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.24;
+    }
+
     .food-icon,
     .sync-icon {
       width: 38px;
@@ -3588,6 +3634,39 @@
             </div>
           </div>
 
+          <div class="health-sync-receipt-card" data-component="HealthSyncReceiptCard">
+            <div class="section-head">
+              <p class="eyebrow" data-en="HEALTH SYNC RECEIPT" data-zh="健康同步回执">HEALTH SYNC RECEIPT</p>
+              <h2 data-en="Health sync receipt" data-zh="健康同步回执">Health sync receipt</h2>
+              <p class="subtle" data-en="Imported health signals, missing gaps, and how AI will use them before changing training or calories." data-zh="查看今天已导入的健康信号、缺失项，以及 AI 在调整训练或热量前会如何使用它们。">Imported health signals, missing gaps, and how AI will use them before changing training or calories.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="Status" data-zh="状态">Status</span><span class="value" data-en="Auto refresh on app open" data-zh="打开 App 自动刷新">Auto refresh on app open</span></div>
+              <div class="metric"><span class="label" data-en="Source" data-zh="来源">Source</span><span class="value">Health Connect</span></div>
+              <div class="metric"><span class="label" data-en="Imported today" data-zh="今天已导入">Imported today</span><span class="value">6</span></div>
+              <div class="metric"><span class="label" data-en="Missing signals" data-zh="缺失信号">Missing signals</span><span class="value">1</span></div>
+            </div>
+            <div class="health-sync-row">
+              <div>
+                <strong data-en="Imported today" data-zh="今天已导入">Imported today</strong>
+                <p class="subtle" data-en="Weight, body fat, sleep, steps, resting HR, and calorie burn." data-zh="体重、体脂、睡眠、步数、静息心率和消耗热量。">Weight, body fat, sleep, steps, resting HR, and calorie burn.</p>
+              </div>
+              <span class="badge green" data-en="Synced" data-zh="已同步">Synced</span>
+            </div>
+            <div class="health-sync-row">
+              <div>
+                <strong data-en="Missing signals" data-zh="缺失信号">Missing signals</strong>
+                <p class="subtle" data-en="Waist measurement still needs a manual check-in before weekly physique decisions." data-zh="腰围仍需要手动补录，再用于每周体型决策。">Waist measurement still needs a manual check-in before weekly physique decisions.</p>
+              </div>
+              <span class="badge amber" data-en="Manual" data-zh="手动">Manual</span>
+            </div>
+            <p class="subtle" data-en="AI uses sleep, weight, steps, resting HR, and calorie burn with training and food before changing training or calories." data-zh="AI 会把睡眠、体重、步数、静息心率和消耗热量，与训练和饮食一起分析，再决定是否调整训练或热量。">AI uses sleep, weight, steps, resting HR, and calorie burn with training and food before changing training or calories.</p>
+            <p class="subtle" data-en="Manual fallback still works when a phone, scale, watch, or source app does not expose a compatible Health Connect record." data-zh="当手机、体脂秤、手表或来源 App 没有兼容记录时，手动补录仍然可用。">Manual fallback still works when a phone, scale, watch, or source app does not expose a compatible Health Connect record.</p>
+            <div class="action-row">
+              <button class="button primary" type="button" data-en="Sync today" data-zh="同步今天">Sync today</button>
+              <button class="button" type="button" data-en="Manual fields" data-zh="手动字段">Manual fields</button>
+            </div>
+          </div>
           <details class="advanced-stack">
             <summary>
               <span data-en="Metrics detail layers" data-zh="数据细节层">Metrics detail layers</span>

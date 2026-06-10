@@ -7537,6 +7537,130 @@ private fun MetricsFlowCoachCard(
 }
 
 @Composable
+private fun HealthSyncReceiptCard(
+    state: CoachUiState,
+    onConnectHealthData: () -> Unit,
+    onSyncHealthData: () -> Unit,
+    onOpenDetails: () -> Unit
+) {
+    val language = state.appLanguage
+    val metrics = state.dailyLog.metrics
+    val snapshot = state.healthSnapshot
+    val source = metrics.healthDataSource.ifBlank { snapshot.source.ifBlank { "Health Connect" } }
+    val importedSignals = listOfNotNull(
+        (metrics.bodyWeightKg ?: snapshot.bodyWeightKg)?.let { language.t("Weight", "体重") },
+        (metrics.bodyFatPercent ?: snapshot.bodyFatPercent)?.let { language.t("Body fat", "体脂") },
+        (metrics.leanBodyMassKg ?: snapshot.leanBodyMassKg)?.let { language.t("Lean mass", "瘦体重") },
+        (metrics.sleepHours ?: snapshot.sleepHours)?.let { language.t("Sleep", "睡眠") },
+        ((metrics.steps.takeIf { it > 0 } ?: snapshot.steps?.toInt()))?.let { language.t("Steps", "步数") },
+        (metrics.restingHeartRateBpm ?: snapshot.restingHeartRateBpm)?.let { language.t("Resting HR", "静息心率") },
+        (metrics.totalCaloriesBurnedKcal ?: snapshot.totalCaloriesBurnedKcal)?.let { language.t("Calorie burn", "消耗热量") }
+    )
+    val missingSignals = listOfNotNull(
+        if (metrics.bodyWeightKg == null && snapshot.bodyWeightKg == null) language.t("weight", "体重") else null,
+        if (metrics.sleepHours == null && snapshot.sleepHours == null) language.t("sleep", "睡眠") else null,
+        if (metrics.steps <= 0 && snapshot.steps == null) language.t("steps", "步数") else null,
+        if (metrics.restingHeartRateBpm == null && snapshot.restingHeartRateBpm == null) language.t("resting HR", "静息心率") else null,
+        if (metrics.totalCaloriesBurnedKcal == null && snapshot.totalCaloriesBurnedKcal == null) language.t("calorie burn", "消耗热量") else null
+    )
+    val importedLabel = if (importedSignals.isEmpty()) {
+        language.t("None yet", "暂未导入")
+    } else {
+        importedSignals.joinToString(", ")
+    }
+    val missingLabel = if (missingSignals.isEmpty()) {
+        language.t("No key gaps", "关键项无缺口")
+    } else {
+        missingSignals.joinToString(", ")
+    }
+    val syncStatus = when {
+        state.isHealthSyncing -> language.t("Refreshing", "刷新中")
+        metrics.healthSyncedAt.isNotBlank() -> language.t("Synced today", "今天已同步")
+        snapshot.permissionsGranted -> language.t("Auto refresh on app open", "打开 App 自动刷新")
+        snapshot.available -> language.t("Needs permission", "需要授权")
+        else -> language.t("Manual fallback still works", "手动补录仍可用")
+    }
+
+    SectionCard(
+        title = language.t("Health sync receipt", "健康同步回执"),
+        subtitle = language.t(
+            "Imported health signals, missing gaps, and how AI will use them before changing training or calories.",
+            "已导入健康信号、缺失项，以及 AI 在调整训练或热量前会如何使用它们。"
+        )
+    ) {
+        Text(
+            text = language.t("HEALTH SYNC RECEIPT", "健康同步回执"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Status", "状态") to syncStatus,
+                language.t("Source", "来源") to source,
+                language.t("Imported today", "今天已导入") to importedSignals.size.toString(),
+                language.t("Missing signals", "缺失信号") to missingSignals.size.toString()
+            )
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            color = IfbbProGlassStrongSurface
+        ) {
+            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(language.t("Imported today", "今天已导入"), fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = importedLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(language.t("Missing signals", "缺失信号"), fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = missingLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Text(
+            text = language.t(
+                "AI uses sleep, weight, steps, resting HR, and calorie burn with training and food before changing training or calories.",
+                "AI 会把睡眠、体重、步数、静息心率和消耗热量，与训练和饮食一起看，再决定是否调整训练或热量。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t(
+                "Manual fallback still works when a phone, scale, watch, or source app does not expose a compatible Health Connect record.",
+                "当手机、体脂秤、手表或来源 App 没有暴露兼容的 Health Connect 记录时，手动补录仍可使用。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = if (snapshot.permissionsGranted) onSyncHealthData else onConnectHealthData,
+                enabled = !state.isHealthSyncing,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    if (snapshot.permissionsGranted) {
+                        language.t("Sync today", "同步今天")
+                    } else {
+                        language.t("Connect health", "连接健康")
+                    }
+                )
+            }
+            ElevatedButton(onClick = onOpenDetails, modifier = Modifier.weight(1f)) {
+                Text(language.t("Manual fields", "手动字段"))
+            }
+        }
+    }
+}
+
+@Composable
 private fun MetricsPage(
     state: CoachUiState,
     onMetricsChange: (DailyMetrics) -> Unit,
@@ -7557,6 +7681,12 @@ private fun MetricsPage(
             onConnectHealthData = onConnectHealthData,
             onSyncHealthData = onSyncHealthData,
             onPickPhysiquePhoto = onPickPhysiquePhoto
+        )
+        HealthSyncReceiptCard(
+            state = state,
+            onConnectHealthData = onConnectHealthData,
+            onSyncHealthData = onSyncHealthData,
+            onOpenDetails = { showMetricsDetails = true }
         )
         if (showMetricsDetails) {
             HealthConnectCard(
