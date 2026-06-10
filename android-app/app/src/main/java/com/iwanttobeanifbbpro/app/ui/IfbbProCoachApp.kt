@@ -179,6 +179,17 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                     )
                 }
             }
+            item {
+                GlobalNextActionStrip(
+                    state = state,
+                    onOpenPlan = { viewModel.selectTab(AppTab.TRAINING) },
+                    onOpenTraining = { viewModel.selectTab(AppTab.TRAINING) },
+                    onOpenNutrition = { viewModel.selectTab(AppTab.NUTRITION) },
+                    onOpenMetrics = { viewModel.selectTab(AppTab.METRICS) },
+                    onRunAiReview = viewModel::runDailyReview,
+                    onOpenAi = { viewModel.selectTab(AppTab.AI_COACH) }
+                )
+            }
             when (state.selectedTab) {
                 AppTab.TRAINING -> {
                     item {
@@ -396,6 +407,75 @@ private fun Header(state: CoachUiState, onLanguageChange: (AppLanguage) -> Unit)
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun GlobalNextActionStrip(
+    state: CoachUiState,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onRunAiReview: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val language = state.appLanguage
+    val steps = state.dailyStartSteps(
+        language = language,
+        onOpenPlan = onOpenPlan,
+        onOpenTraining = onOpenTraining,
+        onOpenNutrition = onOpenNutrition,
+        onOpenMetrics = onOpenMetrics,
+        onRunAiReview = onRunAiReview,
+        onOpenAi = onOpenAi
+    )
+    val flow = todayFlowCoachState(steps)
+    val nextStep = flow.nextStep
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, IfbbProGlassBorder),
+        color = IfbbProGlassStrongSurface
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = language.t("TODAY NEXT", "今天下一步"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = nextStep?.title ?: language.t("Daily loop complete", "今日闭环已完成"),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = nextStep?.detail ?: language.t(
+                    "Review saved guidance, prepare tomorrow, and keep logging changes.",
+                    "查看已保存建议，准备明天计划，并继续记录变化。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            LinearProgressIndicator(progress = { flow.progress }, modifier = Modifier.fillMaxWidth())
+            Button(
+                onClick = { nextStep?.onAction?.invoke() },
+                enabled = nextStep?.actionEnabled == true,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(nextStep?.actionLabel ?: language.t("Review tomorrow", "查看明天安排"))
+            }
+            Text(
+                text = language.t(
+                    "One tap daily start: plan -> train -> eat -> sync -> review.",
+                    "一键式每日开始：计划 -> 训练 -> 饮食 -> 同步 -> 复盘。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
