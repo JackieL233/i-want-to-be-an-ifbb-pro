@@ -432,6 +432,11 @@ private fun GlobalNextActionStrip(
     )
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         TodayCommandStrip(steps = steps, language = language)
+        DailyCoachDecisionReceiptCard(
+            state = state,
+            steps = steps,
+            language = language
+        )
         DailyLaunchCloseoutCard(
             state = state,
             steps = steps,
@@ -455,6 +460,138 @@ private fun GlobalNextActionStrip(
     }
 }
 
+@Composable
+private fun DailyCoachDecisionReceiptCard(
+    state: CoachUiState,
+    steps: List<DailyStartStep>,
+    language: AppLanguage
+) {
+    val log = state.dailyLog
+    val flow = todayFlowCoachState(steps)
+    val nextStep = flow.nextStep
+    val readiness = state.dailyReadiness(language)
+    val totals = log.nutritionTotals()
+    val plannedSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val photos = state.images.size + log.photoEvidence.size
+    val metricsLinked = log.metrics.bodyWeightKg != null ||
+        log.metrics.sleepHours != null ||
+        log.metrics.steps > 0 ||
+        log.metrics.healthSyncedAt.isNotBlank()
+    val hasReviewToday = state.reviewHistory.any { it.logDate == log.date }
+    val whyThisStep = nextStep?.detail ?: language.t(
+        "The daily loop is closed; keep tomorrow simple and follow the saved handoff.",
+        "今日闭环已完成；保持明天安排简单，并跟随已保存的交接。"
+    )
+    val checkedData = language.t(
+        "Sets $completedSets/$plannedSets, ${log.meals.size} meal(s), ${totals.calories} kcal, sleep ${formatOptional(log.metrics.sleepHours, "h")}, photos $photos.",
+        "组数 $completedSets/$plannedSets，${log.meals.size} 餐，${totals.calories} kcal，睡眠 ${formatOptional(log.metrics.sleepHours, "h")}，照片 $photos。"
+    )
+    val afterStep = when {
+        nextStep == null -> language.t(
+            "Tomorrow is ready. Re-open only if weight, sleep, food, or soreness changes.",
+            "明天已准备好；只有体重、睡眠、饮食或酸痛变化时再重新打开。"
+        )
+        !metricsLinked -> language.t(
+            "After metrics sync, AI can judge recovery before changing volume, rest, or calories.",
+            "身体数据同步后，AI 会先判断恢复，再调整容量、休息或热量。"
+        )
+        log.meals.isEmpty() -> language.t(
+            "After food is logged, macro gaps connect to training demand before AI changes targets.",
+            "饮食记录后，宏量缺口会先联动训练需求，再让 AI 调整目标。"
+        )
+        plannedSets == 0 || completedSets < plannedSets -> language.t(
+            "After sets are complete, the rest timer, session quality, and next workout update from real performance.",
+            "组数完成后，休息倒计时、训练质量和下一次训练会按真实表现更新。"
+        )
+        !hasReviewToday -> language.t(
+            "After AI review, tomorrow's split, volume, rest, calories, and macros get a traceable handoff.",
+            "AI 复盘后，明天的分化、容量、休息、热量和宏量会生成可追踪交接。"
+        )
+        else -> language.t(
+            "The next session should follow the saved review unless new evidence changes the gate.",
+            "下一次训练应跟随已保存复盘，除非新的证据改变门槛。"
+        )
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, IfbbProGlassBorder),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.70f)
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(
+                        text = language.t("DAILY COACH DECISION", "每日教练决策"),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = language.t("One-tap coach decision", "一键式教练决策"),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = language.t(
+                            "It chooses the next action from training, food, body data, sleep, photos, and AI review evidence.",
+                            "它会根据训练、饮食、身体数据、睡眠、照片和 AI 复盘证据选择下一步。"
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(
+                    text = "${flow.doneCount}/${flow.totalCount}",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Current step", "当前步骤") to (nextStep?.title ?: language.t("Daily loop complete", "今日闭环完成")),
+                    language.t("Readiness", "准备度") to "${readiness.score}",
+                    language.t("Evidence", "证据") to if (photos > 0) language.t("Photo linked", "照片已联动") else language.t("No photo yet", "暂无照片"),
+                    language.t("Review", "复盘") to if (hasReviewToday) language.t("Saved", "已保存") else language.t("Pending", "待复盘")
+                )
+            )
+            listOf(
+                language.t("Why this step", "为什么现在做这一步") to whyThisStep,
+                language.t("Data AI checked", "AI 已检查的数据") to checkedData,
+                language.t("What happens after", "完成后会怎样") to afterStep
+            ).forEach { (label, detail) ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    color = IfbbProGlassSurface
+                ) {
+                    Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(label, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            text = detail,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            DataChipGrid(
+                items = listOf(
+                    "DailyCoachDecisionReceiptCard",
+                    language.t("DAILY COACH DECISION", "每日教练决策"),
+                    language.t("One-tap coach decision", "一键式教练决策"),
+                    language.t("Why this step", "为什么现在做这一步"),
+                    language.t("Data AI checked", "AI 已检查的数据"),
+                    language.t("What happens after", "完成后会怎样")
+                )
+            )
+        }
+    }
+}
 
 @Composable
 private fun TodayCommandStrip(steps: List<DailyStartStep>, language: AppLanguage) {
