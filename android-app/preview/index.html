@@ -1200,6 +1200,55 @@
       background: rgba(232, 248, 237, 0.64);
     }
 
+    .today-meal-timeline-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(52, 199, 89, 0.10), rgba(255, 255, 255, 0.76) 52%, rgba(0, 122, 255, 0.08)),
+        rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(20px) saturate(150%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.86),
+        0 14px 34px rgba(29, 29, 31, 0.09);
+    }
+
+    .meal-timeline-total {
+      padding: 10px;
+      border: 1px solid rgba(52, 199, 89, 0.22);
+      border-radius: var(--radius);
+      background: rgba(232, 248, 237, 0.66);
+    }
+
+    .meal-timeline-row {
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(209, 209, 214, 0.64);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(14px) saturate(145%);
+    }
+
+    .meal-time {
+      color: var(--blue);
+      font-size: 12px;
+      line-height: 1.15;
+      font-weight: 820;
+    }
+
+    .meal-timeline-row strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.22;
+    }
+
     .live-meal-title {
       font-size: 24px;
       line-height: 1.05;
@@ -4503,6 +4552,46 @@
               <p class="subtle" data-meal-macro-receipt data-en="Ready: 50 kcal left | protein on target | 10 g carbs left | fat on target" data-zh="就绪：还剩 50 kcal | 蛋白质达标 | 碳水还剩 10 g | 脂肪达标">Ready: 50 kcal left | protein on target | 10 g carbs left | fat on target</p>
             </div>
             <p class="subtle" data-en="Photo or text -> AI estimate -> meal log. This evidence is linked to training volume, sleep, weight trend, and daily macros before AI changes targets." data-zh="照片或文字 -> AI 估算 -> 餐食记录。证据会联动训练容量、睡眠、体重趋势和每日宏量，再让 AI 调整目标。">Photo or text -> AI estimate -> meal log. This evidence is linked to training volume, sleep, weight trend, and daily macros before AI changes targets.</p>
+          </div>
+
+          <div class="today-meal-timeline-card" data-component="TodayMealTimelineCard">
+            <div class="section-head">
+              <p class="eyebrow" data-en="TODAY MEAL TIMELINE" data-zh="今日餐食时间线">TODAY MEAL TIMELINE</p>
+              <h2 data-en="Today meal timeline" data-zh="今日餐食时间线">Today meal timeline</h2>
+              <p class="subtle" data-en="Logged meals with time, macros, and remaining targets, kept as meal evidence for AI review." data-zh="已记录餐食、时间、宏量和剩余目标，并作为 AI 复盘餐食证据。">Logged meals with time, macros, and remaining targets, kept as meal evidence for AI review.</p>
+            </div>
+            <div class="meal-timeline-total">
+              <div class="metric-grid">
+                <div class="metric"><span class="label" data-en="Meals" data-zh="餐数">Meals</span><span class="value">2</span></div>
+                <div class="metric"><span class="label" data-en="Calories" data-zh="热量">Calories</span><span class="value">1,620 / 2,650</span></div>
+                <div class="metric"><span class="label" data-en="Protein" data-zh="蛋白质">Protein</span><span class="value">128 / 185 g</span></div>
+                <div class="metric"><span class="label" data-en="Remaining" data-zh="剩余">Remaining</span><span class="value" data-en="1,030 kcal | P 57g" data-zh="1030 kcal | 蛋白 57g">1,030 kcal | P 57g</span></div>
+              </div>
+            </div>
+            <div class="meal-timeline-row">
+              <span class="meal-time">08:10</span>
+              <div>
+                <strong data-en="Greek yogurt bowl" data-zh="希腊酸奶碗">Greek yogurt bowl</strong>
+                <p class="subtle" data-en="420 kcal | P 42 g | C 52 g | F 6 g" data-zh="420 kcal | 蛋白 42 g | 碳水 52 g | 脂肪 6 g">420 kcal | P 42 g | C 52 g | F 6 g</p>
+              </div>
+              <span class="badge green" data-en="logged" data-zh="已记录">logged</span>
+            </div>
+            <div class="meal-timeline-row">
+              <span class="meal-time">13:20</span>
+              <div>
+                <strong data-en="Chicken rice bowl" data-zh="鸡肉米饭碗">Chicken rice bowl</strong>
+                <p class="subtle" data-en="1,200 kcal | P 86 g | C 143 g | F 40 g" data-zh="1200 kcal | 蛋白 86 g | 碳水 143 g | 脂肪 40 g">1,200 kcal | P 86 g | C 143 g | F 40 g</p>
+              </div>
+              <span class="badge blue" data-en="photo" data-zh="照片">photo</span>
+            </div>
+            <p class="subtle" data-en="Meal evidence for AI review" data-zh="AI 复盘餐食证据">Meal evidence for AI review</p>
+            <p class="subtle" data-en="AI compares this meal timeline with training volume, sleep, body trend, health data, and food photos before changing calories or macros." data-zh="AI 会把这条餐食时间线与训练容量、睡眠、身体趋势、健康数据和食物照片联动后，再调整热量或宏量。">AI compares this meal timeline with training volume, sleep, body trend, health data, and food photos before changing calories or macros.</p>
+            <p class="subtle" hidden data-en="No meals logged yet" data-zh="今天还没有餐食记录">No meals logged yet</p>
+            <div class="chip-row">
+              <span class="chip active">TodayMealTimelineCard</span>
+              <span class="chip active" data-en="Logged meals with time, macros, and remaining targets" data-zh="已记录餐食、时间、宏量和剩余目标">Logged meals with time, macros, and remaining targets</span>
+              <span class="chip active" data-en="Meal evidence for AI review" data-zh="AI 复盘餐食证据">Meal evidence for AI review</span>
+            </div>
           </div>
 
           <div class="nutrition-autopilot-card" data-component="NutritionAutopilotCard">

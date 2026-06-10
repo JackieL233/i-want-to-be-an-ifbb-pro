@@ -441,7 +441,8 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
             carbs = carbs.coerceAtLeast(0.0),
             fat = fat.coerceAtLeast(0.0),
             fiber = fiber.coerceAtLeast(0.0),
-            notes = notes.trim()
+            notes = notes.trim(),
+            createdAt = LocalDateTime.now().toString()
         )
         updateLog(uiState.dailyLog.copy(meals = uiState.dailyLog.meals + meal))
     }
@@ -452,7 +453,11 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addMealTemplate(templateId: String) {
         val template = mealTemplates().firstOrNull { it.id == templateId } ?: return
-        updateLog(uiState.dailyLog.copy(meals = uiState.dailyLog.meals + template.toMealEntry()))
+        updateLog(
+            uiState.dailyLog.copy(
+                meals = uiState.dailyLog.meals + template.toMealEntry().copy(createdAt = LocalDateTime.now().toString())
+            )
+        )
     }
 
     fun updateReflection(reflection: String) {

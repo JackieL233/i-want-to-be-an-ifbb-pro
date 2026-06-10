@@ -128,6 +128,8 @@ import com.iwanttobeanifbbpro.app.data.mealTemplates
 import com.iwanttobeanifbbpro.app.data.trainingPlanTemplates
 import com.iwanttobeanifbbpro.app.health.HealthConnectRepository
 import com.iwanttobeanifbbpro.app.health.HealthSnapshot
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
@@ -5270,6 +5272,140 @@ private fun MealEstimateReceiptCard(
 }
 
 @Composable
+private fun TodayMealTimelineCard(
+    log: DailyLog,
+    language: AppLanguage,
+    onOpenAi: () -> Unit
+) {
+    val totals = log.nutritionTotals()
+    val targets = log.targets
+    val remainingCalories = targets.calories - totals.calories
+    val remainingProtein = targets.protein - totals.protein
+    val remainingCarbs = targets.carbs - totals.carbs
+    val remainingFat = targets.fat - totals.fat
+
+    SectionCard(
+        title = language.t("Today meal timeline", "今日餐食时间线"),
+        subtitle = language.t(
+            "Logged meals with time, macros, and remaining targets, kept as meal evidence for AI review.",
+            "已记录餐食、时间、宏量和剩余目标，并作为 AI 复盘餐食证据。"
+        )
+    ) {
+        Text(
+            text = language.t("TODAY MEAL TIMELINE", "今日餐食时间线"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Meals", "餐数") to log.meals.size.toString(),
+                language.t("Calories", "热量") to "${totals.calories}/${targets.calories} kcal",
+                language.t("Protein", "蛋白质") to "${totals.protein}/${targets.protein} g",
+                language.t("Remaining", "剩余") to listOf(
+                    formatRemainingLocalized(remainingCalories, "kcal", language),
+                    "P ${formatRemainingLocalized(remainingProtein, "g", language)}",
+                    "C ${formatRemainingLocalized(remainingCarbs, "g", language)}",
+                    "F ${formatRemainingLocalized(remainingFat, "g", language)}"
+                ).joinToString(" | ")
+            )
+        )
+        if (log.meals.isEmpty()) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                color = IfbbProGlassSurface
+            ) {
+                Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(language.t("No meals logged yet", "今天还没有餐食记录"), fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = language.t(
+                            "Log or photograph the first meal so AI can compare food intake against training demand.",
+                            "先记录或拍摄第一餐，让 AI 能把饮食摄入和训练需求对照。"
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        } else {
+            log.meals.forEachIndexed { index, meal ->
+                val mealTime = formatMealTime(meal.createdAt)
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    color = IfbbProGlassSurface
+                ) {
+                    Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(
+                                    text = language.t("Meal ${index + 1}", "第 ${index + 1} 餐"),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(meal.name, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    text = language.t("Logged $mealTime", "记录 $mealTime"),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Text(
+                                text = "${meal.calories} kcal",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Text(
+                            text = "P ${formatDecimal(meal.protein)} g | C ${formatDecimal(meal.carbs)} g | F ${formatDecimal(meal.fat)} g | Fiber ${formatDecimal(meal.fiber)} g",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (meal.notes.isNotBlank()) {
+                            Text(
+                                text = meal.notes,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Text(
+            text = language.t("Meal evidence for AI review", "AI 复盘餐食证据"),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = language.t(
+                "AI compares this meal timeline with training volume, sleep, body trend, health data, and food photos before changing calories or macros.",
+                "AI 会把这条餐食时间线与训练容量、睡眠、身体趋势、健康数据和食物照片联动后，再调整热量或宏量。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        TextButton(onClick = onOpenAi, modifier = Modifier.fillMaxWidth()) {
+            Text(language.t("AI nutrition review", "AI 饮食复盘"))
+        }
+        DataChipGrid(
+            items = listOf(
+                "TodayMealTimelineCard",
+                language.t("TODAY MEAL TIMELINE", "今日餐食时间线"),
+                language.t("Today meal timeline", "今日餐食时间线"),
+                language.t("Logged meals with time, macros, and remaining targets", "已记录餐食、时间、宏量和剩余目标"),
+                language.t("Meal evidence for AI review", "AI 复盘餐食证据"),
+                language.t("No meals logged yet", "今天还没有餐食记录")
+            )
+        )
+    }
+}
+
+@Composable
 private fun MealAssemblyGuideCard(guide: MealAssemblyGuide, language: AppLanguage) {
     SectionCard(
         title = language.t("Meal Assembly Guide", "餐盘组合指南"),
@@ -8700,6 +8836,11 @@ private fun NutritionPage(
             onPickMealPhoto = onPickMealPhoto,
             onOpenAi = onOpenAi
         )
+        TodayMealTimelineCard(
+            log = state.dailyLog,
+            language = language,
+            onOpenAi = onOpenAi
+        )
         NutritionAutopilotCard(
             log = state.dailyLog,
             language = language,
@@ -11186,6 +11327,15 @@ private fun formatRemainingLocalized(value: Int, unit: String, language: AppLang
         }
     } else {
         formatRemaining(value, unit)
+    }
+}
+
+private fun formatMealTime(createdAt: String): String {
+    if (createdAt.isBlank()) return "--:--"
+    return runCatching {
+        LocalDateTime.parse(createdAt).toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm", Locale.US))
+    }.getOrElse {
+        createdAt.take(5).ifBlank { "--:--" }
     }
 }
 

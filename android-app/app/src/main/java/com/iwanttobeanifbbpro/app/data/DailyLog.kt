@@ -80,7 +80,8 @@ data class MealEntry(
     val carbs: Double,
     val fat: Double,
     val fiber: Double,
-    val notes: String
+    val notes: String,
+    val createdAt: String = ""
 ) {
     companion object
 }
@@ -347,6 +348,7 @@ private fun MealEntry.toJson(): JSONObject {
         .put("fat", fat)
         .put("fiber", fiber)
         .put("notes", notes)
+        .put("createdAt", createdAt)
 }
 
 private fun PhotoEvidenceEntry.toJson(): JSONObject {
@@ -478,7 +480,8 @@ fun MealEntry.Companion.fromJson(json: JSONObject): MealEntry {
         carbs = json.safeDouble("carbs", 0.0),
         fat = json.safeDouble("fat", 0.0),
         fiber = json.safeDouble("fiber", 0.0),
-        notes = json.optString("notes", "")
+        notes = json.optString("notes", ""),
+        createdAt = json.optString("createdAt", "")
     )
 }
 

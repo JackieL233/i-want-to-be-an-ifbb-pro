@@ -89,7 +89,7 @@ class DailySummaryBuilder {
             """.trimIndent()
         }.ifBlank { "- No exercises logged yet." }
         val meals = log.meals.joinToString("\n") { meal ->
-            "- ${meal.name}: ${meal.calories} kcal, P ${meal.protein}g, C ${meal.carbs}g, F ${meal.fat}g, fiber ${meal.fiber}g, notes: ${meal.notes}"
+            "- ${meal.name}: ${meal.calories} kcal, P ${meal.protein}g, C ${meal.carbs}g, F ${meal.fat}g, fiber ${meal.fiber}g, notes: ${meal.notes}, createdAt: ${meal.createdAt.ifBlank { "not logged" }}"
         }.ifBlank { "- No meals logged yet." }
         val photoEvidence = log.photoEvidence.joinToString("\n") { photo ->
             "- ${photo.type.label}: ${photo.name}, mime ${photo.mimeType}, note: ${photo.note.ifBlank { "none" }}, createdAt: ${photo.createdAt.ifBlank { "not logged" }}"

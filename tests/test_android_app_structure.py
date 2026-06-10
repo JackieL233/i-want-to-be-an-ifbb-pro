@@ -621,6 +621,39 @@ class AndroidAppStructureTest(unittest.TestCase):
             with self.subTest(term=term):
                 self.assertIn(term, combined)
 
+    def test_meal_timeline_records_time_for_ai_evidence(self) -> None:
+        log_model = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/data/DailyLog.kt").read_text(
+            encoding="utf-8"
+        )
+        view_model = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/CoachViewModel.kt").read_text(
+            encoding="utf-8"
+        )
+        summary = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailySummaryBuilder.kt").read_text(
+            encoding="utf-8"
+        )
+        ui = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt").read_text(
+            encoding="utf-8"
+        )
+
+        meal_entry = re.search(r"data class MealEntry\((.*?)\)\s*\{", log_model, re.S)
+        self.assertIsNotNone(meal_entry)
+        self.assertIn("val createdAt: String", meal_entry.group(1))
+
+        meal_json = re.search(r"private fun MealEntry\.toJson\(\): JSONObject \{(.*?)\n\}", log_model, re.S)
+        self.assertIsNotNone(meal_json)
+        self.assertIn('.put("createdAt", createdAt)', meal_json.group(1))
+
+        meal_from_json = re.search(r"fun MealEntry\.Companion\.fromJson\(json: JSONObject\): MealEntry \{(.*?)\n\}", log_model, re.S)
+        self.assertIsNotNone(meal_from_json)
+        self.assertIn('createdAt = json.optString("createdAt", "")', meal_from_json.group(1))
+
+        add_meal = re.search(r"fun addMeal\((.*?)fun removeMeal", view_model, re.S)
+        self.assertIsNotNone(add_meal)
+        self.assertIn("createdAt = LocalDateTime.now().toString()", add_meal.group(1))
+
+        self.assertIn('createdAt: ${meal.createdAt.ifBlank { "not logged" }}', summary)
+        self.assertIn("formatMealTime", ui)
+
     def test_ui_exposes_daily_workflows(self) -> None:
         ui = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/ui/IfbbProCoachApp.kt").read_text(
             encoding="utf-8"
@@ -783,6 +816,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Log this meal estimate",
             "One-tap meal evidence",
             "Photo or text -> AI estimate -> meal log",
+            "TodayMealTimelineCard",
+            "TODAY MEAL TIMELINE",
+            "Today meal timeline",
+            "Logged meals with time, macros, and remaining targets",
+            "Meal evidence for AI review",
+            "No meals logged yet",
+            "今日餐食时间线",
+            "已记录餐食、时间、宏量和剩余目标",
+            "AI 复盘餐食证据",
+            "今天还没有餐食记录",
             "当前餐教练",
             "一键餐食记录",
             "拍照或描述这一餐",
@@ -1856,6 +1899,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "skill assets",
             "daily training",
             "daily nutrition",
+            "Today meal timeline",
+            "Logged meals with time, macros, and remaining targets",
+            "Meal evidence for AI review",
             "AI review",
             "rest countdown",
             "set-level",
@@ -2374,6 +2420,19 @@ class AndroidAppStructureTest(unittest.TestCase):
             "one-tap-meal-capture-card",
             "meal-capture-target-grid",
             "meal-capture-receipt",
+            "today-meal-timeline-card",
+            "meal-timeline-row",
+            "meal-timeline-total",
+            "TodayMealTimelineCard",
+            "TODAY MEAL TIMELINE",
+            "Today meal timeline",
+            "Logged meals with time, macros, and remaining targets",
+            "Meal evidence for AI review",
+            "No meals logged yet",
+            "今日餐食时间线",
+            "已记录餐食、时间、宏量和剩余目标",
+            "AI 复盘餐食证据",
+            "今天还没有餐食记录",
             "live-meal-target",
             "live-meal-input",
             "LiveMealCoachCard",
