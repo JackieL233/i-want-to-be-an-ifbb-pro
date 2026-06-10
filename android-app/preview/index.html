@@ -1735,8 +1735,9 @@
           <div>
             <strong data-en="Rest timer" data-zh="休息倒计时">Rest timer</strong>
             <p class="subtle" data-en="Incline press set 2 finished. Next set in" data-zh="上斜推第 2 组已完成。下一组倒计时">Incline press set 2 finished. Next set in</p>
+            <p class="subtle" data-en="AI matched rest: Slightly extend from RIR, sleep, soreness, and session quality." data-zh="AI 已匹配休息：根据 RIR、睡眠、酸痛和训练质量略微延长。">AI matched rest: Slightly extend from RIR, sleep, soreness, and session quality.</p>
           </div>
-          <div class="rest-time" id="rest-time">02:00</div>
+          <div class="rest-time" id="rest-time">02:45</div>
         </div>
 
         <section class="folded-panel" data-folded-panel="ai" aria-label="AI daily overview" hidden>
@@ -2484,9 +2485,11 @@
             <button id="hero-complete-set" class="primary-play" type="button" data-en="Complete set + start rest" data-zh="完成本组并开始休息">Complete set + start rest</button>
             <div class="micro-status">
               <div class="metric"><span class="label" data-en="Sets" data-zh="组数">Sets</span><span class="value">8/18</span></div>
+              <div class="metric"><span class="label" data-en="AI rest" data-zh="AI 休息">AI rest</span><span class="value">165s</span></div>
               <div class="metric"><span class="label" data-en="Ready" data-zh="状态">Ready</span><span class="value">74</span></div>
               <div class="metric"><span class="label" data-en="Quality" data-zh="质量">Quality</span><span class="value">82</span></div>
             </div>
+            <p class="subtle" data-en="AI Rest Prescription: the next rest countdown is matched from reps, RIR, sleep, soreness, fatigue, HR, and set quality." data-zh="AI 休息处方：下一组休息倒计时会根据次数、RIR、睡眠、酸痛、疲劳、心率和组质量自动匹配。">AI Rest Prescription: the next rest countdown is matched from reps, RIR, sleep, soreness, fatigue, HR, and set quality.</p>
             <div class="coach-lane" aria-label="Training flow">
               <span data-en="Warm up" data-zh="热身">Warm up</span>
               <span class="active" data-en="Next set" data-zh="下一组">Next set</span>
@@ -2673,8 +2676,37 @@
               <span class="chip active">Reps cue</span>
               <span class="chip active">RIR cue</span>
               <span class="chip active">Rest cue</span>
+              <span class="chip active">AI Rest Prescription</span>
               <span class="chip active">Stop cue</span>
               <span class="chip active">Visual guide ID</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-head">
+              <h2>AI Rest Prescription</h2>
+              <p class="subtle">Recommended rest, allowed range, auto-adjust rule, and next-session carryover after AI review.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">Status</span><span class="value">Slightly extend</span></div>
+              <div class="metric"><span class="label">Recommended rest</span><span class="value">165s</span></div>
+              <div class="metric"><span class="label">Base</span><span class="value">150s</span></div>
+              <div class="metric"><span class="label">Range</span><span class="value">120-240s</span></div>
+              <div class="metric"><span class="label">Adjust</span><span class="value">+15s</span></div>
+              <div class="metric"><span class="label">Carryover</span><span class="value">restSeconds auto update</span></div>
+            </div>
+            <p class="subtle"><strong>Timer cue:</strong> start 165s after Complete; use the extra time to repeat setup and brace before the next set.</p>
+            <p class="subtle"><strong>Auto-adjust rule:</strong> after every completed set, compare actual reps, RIR, pain/technique notes, sleep, soreness, fatigue, stress, resting HR, and session completion before setting the next countdown.</p>
+            <p class="subtle"><strong>After AI review:</strong> matching upcoming plan sets receive updated restSeconds so the next workout opens with the right countdown already prepared.</p>
+            <p class="subtle"><strong>Next-session carryover:</strong> keep 165s for heavy Smith pressing unless recovery improves enough to tighten pacing or performance drops enough to extend rest.</p>
+            <div class="chip-row">
+              <span class="chip active">AI Rest Prescription</span>
+              <span class="chip active">AI matched rest</span>
+              <span class="chip active">recommended rest</span>
+              <span class="chip active">auto-adjust rule</span>
+              <span class="chip active">next-session carryover</span>
+              <span class="chip active">after AI review</span>
+              <span class="chip active">restSeconds auto update</span>
             </div>
           </div>
 
@@ -3200,7 +3232,14 @@
               <div class="sync-icon">HC</div>
               <div>
                 <strong data-en="Auto refresh on app open" data-zh="打开 App 自动刷新">Auto refresh on app open</strong>
-                <p class="subtle" data-en="Xiaomi/Mi Fitness, Huawei Health, watches, scales, and phone health records are readable when they write compatible Health Connect records." data-zh="小米/Mi Fitness、华为运动健康、手表、体脂秤和手机健康记录在写入兼容 Health Connect 记录后即可读取。">Xiaomi/Mi Fitness, Huawei Health, watches, scales, and phone health records are readable when they write compatible Health Connect records.</p>
+                <p class="subtle" data-en="Authorize once; available body, sleep, steps, heart-rate, and calorie records refresh automatically on app open." data-zh="授权一次即可；可用的身体、睡眠、步数、心率和消耗记录会在打开 App 时自动刷新。">Authorize once; available body, sleep, steps, heart-rate, and calorie records refresh automatically on app open.</p>
+              </div>
+            </div>
+            <div class="sync-strip">
+              <div class="sync-icon">↗</div>
+              <div>
+                <strong data-en="Body Trend Chart" data-zh="身体趋势图">Body Trend Chart</strong>
+                <p class="subtle" data-en="Weight, waist, sleep, and completed sets are shown as a 7-day trend graph before AI changes training or calories." data-zh="AI 改训练或热量前，会先把体重、腰围、睡眠和完成组数显示成 7 天趋势图。">Weight, waist, sleep, and completed sets are shown as a 7-day trend graph before AI changes training or calories.</p>
               </div>
             </div>
             <p class="subtle" data-en="AI uses body weight, waist, sleep, steps, resting HR, recovery ratings, progress photos, and measurement trends before changing training or calories." data-zh="AI 在改变训练或热量前，会同时看体重、腰围、睡眠、步数、静息心率、恢复评分、体型照片和围度趋势。">AI uses body weight, waist, sleep, steps, resting HR, recovery ratings, progress photos, and measurement trends before changing training or calories.</p>
@@ -3229,8 +3268,9 @@
               <div class="metric"><span class="label" data-en="Sleep" data-zh="睡眠">Sleep</span><span class="value">7.2 h</span></div>
             </div>
             <div class="chip-row">
-              <span class="chip active">Xiaomi/Mi Fitness -> Health Connect</span>
-              <span class="chip">Huawei Health -> Health Connect or Health Kit</span>
+              <span class="chip active">Unified health permission</span>
+              <span class="chip">Auto refresh after permission</span>
+              <span class="chip">Body Trend Chart</span>
               <span class="chip" data-en="Manual fallback" data-zh="手动补录">Manual fallback</span>
             </div>
             <div class="action-row">
@@ -3375,6 +3415,18 @@
               <button class="button" type="button" data-en="Show AI details" data-zh="展开 AI 细节">Show AI details</button>
               <button class="button" type="button" data-en="Add photos" data-zh="添加照片">Add photos</button>
               <button class="button ghost" type="button" data-en="Run mode" data-zh="模式分析">Run mode</button>
+            </div>
+          </div>
+
+          <div class="section glass">
+            <div class="section-head">
+              <h2 data-en="API Settings" data-zh="API 设置">API Settings</h2>
+              <p class="subtle" data-en="Enter API key, base URL, and model here before running AI review." data-zh="运行 AI 复盘前，在这里填写 API key、base URL 和 model。">Enter API key, base URL, and model here before running AI review.</p>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label">API key</span><span class="value">Missing</span></div>
+              <div class="metric"><span class="label">base URL</span><span class="value">/v1</span></div>
+              <div class="metric"><span class="label">model</span><span class="value">gpt-4.1-mini</span></div>
             </div>
           </div>
 
@@ -3941,7 +3993,7 @@
           </div>
           <div class="rows">
             <span class="badge green">Implemented: Health Connect</span>
-            <span class="badge amber">Future: Huawei Health Kit provider</span>
+            <span class="badge amber">Source apps stay behind the scenes</span>
             <span class="badge">Fallback: manual entry</span>
           </div>
           <p class="subtle">This keeps Xiaomi, Huawei, scale, watch, and phone data paths honest while still making the app useful every day.</p>
@@ -4068,7 +4120,7 @@
       });
       completeSet.disabled = true;
       restBanner.classList.add("visible");
-      let remaining = 120;
+      let remaining = 165;
       restTime.textContent = formatTime(remaining);
       clearInterval(timerId);
       timerId = setInterval(() => {

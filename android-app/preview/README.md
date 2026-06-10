@@ -47,6 +47,7 @@ The preview mirrors the current Android app structure:
 - Exercise History comparison for previous/current volume, best load, best reps, sets, and average RIR
 - Exercise Substitution Coach for equipment unavailable, trigger reason, primaryOption, secondaryOptions, same target muscle, same movement pattern, preserve rep range, fatigue cost, keepIntentCue, loadAdjustmentCue, and visual guide ID continuity
 - Rest countdown after completing a set
+- AI Rest Prescription with recommended rest, allowed range, auto-adjust rule, and restSeconds auto update after AI review
 - Photo Evidence for classified food, form, equipment, label/menu, and physique progress photos
 - Daily nutrition tracking
 - Collapsed `Nutrition detail layers` so macro pacing, next-meal building, meal logging, plate assembly, targets, hydration, and body-composition reasoning remain accessible without overwhelming a beginner

@@ -15,6 +15,8 @@ import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.DailySummaryBuilder
 import com.iwanttobeanifbbpro.app.core.SkillAssetRepository
 import com.iwanttobeanifbbpro.app.core.SkillPromptBuilder
+import com.iwanttobeanifbbpro.app.core.aiRestPrescriptionForSet
+import com.iwanttobeanifbbpro.app.core.withAiMatchedRestTargets
 import com.iwanttobeanifbbpro.app.data.AiReviewEntry
 import com.iwanttobeanifbbpro.app.data.AiReviewStore
 import com.iwanttobeanifbbpro.app.data.AthleteProfile
@@ -83,7 +85,9 @@ data class RestTimerState(
     val exerciseName: String,
     val setNumber: Int,
     val remainingSeconds: Int,
-    val totalSeconds: Int
+    val totalSeconds: Int,
+    val prescriptionLabel: String = "",
+    val coachCue: String = ""
 )
 
 data class CoachUiState(
@@ -392,6 +396,12 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
     fun completeSet(exerciseIndex: Int, setIndex: Int) {
         val exercise = uiState.dailyLog.trainingSession.exercises.getOrNull(exerciseIndex) ?: return
         val targetSet = exercise.trackedSets().getOrNull(setIndex) ?: return
+        val restPrescription = aiRestPrescriptionForSet(
+            log = uiState.dailyLog,
+            recentLogs = uiState.recentLogs,
+            exercise = exercise,
+            set = targetSet
+        )
         updateExercise(exerciseIndex) { current ->
             current.copy(
                 setEntries = current.trackedSets().mapIndexed { index, set ->
@@ -399,7 +409,13 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
                 }
             )
         }
-        startRestTimer(exercise.name, targetSet.setNumber, targetSet.restSeconds)
+        startRestTimer(
+            exerciseName = exercise.name,
+            setNumber = targetSet.setNumber,
+            totalSeconds = restPrescription.recommendedRestSeconds,
+            prescriptionLabel = restPrescription.statusLabel,
+            coachCue = restPrescription.timerCue
+        )
     }
 
     fun skipRestTimer() {
@@ -552,8 +568,30 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
                         body = body
                     )
                     aiReviewStore.saveReview(entry)
+                    val reviewedLog = if (mode == CoachMode.CHECK_IN) {
+                        current.dailyLog.withAiMatchedRestTargets(current.recentLogs)
+                    } else {
+                        current.dailyLog
+                    }
+                    if (reviewedLog != current.dailyLog) {
+                        dailyLogStore.saveLog(reviewedLog)
+                    }
+                    val reviewedPlan = if (mode == CoachMode.CHECK_IN) {
+                        current.trainingPlan.withAiMatchedRestTargets(
+                            log = reviewedLog,
+                            recentLogs = current.recentLogs
+                        )
+                    } else {
+                        current.trainingPlan
+                    }
+                    if (reviewedPlan != current.trainingPlan) {
+                        trainingPlanStore.savePlan(reviewedPlan)
+                    }
                     uiState.copy(
                         isLoading = false,
+                        dailyLog = reviewedLog,
+                        recentLogs = dailyLogStore.readRecentLogs(),
+                        trainingPlan = reviewedPlan,
                         result = body,
                         reviewHistory = aiReviewStore.readReviews(),
                         error = null
@@ -582,7 +620,13 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
         updateLog(uiState.dailyLog.copy(trainingSession = session.copy(exercises = exercises)))
     }
 
-    private fun startRestTimer(exerciseName: String, setNumber: Int, totalSeconds: Int) {
+    private fun startRestTimer(
+        exerciseName: String,
+        setNumber: Int,
+        totalSeconds: Int,
+        prescriptionLabel: String,
+        coachCue: String
+    ) {
         restTimerJob?.cancel()
         restTimerJob = viewModelScope.launch {
             val clampedTotal = totalSeconds.coerceIn(30, 600)
@@ -592,7 +636,9 @@ class CoachViewModel(application: Application) : AndroidViewModel(application) {
                         exerciseName = exerciseName,
                         setNumber = setNumber,
                         remainingSeconds = remaining,
-                        totalSeconds = clampedTotal
+                        totalSeconds = clampedTotal,
+                        prescriptionLabel = prescriptionLabel,
+                        coachCue = coachCue
                     )
                 )
                 delay(1000)

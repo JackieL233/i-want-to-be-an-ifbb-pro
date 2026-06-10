@@ -23,6 +23,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiIntegratedDecisionAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiRestPrescriptionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingCloseoutAdvisor.kt",
@@ -165,6 +166,16 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI Plan Adjustment Proposal",
             "AiPlanAdjustmentProposal",
             "aiPlanAdjustmentProposal",
+            "AI Rest Prescription",
+            "AiRestPrescription",
+            "aiRestPrescription",
+            "aiRestPrescriptionForSet",
+            "withAiMatchedRestTargets",
+            "restSeconds auto update",
+            "after AI review",
+            "recommended rest",
+            "auto-adjust rule",
+            "next-session carryover",
             "recommended template",
             "split action",
             "volume action",
@@ -563,6 +574,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         ai_integrated = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiIntegratedDecisionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        ai_rest = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiRestPrescriptionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         meal_assembly = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -602,7 +616,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{ai_integrated}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{ai_review_action}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{ai_integrated}\n{ai_rest}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{ai_review_action}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -713,6 +727,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             "pendingPhotoType",
             "pendingPhotoNote",
             "Rest timer",
+            "AI Rest Prescription",
+            "AiRestPrescriptionCard",
+            "restSeconds auto update",
+            "after AI review",
+            "AI matched rest",
             "Complete",
             "AI Data Map",
             "Set load",
@@ -810,10 +829,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "recovery action",
             "tracking action",
             "plan action",
-            "Xiaomi/Mi Fitness -> Health Connect",
-            "Huawei Health -> Health Connect or Health Kit",
-            "Scale/watch/phone -> Health Connect",
+            "Unified health permission",
+            "Auto refresh after permission",
+            "Body, sleep, steps, HR, calories",
             "Manual fallback",
+            "Body Trend Chart",
+            "7-day trend graph",
             "Today Visual Primer",
             "TodayExerciseVisualPrimerCard",
             "ExerciseVisualGuide",
@@ -1291,8 +1312,11 @@ class AndroidAppStructureTest(unittest.TestCase):
             'language.t("Daily reflection", "每日反思")',
             'language.t("7-Day Trend", "7 日趋势")',
             'language.t("Manual fallback", "手动补录")',
-            "Vendor data is readable only when the source app writes compatible records into Health Connect",
-            "Huawei Health Kit can be added as a dedicated provider",
+            "Unified health permission",
+            "Auto refresh after permission",
+            "Source apps stay behind the scenes",
+            "Body Trend Chart",
+            "TrendSparkline",
         ]
         for term in expected_terms:
             with self.subTest(term=term):
@@ -1789,6 +1813,12 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Workout Flow Coach",
             "one-tap-hero",
             "Complete set + start rest",
+            "AI matched rest",
+            "AI Rest Prescription",
+            "restSeconds auto update",
+            "after AI review",
+            "recommended rest",
+            "next-session carryover",
             "Professional detail layers",
             "action-shortcuts",
             "exercise image slot",
@@ -1843,8 +1873,9 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Pre-Workout Carbs",
             "Low-Fat Protein Fix",
             "Health Connect",
-            "Xiaomi/Mi Fitness -> Health Connect",
-            "Huawei Health -> Health Connect or Health Kit",
+            "Unified health permission",
+            "Auto refresh after permission",
+            "Body Trend Chart",
             "AI Review Action Queue",
             "sourceLabel",
             "confidenceLabel",

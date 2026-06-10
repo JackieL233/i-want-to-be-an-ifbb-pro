@@ -23,6 +23,7 @@ class DailySummaryBuilder {
         val visualAtlas = exerciseVisualAtlas()
         val trainingReadiness = trainingReadinessBuilder(log, recoveryGuidance)
         val nextSet = nextSetCoach(log)
+        val restPrescription = aiRestPrescription(log, recentLogs, nextSet, recoveryGuidance)
         val warmUpRamp = warmUpRampPlan(log, trainingReadiness, nextSet)
         val sessionQuality = sessionQualityDashboard(log)
         val trainingCloseout = trainingCloseoutCoach(log)
@@ -149,6 +150,7 @@ class DailySummaryBuilder {
             - ${integratedDecision.promptLine()}
             - ${planAdjustmentProposal.promptLine()}
             - ${tomorrowBrief.promptLine()}
+            - ${restPrescription.promptLine()}
             Meals:
             $meals
 
@@ -164,6 +166,7 @@ class DailySummaryBuilder {
             - ${trainingReadiness.promptLine()}
             - ${warmUpRamp.promptLine()}
             - ${nextSet.promptLine()}
+            - ${restPrescription.promptLine()}
             - ${sessionQuality.promptLine()}
             - ${trainingCloseout.promptLine()}
             - Session notes: ${log.trainingSession.sessionNotes}
@@ -222,6 +225,7 @@ class DailySummaryBuilder {
             5. Use Training Readiness Builder before progression decisions: check warm-up quality, ramp-up quality, first working set choice, volume adjustment, stop rule, and whether recovery gates were respected.
             5a. Use Warm-up Ramp Plan before judging the first working set: compare the ramp set checklist, planned load percentage, final ramp set quality, visual guide ID, first working set gate, and stop rule against what the user logged.
             6. Use Next Set Coach to compare the current exercise, next set target, visual guide ID, equipment/action diagram, load cue, reps cue, RIR cue, rest cue, stop cue, and after-set logging cue against what the user actually logged.
+            6a. Use AI Rest Prescription after every completed set and after each daily AI review: match the next countdown and next-session restSeconds from exercise type, actual reps, RIR, pain/technique notes, sleep, soreness, fatigue, stress, resting HR, session completion, and Exercise History.
             7. Use Session Quality Dashboard to judge completion rate, logged set rate, average RIR, muscle-volume distribution, pain flags, technique flags, and whether the session is valid for progression.
             7a. Use Training Closeout Coach as the final AI review gate: check completed sets, missing set logs, pain/technique flags, form/equipment photo evidence, post-workout nutrition, metrics sync, session notes, closeout score, primary action, and whether the review is high-confidence before changing tomorrow's plan.
             8. Review set-level performance: load, reps, RIR, rest time, completed sets, technique notes, pain flags, target-muscle stimulus, and whether progression is justified.
@@ -236,7 +240,8 @@ class DailySummaryBuilder {
             17. Use Weekly Check-in before changing plan-wide volume or calorie targets: check days logged, training completion, average calories/protein, weight trend, recovery average, data quality gate, weak-point focus, and next-week action.
             18. Use AI Integrated Decision Matrix as the final all-data-linked decision layer: explicitly judge training effect, whether to hold or change the weekly split, whether the better split is 3-day, 4-day, or 5-day, what evidence supports that decision, what nutrition lever matters, what recovery lever matters, the data confidence level, what AI may change now, and what must not change until more data exists.
             19. Use AI Plan Adjustment Proposal to turn the split decision into an actionable next-week template proposal: recommended template, split action, volume action, exercise action, nutrition guardrail, recovery guardrail, confidence, and whether the user should apply it now or collect more evidence.
-            20. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
+            20. Use AI Rest Prescription to state the exact rest time for the next set or next session, why it changed, the allowed rest range, and when the timer should auto-extend or stay tight.
+            21. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
         """.trimIndent()
     }
 

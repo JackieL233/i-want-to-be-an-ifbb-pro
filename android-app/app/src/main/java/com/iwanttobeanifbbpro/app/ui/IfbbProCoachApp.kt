@@ -67,6 +67,7 @@ import com.iwanttobeanifbbpro.app.core.AiReviewActionItem
 import com.iwanttobeanifbbpro.app.core.AiReviewActionQueue
 import com.iwanttobeanifbbpro.app.core.AiIntegratedDecisionMatrix
 import com.iwanttobeanifbbpro.app.core.AiPlanAdjustmentProposal
+import com.iwanttobeanifbbpro.app.core.AiRestPrescription
 import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.ConditioningHydrationGuidance
@@ -90,6 +91,7 @@ import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.aiReviewActionQueue
 import com.iwanttobeanifbbpro.app.core.aiIntegratedDecisionMatrix
 import com.iwanttobeanifbbpro.app.core.aiPlanAdjustmentProposal
+import com.iwanttobeanifbbpro.app.core.aiRestPrescription
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.conditioningHydrationGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
@@ -2632,6 +2634,10 @@ private fun TrendOverviewCard(logs: List<DailyLog>, language: AppLanguage) {
     val avgSteps = window.map { it.metrics.steps }.averageIntOrNull()
     val totalCompletedSets = window.sumOf { it.completedHardSets() }
     val totalPlannedSets = window.sumOf { it.plannedHardSets() }
+    val weightSeries = window.mapNotNull { it.metrics.bodyWeightKg }
+    val waistSeries = window.mapNotNull { it.metrics.waistCm }
+    val sleepSeries = window.mapNotNull { it.metrics.sleepHours }
+    val setSeries = window.map { it.completedHardSets().toDouble() }.filter { it > 0.0 }
     SectionCard(
         title = language.t("7-Day Trend", "7 日趋势"),
         subtitle = language.t(
@@ -2650,6 +2656,38 @@ private fun TrendOverviewCard(logs: List<DailyLog>, language: AppLanguage) {
                 language.t("Hard sets", "有效组") to "$totalCompletedSets/$totalPlannedSets"
             )
         )
+        TrendSparkline(
+            title = language.t("Weight trend graph", "体重趋势图"),
+            values = weightSeries,
+            unit = "kg",
+            language = language
+        )
+        TrendSparkline(
+            title = language.t("Waist trend graph", "腰围趋势图"),
+            values = waistSeries,
+            unit = "cm",
+            language = language
+        )
+        TrendSparkline(
+            title = language.t("Sleep trend graph", "睡眠趋势图"),
+            values = sleepSeries,
+            unit = "h",
+            language = language
+        )
+        TrendSparkline(
+            title = language.t("Training sets trend graph", "训练组数趋势图"),
+            values = setSeries,
+            unit = "sets",
+            language = language
+        )
+        DataChipGrid(
+            items = listOf(
+                language.t("Body Trend Chart", "身体趋势图"),
+                language.t("7-day trend graph", "7 天趋势图"),
+                language.t("AI reads trend before adjusting", "AI 调整前先读趋势"),
+                language.t("weight / waist / sleep / sets", "体重 / 腰围 / 睡眠 / 组数")
+            )
+        )
         window.forEach { day ->
             val totals = day.nutritionTotals()
             Text(
@@ -2661,6 +2699,78 @@ private fun TrendOverviewCard(logs: List<DailyLog>, language: AppLanguage) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+
+@Composable
+private fun TrendSparkline(title: String, values: List<Double>, unit: String, language: AppLanguage) {
+    val primary = MaterialTheme.colorScheme.primary
+    val outline = MaterialTheme.colorScheme.outlineVariant
+    val onSurface = MaterialTheme.colorScheme.onSurfaceVariant
+    val minValue = values.minOrNull()
+    val maxValue = values.maxOrNull()
+    val latest = values.lastOrNull()
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(title, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = latest?.let { "${formatDecimal(it)} $unit" } ?: "--",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = onSurface
+                )
+            }
+            if (values.size < 2 || minValue == null || maxValue == null) {
+                Text(
+                    text = language.t("Need trend data", "需要趋势数据"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = onSurface
+                )
+            } else {
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                ) {
+                    val horizontalPad = 6.dp.toPx()
+                    val verticalPad = 10.dp.toPx()
+                    val range = (maxValue - minValue).takeIf { it > 0.0001 } ?: 1.0
+                    drawLine(
+                        color = outline,
+                        start = Offset(horizontalPad, size.height - verticalPad),
+                        end = Offset(size.width - horizontalPad, size.height - verticalPad),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                    val points = values.mapIndexed { index, value ->
+                        val x = if (values.size == 1) {
+                            size.width / 2f
+                        } else {
+                            horizontalPad + ((size.width - horizontalPad * 2f) * index / (values.size - 1).toFloat())
+                        }
+                        val normalized = ((value - minValue) / range).toFloat()
+                        val y = size.height - verticalPad - normalized * (size.height - verticalPad * 2f)
+                        Offset(x, y)
+                    }
+                    points.zipWithNext().forEach { (start, end) ->
+                        drawLine(
+                            color = primary,
+                            start = start,
+                            end = end,
+                            strokeWidth = 3.dp.toPx(),
+                            cap = StrokeCap.Round
+                        )
+                    }
+                    points.forEach { point ->
+                        drawCircle(color = primary, radius = 3.5.dp.toPx(), center = point)
+                    }
+                }
+            }
         }
     }
 }
@@ -3458,6 +3568,16 @@ private fun RestTimerBanner(timer: RestTimerState, language: AppLanguage, onSkip
                     ),
                     style = MaterialTheme.typography.bodyMedium
                 )
+                if (timer.prescriptionLabel.isNotBlank() || timer.coachCue.isNotBlank()) {
+                    Text(
+                        text = language.t(
+                            "AI matched rest: ${timer.prescriptionLabel.ifBlank { "active" }}. ${timer.coachCue}",
+                            "AI 已匹配休息：${timer.prescriptionLabel.ifBlank { "进行中" }}。${timer.coachCue}"
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
             TextButton(onClick = onSkip) {
                 Text(language.t("Skip", "跳过"))
@@ -4868,6 +4988,7 @@ private fun WorkoutFlowCoachCard(
     readinessBuilder: TrainingReadinessBuilder,
     rampPlan: WarmUpRampPlan,
     nextSet: NextSetCoach,
+    restPrescription: AiRestPrescription,
     qualityDashboard: SessionQualityDashboard,
     closeoutCoach: TrainingCloseoutCoach,
     language: AppLanguage,
@@ -4962,6 +5083,11 @@ private fun WorkoutFlowCoachCard(
                 } else {
                     "--"
                 },
+                language.t("AI rest", "AI 休息") to if (restPrescription.recommendedRestSeconds > 0) {
+                    "${restPrescription.recommendedRestSeconds}s"
+                } else {
+                    "--"
+                },
                 language.t("Readiness", "状态") to readinessBuilder.readinessScore.toString(),
                 language.t("Quality", "质量") to qualityDashboard.qualityScore.toString(),
                 language.t("Closeout", "收尾") to closeoutCoach.closeoutScore.toString()
@@ -4979,6 +5105,8 @@ private fun WorkoutFlowCoachCard(
                 language.t("Warm up -> ramp -> next set -> log -> rest -> closeout -> AI review", "热身 -> 递增 -> 下一组 -> 记录 -> 休息 -> 收尾 -> AI 复盘"),
                 language.t("Set rows below are the source of truth", "下方组记录才是真实数据来源"),
                 language.t("Rest timer starts after Complete", "点击完成后启动休息倒计时"),
+                language.t("AI Rest Prescription", "AI 休息处方"),
+                "${restPrescription.statusLabel}: ${restPrescription.recommendedRestSeconds}s",
                 rampPlan.visualSpec.visualId
             )
         )
@@ -5048,6 +5176,7 @@ private fun TrainingPage(
     val recovery = recoveryGuidance(state.dailyLog, state.recentLogs)
     val readinessBuilder = trainingReadinessBuilder(state.dailyLog, recovery)
     val nextSet = nextSetCoach(state.dailyLog)
+    val restPrescription = aiRestPrescription(state.dailyLog, state.recentLogs, nextSet, recovery)
     val rampPlan = warmUpRampPlan(state.dailyLog, readinessBuilder, nextSet)
     val qualityDashboard = sessionQualityDashboard(state.dailyLog)
     val closeoutCoach = trainingCloseoutCoach(
@@ -5061,6 +5190,7 @@ private fun TrainingPage(
             readinessBuilder = readinessBuilder,
             rampPlan = rampPlan,
             nextSet = nextSet,
+            restPrescription = restPrescription,
             qualityDashboard = qualityDashboard,
             closeoutCoach = closeoutCoach,
             language = language,
@@ -5102,6 +5232,7 @@ private fun TrainingPage(
             TrainingReadinessBuilderCard(builder = readinessBuilder, language = language)
             WarmUpRampPlanCard(plan = rampPlan, language = language)
             NextSetCoachCard(coach = nextSet, language = language)
+            AiRestPrescriptionCard(prescription = restPrescription, language = language)
         }
         SectionCard(
             title = language.t("Training Execution", "训练记录"),
@@ -5340,6 +5471,53 @@ private fun NextSetCoachCard(coach: NextSetCoach, language: AppLanguage) {
                 coach.visualSpec.movementPathCue,
                 "Look-for cue: ${coach.visualSpec.lookFor}"
             )
+        )
+    }
+}
+
+@Composable
+private fun AiRestPrescriptionCard(prescription: AiRestPrescription, language: AppLanguage) {
+    SectionCard(
+        title = language.t("AI Rest Prescription", "AI 休息处方"),
+        subtitle = language.t(
+            "The rest countdown is matched from set performance, exercise type, recovery, sleep, and review evidence.",
+            "休息倒计时会根据本组表现、动作类型、恢复、睡眠和复盘证据自动匹配。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Status", "状态") to prescription.statusLabel,
+                language.t("Recommended", "推荐") to if (prescription.recommendedRestSeconds > 0) {
+                    "${prescription.recommendedRestSeconds}s"
+                } else {
+                    "--"
+                },
+                language.t("Base", "基础") to if (prescription.baseRestSeconds > 0) "${prescription.baseRestSeconds}s" else "--",
+                language.t("Adjust", "调整") to "${prescription.adjustmentSeconds}s",
+                language.t("Range", "范围") to if (prescription.maxRestSeconds > 0) {
+                    "${prescription.minRestSeconds}-${prescription.maxRestSeconds}s"
+                } else {
+                    "--"
+                }
+            )
+        )
+        Text(
+            text = language.t("Timer cue: ${prescription.timerCue}", "倒计时提示：${prescription.timerCue}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t("Next session: ${prescription.nextSessionCarryover}", "下次训练：${prescription.nextSessionCarryover}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                language.t("AI Rest Prescription", "AI 休息处方"),
+                language.t("restSeconds auto update", "restSeconds 自动更新"),
+                language.t("after AI review", "AI 复盘后"),
+                language.t("sleep + RIR + HR + soreness", "睡眠 + RIR + 心率 + 酸痛")
+            ) + prescription.evidence.take(4)
         )
     }
 }
@@ -6322,8 +6500,8 @@ private fun MetricsFlowCoachCard(
         !snapshot.permissionsGranted -> {
             primaryTitle = language.t("Connect health data", "连接健康数据")
             primaryDetail = language.t(
-                "Authorize once. After that, the app refreshes available Health Connect data on open; Xiaomi, Huawei, scale, watch, or phone data can flow in when their source app writes compatible records.",
-                "授权一次即可。之后 App 打开时会自动刷新可用的 Health Connect 数据；小米、华为、体脂秤、手表或手机数据只要来源 App 写入兼容记录，就可以进入分析。"
+                "Authorize health data once. After that, the app refreshes available body, sleep, steps, heart-rate, and calorie records automatically on open.",
+                "只需要授权一次健康数据。之后 App 打开时会自动刷新可用的身体、睡眠、步数、心率和消耗记录。"
             )
             primaryLabel = language.t("Connect health data", "连接健康数据")
             primaryEnabled = true
@@ -6740,7 +6918,7 @@ private fun HealthSnapshot.localizedMessage(language: AppLanguage): String {
         )
         message.startsWith("Synced Health Connect metrics.") -> language.t(
             message,
-            "已同步 Health Connect 数据。小米、华为、体脂秤、手表和手机数据在来源 App 写入兼容记录后会显示在这里。"
+            "已同步健康数据。可用记录会自动进入趋势图和 AI 复盘。"
         )
         message == "Connected, but no supported Health Connect records were found for today's sync window." -> language.t(
             "Connected, but no supported Health Connect records were found for today's sync window.",
@@ -6790,10 +6968,9 @@ private fun HealthConnectCard(
         )
         DataChipGrid(
             items = listOf(
-                "Xiaomi/Mi Fitness -> Health Connect",
-                "Huawei Health -> Health Connect or Health Kit",
-                "Scale/watch/phone -> Health Connect",
-                language.t("Auto refresh on app open", "打开 App 自动刷新"),
+                language.t("Unified health permission", "统一健康数据授权"),
+                language.t("Auto refresh after permission", "授权后自动刷新"),
+                language.t("Body, sleep, steps, HR, calories", "身体、睡眠、步数、心率、消耗"),
                 language.t("Manual fallback", "手动补录")
             )
         )
@@ -6804,8 +6981,8 @@ private fun HealthConnectCard(
         )
         Text(
             text = language.t(
-                "Vendor data is readable only when the source app writes compatible records into Health Connect and you approve permissions. Huawei Health Kit can be added as a dedicated provider for deeper Huawei ecosystem syncing.",
-                "只有来源 App 写入兼容的 Health Connect 记录，并且你授权后，App 才能读取厂商健康数据。未来可以接入 Huawei Health Kit，支持更深的华为生态同步。"
+                "You only grant permission here. Source apps stay behind the scenes; compatible records appear automatically in the trend chart and AI review.",
+                "你只需要在这里授权。来源 App 留在后台；可用记录会自动进入趋势图和 AI 复盘。"
             ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -7172,6 +7349,7 @@ private fun AiCoachPage(
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi
         )
+        SettingsCard(settings = state.settings, language = language, onChange = onSettingsChange)
         AiIntegratedDecisionMatrixCard(
             decision = integratedDecision,
             language = language,
@@ -7192,7 +7370,6 @@ private fun AiCoachPage(
             secondaryLabel = language.t("Run mode", "运行模式"),
             onSecondaryAction = if (aiSetup.canRunAi) onRunAnalysis else null
         )
-        SettingsCard(settings = state.settings, language = language, onChange = onSettingsChange)
         SectionCard(
             title = language.t("AI Coach Details", "AI 教练细节"),
             subtitle = language.t(
