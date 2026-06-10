@@ -32,6 +32,12 @@ class DailySummaryBuilder {
             profile = profile,
             plan = plan ?: WeeklyTrainingPlan()
         )
+        val integratedDecision = aiIntegratedDecisionMatrix(
+            log = log,
+            recentLogs = recentLogs,
+            profile = profile,
+            plan = plan ?: WeeklyTrainingPlan()
+        )
         val tomorrowBrief = tomorrowCoachBrief(
             log = log,
             recentLogs = recentLogs,
@@ -134,6 +140,7 @@ class DailySummaryBuilder {
             - ${visualAtlas.promptLine()}
             - ${dailyExecution.promptLine()}
             - ${weeklyCheckIn.promptLine()}
+            - ${integratedDecision.promptLine()}
             - ${tomorrowBrief.promptLine()}
             Meals:
             $meals
@@ -220,7 +227,8 @@ class DailySummaryBuilder {
             15. Compare food intake, Nutrition Pacing, Next Meal Builder, Meal Assembly Guide, Body Composition Guidance, Conditioning & Hydration, Recovery Guidance, and Daily Execution Plan with training demand; recommend the smallest useful calorie, protein, carb, fat, fiber, water, sodium, caffeine, cardio, steps, or meal-timing adjustment.
             16. Use attached photos, if provided, as approximate evidence for exercise form, equipment identification, food portions, nutrition labels, menus, and progress comparison.
             17. Use Weekly Check-in before changing plan-wide volume or calorie targets: check days logged, training completion, average calories/protein, weight trend, recovery average, data quality gate, weak-point focus, and next-week action.
-            18. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
+            18. Use AI Integrated Decision Matrix as the final all-data-linked decision layer: explicitly judge training effect, whether to hold or change the weekly split, whether the better split is 3-day, 4-day, or 5-day, what evidence supports that decision, what nutrition lever matters, what recovery lever matters, the data confidence level, what AI may change now, and what must not change until more data exists.
+            19. Use Tomorrow Coach Brief to make tomorrow explicit: plan day, training focus, calories, protein, readiness gate, recovery action, tracking action, and whether AI should hold or change the plan.
         """.trimIndent()
     }
 

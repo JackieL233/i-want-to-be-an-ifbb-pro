@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iwanttobeanifbbpro.app.core.AiReviewActionItem
 import com.iwanttobeanifbbpro.app.core.AiReviewActionQueue
+import com.iwanttobeanifbbpro.app.core.AiIntegratedDecisionMatrix
 import com.iwanttobeanifbbpro.app.core.BodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.CoachMode
 import com.iwanttobeanifbbpro.app.core.ConditioningHydrationGuidance
@@ -86,6 +87,7 @@ import com.iwanttobeanifbbpro.app.core.TrainingReadinessBuilder
 import com.iwanttobeanifbbpro.app.core.WarmUpRampPlan
 import com.iwanttobeanifbbpro.app.core.WeeklyCheckInSummary
 import com.iwanttobeanifbbpro.app.core.aiReviewActionQueue
+import com.iwanttobeanifbbpro.app.core.aiIntegratedDecisionMatrix
 import com.iwanttobeanifbbpro.app.core.bodyCompositionGuidance
 import com.iwanttobeanifbbpro.app.core.conditioningHydrationGuidance
 import com.iwanttobeanifbbpro.app.core.dailyExecutionPlan
@@ -2081,6 +2083,88 @@ private fun DailyExecutionPlanCard(
         ) {
             Text(plan.primaryActionLabel)
         }
+    }
+}
+
+@Composable
+private fun AiIntegratedDecisionMatrixCard(
+    decision: AiIntegratedDecisionMatrix,
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onDailyReview: () -> Unit
+) {
+    SectionCard(
+        title = language.t("AI Integrated Decision Matrix", "AI 综合决策矩阵"),
+        subtitle = language.t(
+            "All data linked: training effect, nutrition, body trend, sleep/recovery, photos, and split decision.",
+            "联动全部数据：训练效果、饮食、身体趋势、睡眠恢复、照片和分化决策。"
+        )
+    ) {
+        MetricGrid(
+            metrics = listOf(
+                language.t("Training effect", "训练效果") to decision.statusLabel,
+                language.t("Split decision", "分化决策") to decision.recommendedSplit,
+                language.t("Confidence", "置信度") to "${decision.dataConfidencePercent}%",
+                language.t("Current split", "当前分化") to decision.currentSplit
+            )
+        )
+        Text(
+            text = decision.trainingEffectVerdict,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = language.t("Split: ${decision.splitDecision}", "分化：${decision.splitDecision}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t("Nutrition: ${decision.nutritionLever}", "饮食：${decision.nutritionLever}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = language.t("Recovery: ${decision.recoveryLever}", "恢复：${decision.recoveryLever}"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        DataChipGrid(
+            items = listOf(
+                decision.dataConfidenceLabel,
+                decision.allowedChangesNow,
+                "Do not change split until ${decision.holdUntil}",
+                "3-day / 4-day / 5-day split decision",
+                "all data linked"
+            )
+        )
+        DataChipGrid(items = decision.linkedEvidence)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = onDailyReview, modifier = Modifier.weight(1f)) {
+                Text(language.t("Run AI review", "运行 AI 复盘"))
+            }
+            ElevatedButton(
+                onClick = when {
+                    decision.nextAction.contains("Training", ignoreCase = true) ||
+                        decision.nextAction.contains("split", ignoreCase = true) -> onOpenPlan
+                    decision.nextAction.contains("food", ignoreCase = true) ||
+                        decision.nextAction.contains("nutrition", ignoreCase = true) -> onOpenNutrition
+                    decision.nextAction.contains("metrics", ignoreCase = true) ||
+                        decision.nextAction.contains("sleep", ignoreCase = true) -> onOpenMetrics
+                    else -> onOpenTraining
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Open next step", "打开下一步"))
+            }
+        }
+        Text(
+            text = decision.nextAction,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -4198,7 +4282,33 @@ private fun ExerciseVisualGuide(name: String, targetMuscle: String) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                DataChipGrid(items = listOf(spec.primaryMuscle, spec.setupCue, spec.actionPathCue, spec.lookFor))
+                Text(
+                    text = "Setup steps: ${spec.setupSteps().joinToString(" ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Common mistakes: ${spec.commonMistakes().joinToString(", ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Photo recognition: ${spec.equipmentPhotoCue()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                DataChipGrid(
+                    items = listOf(
+                        spec.primaryMuscle,
+                        spec.setupCue,
+                        spec.actionPathCue,
+                        spec.lookFor,
+                        "find this equipment",
+                        "setup steps",
+                        "common mistakes",
+                        "attach equipment photo"
+                    )
+                )
             }
         }
     }
@@ -6952,6 +7062,12 @@ private fun AiCoachPage(
         hasWeeklyPlan = state.trainingPlan.days.any { it.exercises.isNotEmpty() },
         hasAiReviewToday = hasAiReviewToday
     )
+    val integratedDecision = aiIntegratedDecisionMatrix(
+        log = state.dailyLog,
+        recentLogs = state.recentLogs,
+        profile = state.athleteProfile,
+        plan = state.trainingPlan
+    )
     var showAiDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AiReviewFlowCoachCard(
@@ -6969,6 +7085,15 @@ private fun AiCoachPage(
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi
+        )
+        AiIntegratedDecisionMatrixCard(
+            decision = integratedDecision,
+            language = language,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onDailyReview = onDailyReview
         )
         if (showAiDetails) {
         AiSetupStatusCard(
@@ -7087,6 +7212,13 @@ private fun AiCoachPage(
                     "Hard sets",
                     "Tonnage",
                     "Daily Execution Plan",
+                    "AI Integrated Decision Matrix",
+                    "all data linked",
+                    "training effect",
+                    "Split decision",
+                    "3-day / 4-day / 5-day split decision",
+                    "data confidence",
+                    "do not change split until",
                     "Priority focus",
                     "Primary action",
                     "Data quality gate",

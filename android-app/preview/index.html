@@ -839,6 +839,93 @@
       background: var(--surface);
     }
 
+    .ai-matrix {
+      display: grid;
+      gap: 10px;
+    }
+
+    .decision-row {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid rgba(0, 122, 255, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .decision-row .step-number {
+      background: rgba(0, 122, 255, 0.12);
+      color: var(--blue);
+    }
+
+    .evidence-link {
+      border-left: 3px solid var(--blue);
+      padding: 8px 10px;
+      background: rgba(0, 122, 255, 0.08);
+      color: #00315f;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .exercise-card-v2 {
+      display: grid;
+      gap: 11px;
+      overflow: hidden;
+    }
+
+    .equipment-photo {
+      min-height: 178px;
+      border-radius: var(--radius);
+      padding: 12px;
+      display: grid;
+      align-content: end;
+      color: #fff;
+      background:
+        linear-gradient(180deg, rgba(12, 15, 22, 0.08), rgba(12, 15, 22, 0.78)),
+        url("https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&w=900&q=78") center/cover;
+    }
+
+    .equipment-photo.cable {
+      background:
+        linear-gradient(180deg, rgba(12, 15, 22, 0.08), rgba(12, 15, 22, 0.78)),
+        url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=78") center/cover;
+    }
+
+    .equipment-photo strong {
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    .muscle-badge {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 26px;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.22);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 750;
+      backdrop-filter: blur(12px);
+    }
+
+    .setup-steps {
+      display: grid;
+      gap: 7px;
+    }
+
+    .setup-steps p {
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      font-size: 13px;
+      line-height: 1.34;
+    }
+
     .visual-map {
       display: grid;
       gap: 9px;
@@ -2648,6 +2735,23 @@
               <h2>Incline Smith Press</h2>
               <p class="subtle" data-en="Upper chest | 4 x 6-10 | rest 150s | keep scapula set." data-zh="上胸 | 4 组 x 6-10 次 | 休息 150 秒 | 保持肩胛稳定。">Upper chest | 4 x 6-10 | rest 150s | keep scapula set.</p>
             </div>
+            <div class="exercise-card-v2">
+              <div class="equipment-photo">
+                <span class="muscle-badge" data-en="Upper chest · Smith machine" data-zh="上胸 · 史密斯机">Upper chest · Smith machine</span>
+                <strong data-en="Find this equipment first" data-zh="先找到这类器械">Find this equipment first</strong>
+                <p class="subtle" data-en="Look for two vertical rails, one fixed guided bar, safety hooks, and an adjustable bench under the track." data-zh="找两根竖轨、一根固定轨迹杠、安全挂钩，以及轨道下方的可调训练凳。">Look for two vertical rails, one fixed guided bar, safety hooks, and an adjustable bench under the track.</p>
+              </div>
+              <div class="setup-steps">
+                <p data-en="1. Set the bench angle and slide it under the fixed bar path before loading plates." data-zh="1. 先调好凳子角度，并把凳子移动到固定杠轨迹下方，再加杠铃片。">1. Set the bench angle and slide it under the fixed bar path before loading plates.</p>
+                <p data-en="2. Check safety hooks, unrack path, shoulder-blade position, and first ramp set before the working set." data-zh="2. 检查安全挂钩、出杠路径、肩胛位置和第一组热身递增，再进入正式组。">2. Check safety hooks, unrack path, shoulder-blade position, and first ramp set before the working set.</p>
+                <p data-en="3. Common mistakes: bench not aligned, elbows drifting, chasing load when RIR is harder than planned." data-zh="3. 常见错误：凳子没对准、手肘漂移、RIR 比计划更吃力时还继续加重量。">3. Common mistakes: bench not aligned, elbows drifting, chasing load when RIR is harder than planned.</p>
+              </div>
+              <div class="action-row">
+                <button class="button" type="button" data-en="Attach equipment photo" data-zh="拍器械照片">Attach equipment photo</button>
+                <button class="button ghost" type="button" data-en="Attach form photo" data-zh="拍动作照片">Attach form photo</button>
+              </div>
+              <p class="evidence-link" data-en="AI link: equipment photos map the setup to VG-01, then training logs decide progression, substitutions, or whether the split should stay unchanged." data-zh="AI 联动：器械照片先匹配到 VG-01，再结合训练记录判断进阶、替换动作，或是否保持当前分化。">AI link: equipment photos map the setup to VG-01, then training logs decide progression, substitutions, or whether the split should stay unchanged.</p>
+            </div>
             <div class="exercise-head">
               <div class="mini-figure compact smith" aria-hidden="true">
                 <span class="rail-left"></span><span class="rail-right"></span><span class="bar-line"></span><span class="bench"></span><span class="head"></span><span class="body"></span>
@@ -3249,6 +3353,45 @@
               <button class="button" type="button" data-en="Add photos" data-zh="添加照片">Add photos</button>
               <button class="button ghost" type="button" data-en="Run mode" data-zh="模式分析">Run mode</button>
             </div>
+          </div>
+
+          <div class="section glass ai-matrix">
+            <div class="section-head">
+              <h2 data-en="AI Integrated Decision Matrix" data-zh="AI 综合决策矩阵">AI Integrated Decision Matrix</h2>
+              <p class="subtle" data-en="All data linked: training effect, nutrition, body trend, sleep/recovery, photos, and split decision." data-zh="联动全部数据：训练效果、饮食、身体趋势、睡眠恢复、照片和分化决策。">All data linked: training effect, nutrition, body trend, sleep/recovery, photos, and split decision.</p>
+            </div>
+            <div class="chip-row">
+              <span class="chip active" data-en="all data linked" data-zh="全数据联动">all data linked</span>
+              <span class="chip active" data-en="Do not change split until evidence agrees" data-zh="证据一致前不改分化">Do not change split until evidence agrees</span>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="Training effect" data-zh="训练效果">Training effect</span><span class="value" data-en="Productive" data-zh="有效">Productive</span></div>
+              <div class="metric"><span class="label" data-en="Split decision" data-zh="分化决策">Split decision</span><span class="value" data-en="Hold 4-day" data-zh="保持四分化">Hold 4-day</span></div>
+              <div class="metric"><span class="label" data-en="Data confidence" data-zh="数据置信度">Data confidence</span><span class="value">78%</span></div>
+              <div class="metric"><span class="label" data-en="AI may change" data-zh="AI 可调整">AI may change</span><span class="value" data-en="Exercises + macros" data-zh="动作 + 宏量">Exercises + macros</span></div>
+            </div>
+            <div class="decision-row">
+              <span class="step-number">1</span>
+              <div>
+                <strong data-en="Training effect verdict" data-zh="训练效果判断">Training effect verdict</strong>
+                <p class="subtle" data-en="Completion and set logs are strong enough for exercise-specific progression; no full split change from one day." data-zh="完成率和组级记录足够支持单动作进阶；不会因为一天数据直接重写分化。">Completion and set logs are strong enough for exercise-specific progression; no full split change from one day.</p>
+              </div>
+            </div>
+            <div class="decision-row">
+              <span class="step-number">2</span>
+              <div>
+                <strong data-en="3-day / 4-day / 5-day split decision" data-zh="三/四/五分化决策">3-day / 4-day / 5-day split decision</strong>
+                <p class="subtle" data-en="Hold the current 4-day upper/lower split. Upgrade to 5-day only after weekly completion stays above 88% and recovery average stays above 72." data-zh="保持当前四分化上下肢。只有当周完成率持续高于 88%、恢复均值高于 72，才考虑升级五分化。">Hold the current 4-day upper/lower split. Upgrade to 5-day only after weekly completion stays above 88% and recovery average stays above 72.</p>
+              </div>
+            </div>
+            <div class="decision-row">
+              <span class="step-number">3</span>
+              <div>
+                <strong data-en="Linked levers" data-zh="联动调节杠杆">Linked levers</strong>
+                <p class="subtle" data-en="Nutrition lever: close protein earlier. Recovery lever: keep load and sets stable when sleep is short. Do not change split until food, body weight, sleep, and set data agree." data-zh="饮食杠杆：更早补齐蛋白质。恢复杠杆：睡眠不足时保持重量和组数稳定。饮食、体重、睡眠和组级数据一致前不改分化。">Nutrition lever: close protein earlier. Recovery lever: keep load and sets stable when sleep is short. Do not change split until food, body weight, sleep, and set data agree.</p>
+              </div>
+            </div>
+            <p class="evidence-link" data-en="Evidence linked: set load/reps/RIR, weekly completion, calories/protein, body weight trend, sleep, resting HR, soreness, photos, and Health Connect sync." data-zh="已联动证据：重量/次数/RIR、周完成率、热量/蛋白质、体重趋势、睡眠、静息心率、酸痛、照片和 Health Connect 同步。">Evidence linked: set load/reps/RIR, weekly completion, calories/protein, body weight trend, sleep, resting HR, soreness, photos, and Health Connect sync.</p>
           </div>
 
           <details class="advanced-stack">

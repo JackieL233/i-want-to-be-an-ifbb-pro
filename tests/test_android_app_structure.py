@@ -22,6 +22,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ProgressionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseHistoryAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt",
+            "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiIntegratedDecisionAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/SessionQualityAdvisor.kt",
             "app/src/main/java/com/iwanttobeanifbbpro/app/core/TrainingCloseoutAdvisor.kt",
@@ -158,6 +159,15 @@ class AndroidAppStructureTest(unittest.TestCase):
             "DailyExecutionPlan",
             "DailyExecutionRoute",
             "dailyExecutionPlan",
+            "AI Integrated Decision Matrix",
+            "AiIntegratedDecisionMatrix",
+            "aiIntegratedDecisionMatrix",
+            "training effect",
+            "Split decision",
+            "3-day / 4-day / 5-day split decision",
+            "data confidence",
+            "all data linked",
+            "do not change split until",
             "priorityFocus",
             "primaryActionLabel",
             "primaryActionRoute",
@@ -454,6 +464,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI review focus",
             "aiReviewFocus",
             "Exercise visual guide",
+            "setup steps",
+            "common mistakes",
+            "attach equipment photo",
+            "find this equipment",
             "Unified Exercise Visual Atlas",
             "Exercise Visual Legend",
             "统一动作图例",
@@ -537,6 +551,9 @@ class AndroidAppStructureTest(unittest.TestCase):
         daily_execution = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/DailyExecutionAdvisor.kt"
         ).read_text(encoding="utf-8")
+        ai_integrated = (
+            APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/AiIntegratedDecisionAdvisor.kt"
+        ).read_text(encoding="utf-8")
         meal_assembly = (
             APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/MealAssemblyAdvisor.kt"
         ).read_text(encoding="utf-8")
@@ -576,7 +593,7 @@ class AndroidAppStructureTest(unittest.TestCase):
         visual = (APP / "app/src/main/java/com/iwanttobeanifbbpro/app/core/ExerciseVisualGuide.kt").read_text(
             encoding="utf-8"
         )
-        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{ai_review_action}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
+        combined = f"{model}\n{store}\n{ai_review_store}\n{athlete_profile}\n{plan_model}\n{plan_store}\n{summary}\n{progression}\n{history}\n{body_composition}\n{physique_measurement}\n{daily_execution}\n{ai_integrated}\n{meal_assembly}\n{session_quality}\n{training_closeout}\n{ai_review_action}\n{recovery}\n{conditioning}\n{training_readiness}\n{next_set}\n{warm_ramp}\n{tomorrow}\n{weekly_checkin}\n{substitution}\n{visual}"
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
@@ -1730,6 +1747,13 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Photo context linked",
             "Command Center",
             "Daily Execution Plan",
+            "AI Integrated Decision Matrix",
+            "all data linked",
+            "Training effect",
+            "Split decision",
+            "Data confidence",
+            "3-day / 4-day / 5-day split decision",
+            "Do not change split until",
             "Priority",
             "Primary",
             "Data quality gate",
@@ -1833,6 +1857,13 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Metrics synced",
             "AI review locked",
             "Exercise visual guide",
+            "exercise-card-v2",
+            "equipment-photo",
+            "muscle-badge",
+            "Find this equipment first",
+            "Attach equipment photo",
+            "setup steps",
+            "common mistakes",
             "Exercise Visual Library",
             "Exercise Visual Legend",
             "统一动作图例",

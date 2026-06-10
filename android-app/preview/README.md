@@ -18,6 +18,7 @@ The preview mirrors the current Android app structure:
 - One-tap Nutrition preview with `Meal Flow Coach`, `NEXT MEAL ACTION`, food photo, `Describe meal`, `Use AI estimate`, a remaining macro summary, and an AI nutrition review path before the nutrition analysis layers
 - One-tap Metrics preview with `Metrics Flow Coach`, `NEXT METRICS ACTION`, `Auto health refresh ready`, `Refresh now`, progress-photo shortcut, sleep data, and AI review path before body-data analysis layers
 - One-tap AI review preview with `AI Review Flow Coach`, `NEXT AI REVIEW ACTION`, `Run daily review`, photo and mode shortcuts, and the AI evidence bundle before setup or data-map details
+- AI Integrated Decision Matrix before the deep detail layer, linking training effect, nutrition, body trend, sleep/recovery, photos, data confidence, and the 3-day / 4-day / 5-day split decision so AI can decide whether to hold or change the current split
 - AI Setup & Review Readiness with API key, base URL, model, photo context, missing setup, and AI review ready states
 - Daily Execution Plan for priority focus, primary action, data quality gate, AI review gate, and plan adjustment signal
 - AI Review Action Queue with sourceLabel, confidenceLabel, primaryAction, actionLabel, training action, nutrition action, recovery action, tracking action, and plan action routing back into Training
@@ -28,6 +29,7 @@ The preview mirrors the current Android app structure:
 - Plan Templates for Beginner Full Body, 4-Day Hypertrophy, and 5-Day Physique Priority
 - Collapsed `Training plan layers` so athlete profile, templates, weekly plan, training days, selected-day visual map, visual atlas, and exercise editing remain accessible without overwhelming a beginner
 - Unified exercise visual guide for equipment/action recognition, including stable visual guide IDs
+- Upgraded exercise-card-v2 visual guidance with an equipment-photo style hero, muscle-badge, setup steps, common mistakes, and attach equipment photo / attach form photo actions for multimodal recognition
 - Exercise Visual Legend / 统一动作图例 with compact VG-01 to VG-10 diagrams
 - Unified Exercise Visual Atlas with the same three-step recognition flow used by Android and AI review: match the simplified instance diagram, find the real equipment markers, and follow the intended movement path
 - Today Visual Primer for training-before-you-start equipment/action scanning with unified simple equipment/action instance diagrams, visual-map thumbnails, visual guide IDs, Chinese equipment labels, and beginner recognition cues

@@ -43,12 +43,86 @@ data class ExerciseVisualSpec(
         )
     }
 
+    fun setupSteps(): List<String> {
+        return when (type) {
+            ExerciseVisualType.SMITH_MACHINE -> listOf(
+                "Set the bench or stance under the fixed bar path.",
+                "Check safety hooks and unrack path before loading.",
+                "Run one empty-bar or light ramp set to confirm the rail path."
+            )
+            ExerciseVisualType.CABLE -> listOf(
+                "Set pulley height before choosing the handle.",
+                "Stand where the cable line matches the target muscle.",
+                "Start light enough to keep the cable path smooth."
+            )
+            ExerciseVisualType.DUMBBELL -> listOf(
+                "Pick a matched pair or one stable handheld weight.",
+                "Set body support first: bench, hinge, or standing brace.",
+                "Control both sides independently before adding load."
+            )
+            ExerciseVisualType.BARBELL -> listOf(
+                "Set rack height, plates, clips, and safety pins.",
+                "Choose grip and stance before unracking.",
+                "Use ramp sets to confirm bar path and bracing."
+            )
+            ExerciseVisualType.MACHINE -> listOf(
+                "Adjust seat, pad, and handle start position.",
+                "Line the machine axis with the working joint.",
+                "Use the first set to confirm range and target-muscle feel."
+            )
+            ExerciseVisualType.BENCH -> listOf(
+                "Set bench angle and stable floor contact.",
+                "Decide which body part the bench supports.",
+                "Load only after the support point feels repeatable."
+            )
+            ExerciseVisualType.PULL_UP_STATION -> listOf(
+                "Choose grip, dip handles, or assistance platform.",
+                "Brace before the first rep and keep the body path vertical.",
+                "Use assistance if reps or shoulder position break down."
+            )
+            ExerciseVisualType.BAND -> listOf(
+                "Anchor the band to a secure point or under the feet.",
+                "Check that the band path will not snap toward the face.",
+                "Step farther from the anchor only after control is clean."
+            )
+            ExerciseVisualType.LEG_PRESS -> listOf(
+                "Set seat, shoulder pads, foot plate, and safety handles.",
+                "Confirm depth and knee tracking before loading heavy.",
+                "Keep the sled/platform path controlled through every rep."
+            )
+            ExerciseVisualType.BODYWEIGHT -> listOf(
+                "Identify the floor, support, bar, bench, or open space.",
+                "Set hand, foot, or brace position before the first rep.",
+                "Scale the range or angle if control breaks down."
+            )
+        }
+    }
+
+    fun commonMistakes(): List<String> {
+        return when (type) {
+            ExerciseVisualType.SMITH_MACHINE -> listOf("bench not aligned under the rail path", "adding load before safety hooks are set")
+            ExerciseVisualType.CABLE -> listOf("pulley height does not match the exercise", "standing where the cable pulls the wrong direction")
+            ExerciseVisualType.DUMBBELL -> listOf("using mismatched weights", "letting one side drift or rotate")
+            ExerciseVisualType.BARBELL -> listOf("rack or safety pins set too low", "treating warm-up sets as hard sets")
+            ExerciseVisualType.MACHINE -> listOf("seat/pads not adjusted to the joint axis", "using the stack before the range feels clean")
+            ExerciseVisualType.BENCH -> listOf("bench angle changed from the planned exercise", "unstable foot or support position")
+            ExerciseVisualType.PULL_UP_STATION -> listOf("choosing too little assistance", "turning vertical pulling into swinging")
+            ExerciseVisualType.BAND -> listOf("weak anchor point", "standing too far away before controlling the end range")
+            ExerciseVisualType.LEG_PRESS -> listOf("safety handles not checked", "range too deep or too shallow for current control")
+            ExerciseVisualType.BODYWEIGHT -> listOf("unclear support point", "range or body line changes every rep")
+        }
+    }
+
+    fun equipmentPhotoCue(): String {
+        return "Attach equipment photo if unsure: AI should match this setup to $visualId, verify find this equipment markers, then connect the result to training plan substitutions."
+    }
+
     fun atlasLine(): String {
         return "$visualId $equipment ($equipmentZh): $figureTitle | $quickVisualCue | $findEquipmentCue | $movementPathCue | beginner cue: $beginnerCue | common movements: ${commonMovements.joinToString(", ")}"
     }
 
     fun visualPromptLine(): String {
-        return "Exercise visual guide: $visualId $equipment ($equipmentZh) | unified instance diagram: $figureTitle | $pattern | quick visual cue: $quickVisualCue | find-equipment cue: $findEquipmentCue | movement path cue: $movementPathCue | three-step recognition: ${recognitionSteps().joinToString(" ")} | action path cue: $actionPathCue | instance diagram cue: $instanceCue | beginner recognition cue: $beginnerCue | equipment markers: ${equipmentMarkers.joinToString(", ")} | target $primaryMuscle | setup cue: $setupCue | example movement: $example | look-for cue: $lookFor | common movements: ${commonMovements.joinToString(", ")}"
+        return "Exercise visual guide: $visualId $equipment ($equipmentZh) | unified instance diagram: $figureTitle | $pattern | quick visual cue: $quickVisualCue | find-equipment cue: $findEquipmentCue | movement path cue: $movementPathCue | three-step recognition: ${recognitionSteps().joinToString(" ")} | action path cue: $actionPathCue | instance diagram cue: $instanceCue | beginner recognition cue: $beginnerCue | equipment markers: ${equipmentMarkers.joinToString(", ")} | target $primaryMuscle | setup cue: $setupCue | setup steps: ${setupSteps().joinToString(" ")} | common mistakes: ${commonMistakes().joinToString(", ")} | attach equipment photo: ${equipmentPhotoCue()} | example movement: $example | look-for cue: $lookFor | common movements: ${commonMovements.joinToString(", ")}"
     }
 }
 
