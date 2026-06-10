@@ -365,6 +365,59 @@
       cursor: pointer;
     }
 
+    .global-next-strip {
+      margin: -2px 0 12px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(18px) saturate(150%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.84),
+        0 12px 32px rgba(29, 29, 31, 0.09);
+    }
+
+    .global-next-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .global-next-title {
+      font-size: 20px;
+      line-height: 1.08;
+      font-weight: 820;
+      margin-top: 2px;
+    }
+
+    .global-next-detail {
+      display: grid;
+      gap: 7px;
+    }
+
+    .global-next-button {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 0;
+      padding: 0 13px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 10px 22px rgba(0, 122, 255, 0.24);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .global-next-helper {
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+
     .action-shortcuts {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       margin-top: -2px;
@@ -1735,6 +1788,21 @@
             <span class="date-pill">Jun 8</span>
           </div>
         </header>
+
+        <section class="global-next-strip" aria-label="Today next action">
+          <div class="global-next-head">
+            <div>
+              <p class="eyebrow" data-en="TODAY NEXT" data-zh="今天下一步">TODAY NEXT</p>
+              <h2 class="global-next-title" data-en="Finish today's workout" data-zh="完成今天训练">Finish today's workout</h2>
+            </div>
+            <button class="global-next-button" type="button" data-tab-target="training" data-en="Log sets" data-zh="记录训练组">Log sets</button>
+          </div>
+          <div class="global-next-detail">
+            <p class="subtle" data-en="8/18 sets completed; finish working sets and let AI match each rest timer." data-zh="已完成 8/18 组；完成正式组，并让 AI 匹配每组休息时间。">8/18 sets completed; finish working sets and let AI match each rest timer.</p>
+            <div class="progress"><span style="width: 44%"></span></div>
+            <p class="subtle global-next-helper" data-en="One tap daily start: plan -> train -> eat -> sync -> review." data-zh="一键式每日开始：计划 -> 训练 -> 饮食 -> 同步 -> 复盘。">One tap daily start: plan -> train -> eat -> sync -> review.</p>
+          </div>
+        </section>
 
         <div id="rest-banner" class="rest-banner" aria-live="polite">
           <div>
