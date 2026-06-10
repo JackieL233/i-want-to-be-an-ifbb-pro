@@ -426,6 +426,64 @@
         rgba(255, 255, 255, 0.72);
     }
 
+    .daily-launch-closeout-card {
+      position: relative;
+      overflow: hidden;
+      margin: 0 0 12px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(52, 199, 89, 0.12), rgba(255, 255, 255, 0.74) 50%, rgba(0, 122, 255, 0.10)),
+        rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px) saturate(155%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.88),
+        0 14px 34px rgba(29, 29, 31, 0.09);
+    }
+
+    .daily-launch-closeout-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
+    .daily-launch-closeout-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .launch-closeout-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .launch-closeout-step {
+      min-height: 128px;
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 7px;
+      border: 1px solid rgba(209, 209, 214, 0.68);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .launch-closeout-step strong {
+      font-size: 13px;
+      line-height: 1.18;
+    }
+
+    .launch-closeout-step .progress {
+      margin-top: 2px;
+    }
+
     .today-command-main {
       display: grid;
       gap: 8px;
@@ -2595,6 +2653,38 @@
             </div>
           </div>
           <p class="subtle global-next-helper" data-en="Evidence confidence rises when training sets, food, sleep, body trend, and photos are linked before AI changes the plan." data-zh="训练组数、饮食、睡眠、身体趋势和照片联动后，AI 调整计划的证据置信度会更高。">Evidence confidence rises when training sets, food, sleep, body trend, and photos are linked before AI changes the plan.</p>
+        </section>
+
+        <section class="daily-launch-closeout-card" data-component="DailyLaunchCloseoutCard" aria-label="Daily launch and closeout">
+          <div class="section-head">
+            <p class="eyebrow" data-en="DAILY LAUNCH & CLOSEOUT" data-zh="每日启动与收尾">DAILY LAUNCH & CLOSEOUT</p>
+            <h2 data-en="Daily Launch & Closeout" data-zh="每日启动与收尾">Daily Launch & Closeout</h2>
+            <p class="subtle" data-en="Morning launch prepares evidence; evening closeout lets AI build tomorrow." data-zh="晨间启动准备证据；晚间收尾让 AI 生成明天。">Morning launch prepares evidence; evening closeout lets AI build tomorrow.</p>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><span class="label" data-en="Morning launch" data-zh="晨间启动">Morning launch</span><span class="value">2/3</span></div>
+            <div class="metric"><span class="label" data-en="Evening closeout" data-zh="晚间收尾">Evening closeout</span><span class="value">1/3</span></div>
+            <div class="metric"><span class="label" data-en="Today next" data-zh="今天下一步">Today next</span><span class="value" data-en="Log sets" data-zh="记录组">Log sets</span></div>
+            <div class="metric"><span class="label" data-en="Tomorrow" data-zh="明天">Tomorrow</span><span class="value" data-en="After review" data-zh="复盘后生成">After review</span></div>
+          </div>
+          <div class="launch-closeout-grid">
+            <div class="launch-closeout-step">
+              <strong data-en="Morning launch" data-zh="晨间启动">Morning launch</strong>
+              <p class="subtle" data-en="Sync body data -> choose plan -> first meal" data-zh="同步身体数据 -> 选择计划 -> 第一餐">Sync body data -> choose plan -> first meal</p>
+              <div class="progress green"><span style="width:66%"></span></div>
+              <button class="button ghost" type="button" data-tab-target="metrics" data-en="Open body data" data-zh="打开身体数据">Open body data</button>
+            </div>
+            <div class="launch-closeout-step">
+              <strong data-en="Evening closeout" data-zh="晚间收尾">Evening closeout</strong>
+              <p class="subtle" data-en="Finish sets -> food gaps -> AI review -> tomorrow" data-zh="完成组记录 -> 饮食缺口 -> AI 复盘 -> 明天">Finish sets -> food gaps -> AI review -> tomorrow</p>
+              <div class="progress"><span style="width:33%"></span></div>
+              <button class="button ghost" type="button" data-tab-target="ai" data-en="Run review" data-zh="运行复盘">Run review</button>
+            </div>
+          </div>
+          <div class="chip-row">
+            <span class="chip active" data-en="One day, two simple checkpoints" data-zh="一天只看两个检查点">One day, two simple checkpoints</span>
+            <span class="chip active" data-en="Prepare evidence before AI changes plans" data-zh="AI 改计划前先准备证据">Prepare evidence before AI changes plans</span>
+          </div>
         </section>
 
         <section class="global-next-strip" aria-label="Today next action" hidden>
@@ -5555,7 +5645,7 @@
       activePanel.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
     }
 
-    function activateTab(tabName) {
+    function activateTab(tabName, focusPanel = true) {
       currentTab = tabAliases[tabName] || tabName;
       document.querySelectorAll(".tab").forEach((button) => {
         button.classList.toggle("active", button.dataset.tab === currentTab);
@@ -5565,7 +5655,9 @@
       });
       document.getElementById("page-title").textContent =
         titles[currentLang][currentTab] || uiCopy[currentLang].fallbackTitle;
-      scrollActivePanelIntoView();
+      if (focusPanel) {
+        scrollActivePanelIntoView();
+      }
     }
 
     document.querySelectorAll("[data-lang-option]").forEach((button) => {
@@ -5618,7 +5710,7 @@
     heroCompleteSet.addEventListener("click", startRestTimer);
     mountFoldedPanels();
     setLanguage("en");
-    activateTab(currentTab);
+    activateTab(currentTab, false);
   </script>
 </body>
 </html>

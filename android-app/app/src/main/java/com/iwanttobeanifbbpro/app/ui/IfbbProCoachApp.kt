@@ -430,7 +430,20 @@ private fun GlobalNextActionStrip(
         onRunAiReview = onRunAiReview,
         onOpenAi = onOpenAi
     )
-    TodayCommandStrip(steps = steps, language = language)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        TodayCommandStrip(steps = steps, language = language)
+        DailyLaunchCloseoutCard(
+            state = state,
+            steps = steps,
+            language = language,
+            onOpenPlan = onOpenPlan,
+            onOpenTraining = onOpenTraining,
+            onOpenNutrition = onOpenNutrition,
+            onOpenMetrics = onOpenMetrics,
+            onRunAiReview = onRunAiReview,
+            onOpenAi = onOpenAi
+        )
+    }
 }
 
 
@@ -527,6 +540,155 @@ private fun TodayCommandStrip(steps: List<DailyStartStep>, language: AppLanguage
                 text = language.t(
                     "Evidence confidence rises when training sets, food, sleep, body trend, and photos are linked before AI changes the plan.",
                     "训练组数、饮食、睡眠、身体趋势和照片联动后，AI 调整计划的证据置信度会更高。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun DailyLaunchCloseoutCard(
+    state: CoachUiState,
+    steps: List<DailyStartStep>,
+    language: AppLanguage,
+    onOpenPlan: () -> Unit,
+    onOpenTraining: () -> Unit,
+    onOpenNutrition: () -> Unit,
+    onOpenMetrics: () -> Unit,
+    onRunAiReview: () -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val log = state.dailyLog
+    val totals = log.nutritionTotals()
+    val plannedSets = log.plannedHardSets()
+    val completedSets = log.completedHardSets()
+    val hasPlan = state.trainingPlan.days.any { it.exercises.isNotEmpty() }
+    val metricsReady = log.metrics.bodyWeightKg != null ||
+        log.metrics.sleepHours != null ||
+        log.metrics.healthSyncedAt.isNotBlank()
+    val hasMeal = log.meals.isNotEmpty()
+    val hasReviewToday = state.reviewHistory.any { it.logDate == log.date }
+    val aiSetup = state.aiSetupStatus(language)
+
+    val morningProgress = listOf(metricsReady, hasPlan, hasMeal).count { it }
+    val eveningProgress = listOf(
+        plannedSets > 0 && completedSets >= plannedSets,
+        totals.calories > 0 && totals.protein >= (log.targets.protein * 0.75).toInt(),
+        hasReviewToday
+    ).count { it }
+    val morningActionTitle: String
+    val morningActionLabel: String
+    val morningAction: () -> Unit
+    when {
+        !metricsReady -> {
+            morningActionTitle = language.t("Sync body data first", "先同步身体数据")
+            morningActionLabel = language.t("Open body data", "打开身体数据")
+            morningAction = onOpenMetrics
+        }
+        !hasPlan -> {
+            morningActionTitle = language.t("Choose today's plan", "选择今日计划")
+            morningActionLabel = language.t("Open plan", "打开计划")
+            morningAction = onOpenPlan
+        }
+        !hasMeal -> {
+            morningActionTitle = language.t("Log the first meal", "记录第一餐")
+            morningActionLabel = language.t("Open food", "打开饮食")
+            morningAction = onOpenNutrition
+        }
+        else -> {
+            morningActionTitle = language.t("Start the next training step", "开始下一步训练")
+            morningActionLabel = language.t("Open training", "打开训练")
+            morningAction = onOpenTraining
+        }
+    }
+
+    val eveningActionTitle: String
+    val eveningActionLabel: String
+    val eveningAction: () -> Unit
+    when {
+        plannedSets == 0 || completedSets < plannedSets -> {
+            eveningActionTitle = language.t("Finish set evidence", "补齐训练组证据")
+            eveningActionLabel = language.t("Log sets", "记录组")
+            eveningAction = onOpenTraining
+        }
+        totals.calories <= 0 || totals.protein < (log.targets.protein * 0.75).toInt() -> {
+            eveningActionTitle = language.t("Close food gaps", "补齐饮食缺口")
+            eveningActionLabel = language.t("Open food", "打开饮食")
+            eveningAction = onOpenNutrition
+        }
+        !aiSetup.canRunAi -> {
+            eveningActionTitle = language.t("Set API before review", "复盘前先设置 API")
+            eveningActionLabel = language.t("Open AI setup", "打开 AI 设置")
+            eveningAction = onOpenAi
+        }
+        !hasReviewToday -> {
+            eveningActionTitle = language.t("Run AI review for tomorrow", "运行 AI 复盘生成明天")
+            eveningActionLabel = language.t("Run review", "运行复盘")
+            eveningAction = onRunAiReview
+        }
+        else -> {
+            eveningActionTitle = language.t("Check tomorrow handoff", "查看明日交接")
+            eveningActionLabel = language.t("Open AI", "打开 AI")
+            eveningAction = onOpenAi
+        }
+    }
+    val nextStep = steps.firstOrNull { !it.done }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, IfbbProGlassBorder),
+        color = IfbbProGlassSurface
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                text = language.t("DAILY LAUNCH & CLOSEOUT", "每日启动与收尾"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = language.t("Daily Launch & Closeout", "每日启动与收尾"),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = language.t(
+                    "Use morning launch to prepare evidence, then evening closeout to let AI build tomorrow.",
+                    "早上用启动流程准备证据，晚上用收尾流程让 AI 生成明天。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            MetricGrid(
+                metrics = listOf(
+                    language.t("Morning launch", "晨间启动") to "$morningProgress/3",
+                    language.t("Evening closeout", "晚间收尾") to "$eveningProgress/3",
+                    language.t("Today next", "今天下一步") to (nextStep?.title ?: language.t("Ready", "就绪")),
+                    language.t("Tomorrow", "明天") to if (hasReviewToday) language.t("Prepared", "已准备") else language.t("After review", "复盘后生成")
+                )
+            )
+            DataChipGrid(
+                items = listOf(
+                    language.t("Sync body data -> choose plan -> first meal", "同步身体数据 -> 选择计划 -> 第一餐"),
+                    language.t("Finish sets -> food gaps -> AI review -> tomorrow", "完成组记录 -> 饮食缺口 -> AI 复盘 -> 明天"),
+                    language.t("One day, two simple checkpoints", "一天只看两个检查点")
+                )
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = morningAction, modifier = Modifier.weight(1f)) {
+                    Text(morningActionLabel)
+                }
+                ElevatedButton(onClick = eveningAction, enabled = !state.isLoading, modifier = Modifier.weight(1f)) {
+                    Text(eveningActionLabel)
+                }
+            }
+            Text(
+                text = language.t(
+                    "Morning: $morningActionTitle. Evening: $eveningActionTitle.",
+                    "早上：$morningActionTitle。晚上：$eveningActionTitle。"
                 ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
