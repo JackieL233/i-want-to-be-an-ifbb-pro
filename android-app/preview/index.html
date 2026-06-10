@@ -730,6 +730,83 @@
       z-index: 1;
     }
 
+    .live-set-coach-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(0, 122, 255, 0.14), rgba(255, 255, 255, 0.70) 48%, rgba(52, 199, 89, 0.10)),
+        rgba(255, 255, 255, 0.74);
+      backdrop-filter: blur(20px) saturate(155%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.88),
+        0 14px 34px rgba(29, 29, 31, 0.10);
+    }
+
+    .live-set-coach-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
+    .live-set-coach-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .live-set-target {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .live-set-title {
+      font-size: 24px;
+      line-height: 1.05;
+      font-weight: 820;
+    }
+
+    .live-set-inputs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .live-set-input {
+      min-height: 46px;
+      border: 1px solid rgba(209, 209, 214, 0.78);
+      border-radius: var(--radius);
+      padding: 7px 8px;
+      background: rgba(255, 255, 255, 0.72);
+      display: grid;
+      gap: 2px;
+      align-content: center;
+    }
+
+    .live-set-input span {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .live-set-input strong {
+      font-size: 15px;
+      line-height: 1.1;
+    }
+
     .training-step-row {
       display: grid;
       grid-template-columns: 32px minmax(0, 1fr) auto;
@@ -3067,6 +3144,49 @@
         </section>
 
         <section class="panel active" data-panel="training" aria-label="Training">
+          <div class="live-set-coach-card" data-component="LiveSetCoachCard">
+            <div class="section-head">
+              <p class="eyebrow" data-en="LIVE SET COACH" data-zh="当前组教练">LIVE SET COACH</p>
+              <h2 data-en="Live Set Coach" data-zh="当前组教练">Live Set Coach</h2>
+              <p class="subtle" data-en="Stand at the machine, do this set, then tap once to start the AI matched rest countdown." data-zh="站到器械前，完成这一组，然后点一次即可开始 AI 匹配休息倒计时。">Stand at the machine, do this set, then tap once to start the AI matched rest countdown.</p>
+            </div>
+            <div class="live-set-target">
+              <div>
+                <p class="eyebrow" data-en="Do this set now" data-zh="现在完成这一组">Do this set now</p>
+                <h3 class="live-set-title">Incline Smith Press</h3>
+                <p class="subtle" data-en="Set 3/4 | 82.5 kg | 6-10 reps | RIR 2" data-zh="第 3/4 组 | 82.5 kg | 6-10 次 | RIR 2">Set 3/4 | 82.5 kg | 6-10 reps | RIR 2</p>
+              </div>
+              <span class="badge blue" data-en="VG-01" data-zh="VG-01">VG-01</span>
+            </div>
+            <div class="live-set-inputs" aria-label="Live set inputs">
+              <div class="live-set-input">
+                <span data-en="Reps" data-zh="次数">Reps</span>
+                <strong>8</strong>
+              </div>
+              <div class="live-set-input">
+                <span data-en="kg" data-zh="kg">kg</span>
+                <strong>82.5</strong>
+              </div>
+              <div class="live-set-input">
+                <span data-en="RIR" data-zh="RIR">RIR</span>
+                <strong>2</strong>
+              </div>
+            </div>
+            <button id="live-complete-set" class="primary-play" type="button" data-en="Complete this set + start AI rest" data-zh="完成本组并开始 AI 休息">Complete this set + start AI rest</button>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="AI matched rest" data-zh="AI 匹配休息">AI matched rest</span><span class="value">165s</span></div>
+              <div class="metric"><span class="label" data-en="Auto-start rest timer" data-zh="自动启动休息倒计时">Auto-start rest timer</span><span class="value" data-en="After tap" data-zh="点击后">After tap</span></div>
+              <div class="metric"><span class="label" data-en="Status" data-zh="状态">Status</span><span class="value" data-en="Continue next set" data-zh="继续下一组">Continue next set</span></div>
+              <div class="metric"><span class="label" data-en="Evidence" data-zh="证据">Evidence</span><span class="value" data-en="Set log" data-zh="组记录">Set log</span></div>
+            </div>
+            <p class="subtle" data-en="Auto-start rest timer uses reps, kg, RIR, sleep, soreness, fatigue, heart rate, and set quality before updating the next countdown." data-zh="自动休息倒计时会结合次数、重量、RIR、睡眠、酸痛、疲劳、心率和本组质量，再更新下一组倒计时。">Auto-start rest timer uses reps, kg, RIR, sleep, soreness, fatigue, heart rate, and set quality before updating the next countdown.</p>
+            <div class="chip-row">
+              <span class="chip active" data-en="Auto-start rest timer" data-zh="自动启动休息倒计时">Auto-start rest timer</span>
+              <span class="chip active" data-en="AI matched rest" data-zh="AI 匹配休息">AI matched rest</span>
+              <span class="chip active" data-en="Complete set logs" data-zh="补全组记录">Complete set logs</span>
+            </div>
+          </div>
+
           <div class="training-autopilot-card" data-component="TrainingAutopilotCard">
             <div class="section-head">
               <p class="eyebrow" data-en="TRAINING AUTOPILOT" data-zh="训练自动教练">TRAINING AUTOPILOT</p>

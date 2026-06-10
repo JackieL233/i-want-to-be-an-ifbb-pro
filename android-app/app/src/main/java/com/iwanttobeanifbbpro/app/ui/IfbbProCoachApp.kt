@@ -6413,6 +6413,181 @@ private fun TrainingAutopilotCard(
 }
 
 @Composable
+private fun LiveSetCoachCard(
+    log: DailyLog,
+    nextSet: NextSetCoach,
+    restPrescription: AiRestPrescription,
+    language: AppLanguage,
+    isLoading: Boolean,
+    onOpenPlan: () -> Unit,
+    onUpdateSetEntry: (Int, Int, Int?, Double?, Double?, String) -> Unit,
+    onCompleteSet: (Int, Int) -> Unit,
+    onPickTrainingPhoto: (PhotoEvidenceType, String) -> Unit
+) {
+    val exerciseIndex = log.trainingSession.exercises.indexOfFirst { exercise ->
+        exercise.trackedSets().any { set -> !set.completed }
+    }
+    val exercise = log.trainingSession.exercises.getOrNull(exerciseIndex)
+    val setIndex = exercise?.trackedSets()?.indexOfFirst { set -> !set.completed } ?: -1
+    val set = exercise?.trackedSets()?.getOrNull(setIndex)
+
+    if (exercise == null || set == null || !nextSet.hasActiveSet) {
+        SectionCard(
+            title = language.t("Live Set Coach", "当前组教练"),
+            subtitle = language.t(
+                "Load today's workout first, then this card becomes the one-tap set executor.",
+                "先载入今天的训练；之后这里会变成一键执行当前组的入口。"
+            )
+        ) {
+            Text(
+                text = language.t("LIVE SET COACH", "当前组教练"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = language.t("No active set loaded.", "当前没有可执行训练组。"),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Button(onClick = onOpenPlan, modifier = Modifier.fillMaxWidth()) {
+                Text(language.t("Open training plan", "打开训练计划"))
+            }
+        }
+        return
+    }
+
+    var reps by remember(exerciseIndex, setIndex, set.completed) {
+        mutableStateOf(set.actualReps?.toString().orEmpty())
+    }
+    var load by remember(exerciseIndex, setIndex, set.completed) {
+        mutableStateOf(set.loadKg?.let { formatDecimal(it) }.orEmpty())
+    }
+    var rir by remember(exerciseIndex, setIndex, set.completed) {
+        mutableStateOf(set.rir?.let { formatDecimal(it) }.orEmpty())
+    }
+    var notes by remember(exerciseIndex, setIndex, set.completed) {
+        mutableStateOf(set.notes)
+    }
+    val plannedLoad = set.loadKg ?: exercise.loadKg
+    val plannedRir = set.rir ?: exercise.rir
+    val targetLine = listOfNotNull(
+        set.targetReps.ifBlank { exercise.reps }.ifBlank { null },
+        plannedLoad?.let { "${formatDecimal(it)} kg" },
+        plannedRir?.let { "RIR ${formatDecimal(it)}" }
+    ).joinToString(" | ").ifBlank { language.t("Use planned target", "使用计划目标") }
+
+    SectionCard(
+        title = language.t("Live Set Coach", "当前组教练"),
+        subtitle = language.t(
+            "Stand at the machine, do this set, then tap once to start the AI matched rest countdown.",
+            "站到器械前，完成这一组，然后点一次即可开始 AI 匹配休息倒计时。"
+        )
+    ) {
+        Text(
+            text = language.t("LIVE SET COACH", "当前组教练"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = language.t("Do this set now", "现在完成这一组"),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "${exercise.name} ${set.setNumber}/${nextSet.totalSets}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        MetricGrid(
+            metrics = listOf(
+                language.t("Target", "目标") to targetLine,
+                language.t("AI matched rest", "AI 匹配休息") to "${restPrescription.recommendedRestSeconds.coerceAtLeast(set.restSeconds)}s",
+                language.t("Visual guide", "动作图例") to nextSet.visualSpec.visualId,
+                language.t("Status", "状态") to nextSet.statusLabel
+            )
+        )
+        Text(
+            text = nextSet.executionCue,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NumberField(
+                value = reps,
+                onChange = {
+                    reps = it
+                    onUpdateSetEntry(exerciseIndex, setIndex, it.toIntOrNull(), load.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
+                },
+                label = language.t("Reps", "次数"),
+                modifier = Modifier.weight(1f)
+            )
+            DecimalField(
+                value = load,
+                onChange = {
+                    load = it
+                    onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), it.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
+                },
+                label = "kg",
+                modifier = Modifier.weight(1f)
+            )
+            DecimalField(
+                value = rir,
+                onChange = {
+                    rir = it
+                    onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), load.toDoubleOrNull(), it.toDoubleOrNull(), notes)
+                },
+                label = "RIR",
+                modifier = Modifier.weight(1f)
+            )
+        }
+        Button(
+            onClick = {
+                onUpdateSetEntry(exerciseIndex, setIndex, reps.toIntOrNull(), load.toDoubleOrNull(), rir.toDoubleOrNull(), notes)
+                onCompleteSet(exerciseIndex, setIndex)
+            },
+            enabled = !isLoading && !set.completed,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(language.t("Complete this set + start AI rest", "完成本组并开始 AI 休息"))
+        }
+        DataChipGrid(
+            items = listOf(
+                language.t("Auto-start rest timer", "自动启动休息倒计时"),
+                language.t("AI matched rest", "AI 匹配休息"),
+                language.t("Complete set logs", "补全组记录"),
+                language.t("After-set logging cue", "组后记录提示")
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(
+                onClick = {
+                    onPickTrainingPhoto(
+                        PhotoEvidenceType.TRAINING_FORM,
+                        "Live Set Coach form check for ${exercise.name} set ${set.setNumber}, load, reps, RIR, pain, and technique."
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Form photo", "动作照片"))
+            }
+            TextButton(
+                onClick = {
+                    onPickTrainingPhoto(
+                        PhotoEvidenceType.EQUIPMENT,
+                        "Live Set Coach equipment photo for ${exercise.name}, visual guide ${nextSet.visualSpec.visualId}, and setup confirmation."
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Equipment", "器械"))
+            }
+        }
+    }
+}
+
+@Composable
 private fun TrainingPage(
     state: CoachUiState,
     onFocusChange: (String) -> Unit,
@@ -6453,6 +6628,17 @@ private fun TrainingPage(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LiveSetCoachCard(
+            log = state.dailyLog,
+            nextSet = nextSet,
+            restPrescription = restPrescription,
+            language = language,
+            isLoading = state.isLoading,
+            onOpenPlan = onOpenPlan,
+            onUpdateSetEntry = onUpdateSetEntry,
+            onCompleteSet = onCompleteSet,
+            onPickTrainingPhoto = onPickTrainingPhoto
+        )
         TrainingAutopilotCard(
             log = state.dailyLog,
             readinessBuilder = readinessBuilder,
