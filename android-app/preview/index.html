@@ -807,6 +807,73 @@
       line-height: 1.1;
     }
 
+    .live-meal-coach-card {
+      position: relative;
+      overflow: hidden;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(52, 199, 89, 0.14), rgba(255, 255, 255, 0.72) 48%, rgba(255, 149, 0, 0.12)),
+        rgba(255, 255, 255, 0.74);
+      backdrop-filter: blur(20px) saturate(155%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.88),
+        0 14px 34px rgba(29, 29, 31, 0.10);
+    }
+
+    .live-meal-coach-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0));
+      pointer-events: none;
+    }
+
+    .live-meal-coach-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .live-meal-target {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .live-meal-title {
+      font-size: 24px;
+      line-height: 1.05;
+      font-weight: 820;
+    }
+
+    .live-meal-input {
+      width: 100%;
+      min-height: 72px;
+      border: 1px solid rgba(209, 209, 214, 0.78);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--text);
+      font: inherit;
+      resize: vertical;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    }
+
+    .live-meal-input:focus {
+      border-color: rgba(0, 122, 255, 0.62);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+    }
+
     .training-step-row {
       display: grid;
       grid-template-columns: 32px minmax(0, 1fr) auto;
@@ -3691,6 +3758,42 @@
         </section>
 
         <section class="panel" data-panel="nutrition" aria-label="Nutrition">
+          <div class="live-meal-coach-card" data-component="LiveMealCoachCard">
+            <div class="section-head">
+              <p class="eyebrow" data-en="LIVE MEAL COACH" data-zh="当前餐教练">LIVE MEAL COACH</p>
+              <h2 data-en="Live Meal Coach" data-zh="当前餐教练">Live Meal Coach</h2>
+              <p class="subtle" data-en="Eat or log this meal now; AI uses training demand, sleep, health metrics, and body trend before changing tomorrow." data-zh="现在吃或记录这一餐；AI 会结合训练需求、睡眠、健康数据和身体趋势，再决定明天是否调整。">Eat or log this meal now; AI uses training demand, sleep, health metrics, and body trend before changing tomorrow.</p>
+            </div>
+            <div class="live-meal-target">
+              <div>
+                <span class="label" data-en="Eat or log this meal now" data-zh="现在吃或记录这一餐">Eat or log this meal now</span>
+                <div class="live-meal-title" data-en="Protein-first meal" data-zh="蛋白质优先餐">Protein-first meal</div>
+                <p class="subtle" data-en="Close the protein gap before adding extra carbs or fats." data-zh="先补齐蛋白质缺口，再考虑额外碳水或脂肪。">Close the protein gap before adding extra carbs or fats.</p>
+              </div>
+              <div class="food-icon">AI</div>
+            </div>
+            <div class="metric-grid">
+              <div class="metric"><span class="label" data-en="Estimated kcal" data-zh="估算热量">Estimated kcal</span><span class="value">820 kcal</span></div>
+              <div class="metric"><span class="label" data-en="Protein" data-zh="蛋白质">Protein</span><span class="value">57 g</span></div>
+              <div class="metric"><span class="label" data-en="Carbs" data-zh="碳水">Carbs</span><span class="value">95 g</span></div>
+              <div class="metric"><span class="label" data-en="Fat" data-zh="脂肪">Fat</span><span class="value">24 g</span></div>
+              <div class="metric"><span class="label" data-en="Remaining after" data-zh="餐后剩余">Remaining after</span><span class="value" data-en="50 kcal | P on target | C 10g | F on target" data-zh="50 kcal | 蛋白达标 | 碳水 10g | 脂肪达标">50 kcal | P on target | C 10g | F on target</span></div>
+              <div class="metric"><span class="label" data-en="One-tap meal evidence" data-zh="一键餐食证据">One-tap meal evidence</span><span class="value" data-en="Photo + text ready" data-zh="照片 + 文字就绪">Photo + text ready</span></div>
+            </div>
+            <textarea class="live-meal-input" aria-label="Photo or text meal note" data-en="Chicken rice bowl, sauce on side" data-zh="鸡肉米饭碗，酱汁另放">Chicken rice bowl, sauce on side</textarea>
+            <div class="coach-lane">
+              <span data-en="Photo or text" data-zh="照片或文字">Photo or text</span>
+              <span data-en="AI estimate" data-zh="AI 估算">AI estimate</span>
+              <span data-en="Meal log" data-zh="餐食记录">Meal log</span>
+              <span data-en="AI review" data-zh="AI 复盘">AI review</span>
+            </div>
+            <div class="action-row">
+              <button class="button" type="button" data-en="Food photo" data-zh="食物照片">Food photo</button>
+              <button class="button primary" type="button" data-en="Log this meal estimate" data-zh="记录这餐估算">Log this meal estimate</button>
+            </div>
+            <p class="subtle" data-en="Photo or text -> AI estimate -> meal log. This evidence is linked to training volume, sleep, weight trend, and daily macros before AI changes targets." data-zh="照片或文字 -> AI 估算 -> 餐食记录。证据会联动训练容量、睡眠、体重趋势和每日宏量，再让 AI 调整目标。">Photo or text -> AI estimate -> meal log. This evidence is linked to training volume, sleep, weight trend, and daily macros before AI changes targets.</p>
+          </div>
+
           <div class="nutrition-autopilot-card" data-component="NutritionAutopilotCard">
             <div class="section-head">
               <p class="eyebrow" data-en="NUTRITION AUTOPILOT" data-zh="饮食自动教练">NUTRITION AUTOPILOT</p>

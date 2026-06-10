@@ -3957,6 +3957,124 @@ private fun MealLoggingCoachCard(
 }
 
 @Composable
+private fun LiveMealCoachCard(
+    log: DailyLog,
+    language: AppLanguage,
+    mealDescription: String,
+    onMealDescriptionChange: (String) -> Unit,
+    onUseAiEstimate: () -> Unit,
+    onPickMealPhoto: (String) -> Unit,
+    onOpenAi: () -> Unit
+) {
+    val pacing = log.nutritionPacing()
+    val builder = log.nextMealBuilder()
+    val totals = log.nutritionTotals()
+    val targets = log.targets
+    val estimateCalories = builder.estimatedCalories()
+    val caloriesAfter = targets.calories - totals.calories - estimateCalories
+    val proteinAfter = targets.protein - totals.protein - builder.proteinGrams
+    val carbsAfter = targets.carbs - totals.carbs - builder.carbsGrams
+    val fatAfter = targets.fat - totals.fat - builder.fatGrams
+    val evidenceCount = log.meals.size + log.photoEvidence.count {
+        it.type == PhotoEvidenceType.MEAL || it.type == PhotoEvidenceType.MENU_LABEL
+    }
+
+    SectionCard(
+        title = language.t("Live Meal Coach", "当前餐教练"),
+        subtitle = language.t(
+            "Eat or log this meal now; AI uses the estimate with training demand, sleep, health metrics, and body trend before changing tomorrow.",
+            "现在吃或记录这一餐；AI 会把估算与训练需求、睡眠、健康数据和身体趋势联动后，再决定明天是否调整。"
+        )
+    ) {
+        Text(
+            text = language.t("LIVE MEAL COACH", "当前餐教练"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            color = IfbbProGlassStrongSurface
+        ) {
+            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(language.t("Eat or log this meal now", "现在吃或记录这一餐"), fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = builder.localizedTitle(language),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = builder.localizedSummary(language),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = builder.localizedPortionCue(language),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+        MetricGrid(
+            metrics = listOf(
+                language.t("Estimated kcal", "估算热量") to "$estimateCalories kcal",
+                language.t("Protein", "蛋白质") to "${builder.proteinGrams} g",
+                language.t("Carbs", "碳水") to "${builder.carbsGrams} g",
+                language.t("Fat", "脂肪") to "${builder.fatGrams} g",
+                language.t("Remaining after", "餐后剩余") to listOf(
+                    "Kcal ${formatRemainingLocalized(caloriesAfter, "kcal", language)}",
+                    "P ${formatRemainingLocalized(proteinAfter, "g", language)}",
+                    "C ${formatRemainingLocalized(carbsAfter, "g", language)}",
+                    "F ${formatRemainingLocalized(fatAfter, "g", language)}"
+                ).joinToString(" | "),
+                language.t("One-tap meal evidence", "一键餐食证据") to "$evidenceCount"
+            )
+        )
+        OutlinedTextField(
+            value = mealDescription,
+            onValueChange = onMealDescriptionChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(language.t("Photo or text meal note", "拍照或文字记录这一餐")) },
+            placeholder = {
+                Text(language.t("chicken rice bowl, sauce on side", "鸡肉米饭碗，酱汁另放"))
+            },
+            minLines = 2
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ElevatedButton(
+                onClick = {
+                    onPickMealPhoto(
+                        "One-tap meal evidence for AI nutrition estimate. Target: ${builder.title}; estimate $estimateCalories kcal, P ${builder.proteinGrams} g, C ${builder.carbsGrams} g, F ${builder.fatGrams} g. Capture portion size, oil, sauce, label, menu, and bowl depth."
+                    )
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(language.t("Food photo", "食物照片"))
+            }
+            Button(onClick = onUseAiEstimate, modifier = Modifier.weight(1f)) {
+                Text(language.t("Log this meal estimate", "记录这餐估算"))
+            }
+        }
+        TextButton(onClick = onOpenAi, modifier = Modifier.fillMaxWidth()) {
+            Text(language.t("Send meal evidence to AI review", "把餐食证据交给 AI 复盘"))
+        }
+        DataChipGrid(
+            items = listOf(
+                "LiveMealCoachCard",
+                "LIVE MEAL COACH",
+                language.t("Photo or text -> AI estimate -> meal log", "照片或文字 -> AI 估算 -> 餐食记录"),
+                language.t("One-tap meal evidence", "一键餐食证据"),
+                pacing.localizedStatusLabel(language),
+                language.t("当前餐教练", "当前餐教练"),
+                language.t("记录这餐估算", "记录这餐估算")
+            )
+        )
+    }
+}
+
+@Composable
 private fun NutritionAutopilotCard(
     log: DailyLog,
     language: AppLanguage,
@@ -7722,8 +7840,33 @@ private fun NutritionPage(
             "教练预填：${builder.localizedPortionCue(language)} ${builder.localizedTimingCue(language)} ${builder.localizedPhotoCue(language)}"
         )
     }
+    val useAiMealEstimate: () -> Unit = {
+        val builder = state.dailyLog.nextMealBuilder()
+        onAddMeal(
+            mealDescription.ifBlank { builder.localizedTitle(language) },
+            builder.estimatedCalories(),
+            builder.proteinGrams.toDouble(),
+            builder.carbsGrams.toDouble(),
+            builder.fatGrams.toDouble(),
+            builder.fiberGrams.toDouble(),
+            language.t(
+                "AI estimate from live meal coach. Confirm portion, oil, sauce, label, and plate size when possible.",
+                "来自当前餐教练的 AI 估算。方便时确认份量、油、酱汁、标签和餐盘大小。"
+            )
+        )
+        mealDescription = ""
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LiveMealCoachCard(
+            log = state.dailyLog,
+            language = language,
+            mealDescription = mealDescription,
+            onMealDescriptionChange = { mealDescription = it },
+            onUseAiEstimate = useAiMealEstimate,
+            onPickMealPhoto = onPickMealPhoto,
+            onOpenAi = onOpenAi
+        )
         NutritionAutopilotCard(
             log = state.dailyLog,
             language = language,
