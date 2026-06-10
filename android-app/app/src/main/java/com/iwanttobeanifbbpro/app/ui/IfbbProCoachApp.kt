@@ -8107,6 +8107,182 @@ private fun NutritionPage(
 }
 
 @Composable
+private fun LiveMetricsCoachCard(
+    state: CoachUiState,
+    onConnectHealthData: () -> Unit,
+    onSyncHealthData: () -> Unit,
+    onPickPhysiquePhoto: () -> Unit,
+    onOpenDetails: () -> Unit
+) {
+    val language = state.appLanguage
+    val metrics = state.dailyLog.metrics
+    val snapshot = state.healthSnapshot
+    val recovery = recoveryGuidance(state.dailyLog, state.recentLogs)
+    val physique = physiqueMeasurementSummary(state.dailyLog, state.recentLogs)
+    val physiquePhotoCount = state.dailyLog.photoEvidence.count { it.type == PhotoEvidenceType.PHYSIQUE }
+    val trendDays = state.recentLogs.count {
+        it.metrics.bodyWeightKg != null || it.metrics.waistCm != null || it.metrics.sleepHours != null
+    }.coerceAtMost(7)
+    val weight = metrics.bodyWeightKg ?: snapshot.bodyWeightKg
+    val bodyFat = metrics.bodyFatPercent ?: snapshot.bodyFatPercent
+    val waist = metrics.waistCm
+    val sleep = metrics.sleepHours ?: snapshot.sleepHours
+    val steps = metrics.steps.takeIf { it > 0 }?.toString() ?: snapshot.steps?.toString() ?: "--"
+    val restingHr = metrics.restingHeartRateBpm ?: snapshot.restingHeartRateBpm
+    val healthStatus = when {
+        state.isHealthSyncing -> language.t("Refreshing", "刷新中")
+        snapshot.permissionsGranted -> language.t("Authorized", "已授权")
+        snapshot.available -> language.t("Needs permission", "需要授权")
+        else -> language.t("Manual fallback", "手动补录")
+    }
+    val primaryTitle: String
+    val primaryDetail: String
+    val primaryLabel: String
+    val primaryEnabled: Boolean
+    val primaryAction: () -> Unit
+    when {
+        state.isHealthSyncing -> {
+            primaryTitle = language.t("Refreshing health signals", "正在刷新健康信号")
+            primaryDetail = language.t(
+                "The app is pulling body, sleep, steps, heart-rate, and calorie-burn records for today's AI review.",
+                "App 正在拉取身体、睡眠、步数、心率和热量消耗记录，用于今天的 AI 复盘。"
+            )
+            primaryLabel = language.t("Refreshing", "刷新中")
+            primaryEnabled = false
+            primaryAction = {}
+        }
+        !snapshot.permissionsGranted -> {
+            primaryTitle = language.t("Grant health access once", "一次性授权健康数据")
+            primaryDetail = language.t(
+                "After permission, available body, sleep, steps, resting HR, and calorie-burn records refresh automatically on app open.",
+                "授权后，可用的身体、睡眠、步数、静息心率和热量消耗记录会在打开 App 时自动刷新。"
+            )
+            primaryLabel = language.t("Connect health data", "连接健康数据")
+            primaryEnabled = true
+            primaryAction = onConnectHealthData
+        }
+        metrics.healthSyncedAt.isBlank() -> {
+            primaryTitle = language.t("Refresh today's health data", "刷新今天的健康数据")
+            primaryDetail = language.t(
+                "Pull the latest weight, body fat, sleep, steps, resting HR, and calorie burn before the AI review changes training or macros.",
+                "在 AI 复盘调整训练或宏量前，先拉取最新体重、体脂、睡眠、步数、静息心率和消耗热量。"
+            )
+            primaryLabel = language.t("Sync today", "同步今天")
+            primaryEnabled = true
+            primaryAction = onSyncHealthData
+        }
+        weight == null || waist == null -> {
+            primaryTitle = language.t("Complete body check-in", "补齐身体打卡")
+            primaryDetail = language.t(
+                "Add body weight and waist so AI does not react to training, scale noise, or food logs without a physique trend.",
+                "补充体重和腰围，避免 AI 只凭训练、体重波动或饮食记录就调整计划。"
+            )
+            primaryLabel = language.t("Open manual fields", "打开手动字段")
+            primaryEnabled = true
+            primaryAction = onOpenDetails
+        }
+        physiquePhotoCount == 0 -> {
+            primaryTitle = language.t("Add physique context", "补充体型上下文")
+            primaryDetail = language.t(
+                "Attach one progress photo in consistent lighting and posture so measurements are not interpreted alone.",
+                "添加一张光线和姿势一致的进度照片，让围度数据不被单独解读。"
+            )
+            primaryLabel = language.t("Progress photo", "体型照片")
+            primaryEnabled = true
+            primaryAction = onPickPhysiquePhoto
+        }
+        else -> {
+            primaryTitle = language.t("Body evidence ready", "身体证据已就绪")
+            primaryDetail = language.t(
+                "Sync, trend, sleep/recovery, measurements, and progress-photo evidence are ready for AI review.",
+                "同步、趋势、睡眠恢复、围度和体型照片证据已可用于 AI 复盘。"
+            )
+            primaryLabel = language.t("Review details", "查看详情")
+            primaryEnabled = true
+            primaryAction = onOpenDetails
+        }
+    }
+
+    SectionCard(
+        title = language.t("Live Metrics Coach", "当前身体数据教练"),
+        subtitle = language.t(
+            "Sync or check this data now, then let AI connect recovery, body trend, and progress photos before changing training or food.",
+            "现在同步或检查这些数据，然后让 AI 在调整训练或饮食前联动恢复、身体趋势和体型照片。"
+        )
+    ) {
+        Text(
+            text = language.t("LIVE METRICS COACH", "当前身体数据教练"),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            color = IfbbProGlassStrongSurface
+        ) {
+            Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(language.t("Sync or check this data now", "同步或检查这些数据"), fontWeight = FontWeight.SemiBold)
+                Text(primaryTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = primaryDetail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(onClick = primaryAction, enabled = primaryEnabled, modifier = Modifier.fillMaxWidth()) {
+                    Text(primaryLabel)
+                }
+            }
+        }
+        MetricGrid(
+            metrics = listOf(
+                language.t("Health access", "健康权限") to healthStatus,
+                language.t("Today recovery signal", "今日恢复信号") to "${formatOptional(sleep, "h")} / ${recovery.readinessScore}",
+                language.t("Weight / waist", "体重 / 腰围") to "${formatOptional(weight, "kg")} / ${formatOptional(waist, "cm")}",
+                language.t("Body fat", "体脂") to formatOptional(bodyFat, "%"),
+                language.t("Steps / HR", "步数 / 心率") to "$steps / ${formatOptional(restingHr, "bpm")}",
+                language.t("One-tap body evidence", "一键身体证据") to language.t(
+                    "$trendDays days + $physiquePhotoCount photos",
+                    "$trendDays 天 + $physiquePhotoCount 张照片"
+                )
+            )
+        )
+        LinearProgressIndicator(
+            progress = { ((trendDays.coerceAtLeast(1) / 7f) + (recovery.readinessScore / 100f) + (physique.measurementScore / 100f)) / 3f },
+            modifier = Modifier.fillMaxWidth()
+        )
+        DataChipGrid(
+            items = listOf(
+                "LiveMetricsCoachCard",
+                "LIVE METRICS COACH",
+                language.t("Sync -> trend -> photo -> AI review", "同步 -> 趋势 -> 照片 -> AI 复盘"),
+                language.t("Today recovery signal", "今日恢复信号"),
+                language.t("One-tap body evidence", "一键身体证据"),
+                language.t("当前身体数据教练", "当前身体数据教练"),
+                language.t("同步或检查这些数据", "同步或检查这些数据")
+            )
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ElevatedButton(onClick = onSyncHealthData, enabled = !state.isHealthSyncing, modifier = Modifier.weight(1f)) {
+                Text(language.t("Refresh health", "刷新健康"))
+            }
+            TextButton(onClick = onPickPhysiquePhoto, modifier = Modifier.weight(1f)) {
+                Text(language.t("Progress photo", "体型照片"))
+            }
+        }
+        Text(
+            text = language.t(
+                "AI uses body weight, waist, sleep, steps, resting HR, soreness/fatigue, and progress photos as one evidence bundle before changing split, volume, rest, calories, or macros.",
+                "AI 会把体重、腰围、睡眠、步数、静息心率、酸痛疲劳和体型照片作为同一组证据，再调整分化、容量、休息、热量或宏量。"
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
 private fun MetricsFlowCoachCard(
     state: CoachUiState,
     showDetails: Boolean,
@@ -8554,6 +8730,13 @@ private fun MetricsPage(
     val language = state.appLanguage
     var showMetricsDetails by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LiveMetricsCoachCard(
+            state = state,
+            onConnectHealthData = onConnectHealthData,
+            onSyncHealthData = onSyncHealthData,
+            onPickPhysiquePhoto = onPickPhysiquePhoto,
+            onOpenDetails = { showMetricsDetails = true }
+        )
         MetricsAutopilotCard(
             state = state,
             onConnectHealthData = onConnectHealthData,
