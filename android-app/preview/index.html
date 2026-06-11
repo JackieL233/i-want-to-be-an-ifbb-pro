@@ -3719,12 +3719,12 @@
                 </div>
               </div>
             </div>
-            <button class="primary-play" type="button" data-tab-target="training" data-en="Apply today" data-zh="应用今天">Apply today</button>
+            <button class="primary-play" type="button" data-apply-today data-en="Apply today" data-zh="应用今天">Apply today</button>
             <div class="metric-grid">
               <div class="metric"><span class="label" data-en="Phase" data-zh="阶段">Phase</span><span class="value" data-en="Hypertrophy" data-zh="增肌期">Hypertrophy</span></div>
               <div class="metric"><span class="label" data-en="Plan" data-zh="计划">Plan</span><span class="value">4-Day</span></div>
               <div class="metric"><span class="label" data-en="Active days" data-zh="训练日">Active days</span><span class="value">4</span></div>
-              <div class="metric"><span class="label" data-en="Today" data-zh="今天">Today</span><span class="value" data-en="Not loaded" data-zh="未载入">Not loaded</span></div>
+              <div class="metric"><span class="label" data-en="Today" data-zh="今天">Today</span><span class="value" data-plan-today-status data-en="Not loaded" data-zh="未载入">Not loaded</span></div>
             </div>
             <div class="split-picker" aria-label="Training split choices">
               <button class="split-option" type="button">
@@ -3757,7 +3757,7 @@
               <p class="subtle" data-en="Nutrition guardrail: close protein earlier before changing calories. Recovery guardrail: short sleep means keep load and sets stable." data-zh="饮食保护线：先更早补齐蛋白质，再改热量。恢复保护线：睡眠短时保持重量和组数稳定。"><strong>Guardrails:</strong> close protein earlier before changing calories; short sleep means keep load and sets stable.</p>
               <div class="action-row">
                 <button class="button primary" type="button" data-en="Apply AI split template" data-zh="应用 AI 分化模板">Apply AI split template</button>
-                <button class="button" type="button" data-tab-target="training" data-en="Apply today" data-zh="应用今天">Apply today</button>
+                <button class="button" type="button" data-apply-today data-en="Apply today" data-zh="应用今天">Apply today</button>
               </div>
               <div class="chip-row">
                 <span class="chip active" data-en="template proposal from linked evidence" data-zh="来自联动证据的模板提案">template proposal from linked evidence</span>
@@ -3984,7 +3984,7 @@
               </div>
             </div>
             <div class="action-row">
-              <button class="button primary" type="button" data-tab-target="training">Apply today</button>
+              <button class="button primary" type="button" data-apply-today data-en="Apply today" data-zh="应用今天">Apply today</button>
               <button class="button" type="button">Reset plan</button>
             </div>
           </div>
@@ -4075,7 +4075,7 @@
                 <strong data-en="Next training action" data-zh="下一步训练动作">Next training action</strong>
                 <p class="subtle" data-en="Log the next working set, then start rest." data-zh="记录下一组，并开始休息倒计时。">Log the next working set, then start rest.</p>
               </div>
-              <button class="button primary" type="button" data-en="Form" data-zh="动作">Form</button>
+              <button class="button primary" type="button" data-en="Complete this set + start AI rest" data-zh="完成本组并开始 AI 休息">Complete this set + start AI rest</button>
             </div>
             <div class="coach-lane">
               <span data-en="Plan" data-zh="计划">Plan</span>
@@ -6324,6 +6324,25 @@
       }
     }
 
+    function applyTodayPlanPreview() {
+      document.querySelectorAll("[data-plan-today-status]").forEach((element) => {
+        element.dataset.en = "Loaded";
+        element.dataset.zh = "已载入";
+        element.textContent = currentLang === "zh" ? element.dataset.zh : element.dataset.en;
+      });
+      document.querySelectorAll("[data-apply-today]").forEach((button) => {
+        button.dataset.en = "Applied -> Continue workout";
+        button.dataset.zh = "已应用 -> 继续训练";
+        button.textContent = currentLang === "zh" ? button.dataset.zh : button.dataset.en;
+      });
+      activateTab("training", false);
+      document.querySelector('.panel[data-panel="training"] .one-tap-set-execution-card')?.scrollIntoView({
+        block: "start",
+        inline: "nearest",
+        behavior: "auto"
+      });
+    }
+
     document.querySelectorAll("[data-lang-option]").forEach((button) => {
       button.addEventListener("click", () => setLanguage(button.dataset.langOption));
     });
@@ -6334,6 +6353,10 @@
 
     document.querySelectorAll("[data-tab-target]").forEach((button) => {
       button.addEventListener("click", () => activateTab(button.dataset.tabTarget));
+    });
+
+    document.querySelectorAll("[data-apply-today]").forEach((button) => {
+      button.addEventListener("click", applyTodayPlanPreview);
     });
 
     document.querySelectorAll(".daily-evidence-details").forEach((details) => {

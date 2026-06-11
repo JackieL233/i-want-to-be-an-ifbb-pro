@@ -208,7 +208,10 @@ fun IfbbProCoachApp(viewModel: CoachViewModel = viewModel()) {
                                 onUpdateDay = viewModel::updateTrainingDay,
                                 onAddPlannedExercise = viewModel::addPlannedExercise,
                                 onRemovePlannedExercise = viewModel::removePlannedExercise,
-                                onApplyDay = viewModel::applyPlanDayToToday,
+                                onApplyDay = { dayIndex ->
+                                    viewModel.applyPlanDayToToday(dayIndex)
+                                    showTrainingPlan = false
+                                },
                                 onApplyTemplate = viewModel::applyTrainingPlanTemplate,
                                 onResetPlan = viewModel::resetTrainingPlan,
                                 onOpenTraining = { showTrainingPlan = false }
@@ -7153,6 +7156,7 @@ private fun WorkoutFlowCoachCard(
     onOpenNutrition: () -> Unit,
     onOpenMetrics: () -> Unit,
     onOpenAi: () -> Unit,
+    onCompleteSet: (Int, Int) -> Unit,
     onPickTrainingPhoto: (PhotoEvidenceType, String) -> Unit
 ) {
     val totalSets = log.plannedHardSets()
@@ -7161,6 +7165,15 @@ private fun WorkoutFlowCoachCard(
     val hasWorkout = log.trainingSession.exercises.isNotEmpty() && totalSets > 0
     val allSetsComplete = hasWorkout && completedSets >= totalSets
     val sessionMarkedComplete = log.trainingSession.completed
+    val activeExerciseIndex = log.trainingSession.exercises.indexOfFirst { exercise ->
+        exercise.trackedSets().any { set -> !set.completed }
+    }
+    val activeSetIndex = log.trainingSession.exercises
+        .getOrNull(activeExerciseIndex)
+        ?.trackedSets()
+        ?.indexOfFirst { set -> !set.completed }
+        ?: -1
+    val canCompleteActiveSet = nextSet.hasActiveSet && activeExerciseIndex >= 0 && activeSetIndex >= 0
     val stepLabel = when {
         !hasWorkout -> language.t("Load workout", "载入训练")
         completedSets == 0 -> language.t("Warm up", "热身")
@@ -7203,12 +7216,14 @@ private fun WorkoutFlowCoachCard(
     }
     val primaryLabel = when {
         !hasWorkout -> language.t("Open training plan", "打开训练计划")
+        canCompleteActiveSet -> language.t("Complete this set + start AI rest", "完成本组并开始 AI 休息")
         allSetsComplete && !sessionMarkedComplete -> language.t("Mark complete", "标记完成")
         sessionMarkedComplete -> language.t("Run review", "运行复盘")
         else -> language.t("Form check", "动作检查")
     }
     val primaryAction: () -> Unit = when {
         !hasWorkout -> onOpenPlan
+        canCompleteActiveSet -> { { onCompleteSet(activeExerciseIndex, activeSetIndex) } }
         allSetsComplete && !sessionMarkedComplete -> onMarkTrainingComplete
         sessionMarkedComplete -> onRunDailyReview
         else -> {
@@ -7264,6 +7279,7 @@ private fun WorkoutFlowCoachCard(
             items = listOf(
                 language.t("Workout Flow Coach", "训练执行教练"),
                 language.t("Warm up -> ramp -> next set -> log -> rest -> closeout -> AI review", "热身 -> 递增 -> 下一组 -> 记录 -> 休息 -> 收尾 -> AI 复盘"),
+                language.t("Primary action completes active set", "主动作会完成当前组"),
                 language.t("Set rows below are the source of truth", "下方组记录才是真实数据来源"),
                 language.t("Rest timer starts after Complete", "点击完成后启动休息倒计时"),
                 language.t("AI Rest Prescription", "AI 休息处方"),
@@ -7318,6 +7334,7 @@ private fun TrainingAutopilotCard(
     onOpenPlan: () -> Unit,
     onMarkTrainingComplete: () -> Unit,
     onRunDailyReview: () -> Unit,
+    onCompleteSet: (Int, Int) -> Unit,
     onPickTrainingPhoto: (PhotoEvidenceType, String) -> Unit
 ) {
     val totalSets = log.plannedHardSets()
@@ -7325,6 +7342,15 @@ private fun TrainingAutopilotCard(
     val hasWorkout = log.trainingSession.exercises.isNotEmpty() && totalSets > 0
     val allSetsComplete = hasWorkout && completedSets >= totalSets
     val sessionMarkedComplete = log.trainingSession.completed
+    val activeExerciseIndex = log.trainingSession.exercises.indexOfFirst { exercise ->
+        exercise.trackedSets().any { set -> !set.completed }
+    }
+    val activeSetIndex = log.trainingSession.exercises
+        .getOrNull(activeExerciseIndex)
+        ?.trackedSets()
+        ?.indexOfFirst { set -> !set.completed }
+        ?: -1
+    val canCompleteActiveSet = nextSet.hasActiveSet && activeExerciseIndex >= 0 && activeSetIndex >= 0
     val currentStep = when {
         !hasWorkout -> language.t("Plan", "计划")
         completedSets == 0 -> language.t("Warm up", "热身")
@@ -7352,8 +7378,13 @@ private fun TrainingAutopilotCard(
             actionLabel = language.t("Open training plan", "打开训练计划")
             action = onOpenPlan
         }
-        !allSetsComplete -> {
+        !allSetsComplete && canCompleteActiveSet -> {
             nextTrainingAction = language.t("Log the next working set, then start rest", "记录下一组并开始休息")
+            actionLabel = language.t("Complete this set + start AI rest", "完成本组并开始 AI 休息")
+            action = { onCompleteSet(activeExerciseIndex, activeSetIndex) }
+        }
+        !allSetsComplete -> {
+            nextTrainingAction = language.t("Check the current set evidence", "检查当前组证据")
             actionLabel = language.t("Form check", "动作检查")
             action = {
                 onPickTrainingPhoto(
@@ -7738,6 +7769,7 @@ private fun TrainingPage(
             onOpenPlan = onOpenPlan,
             onMarkTrainingComplete = onCompletedChange,
             onRunDailyReview = onRunDailyReview,
+            onCompleteSet = onCompleteSet,
             onPickTrainingPhoto = onPickTrainingPhoto
         )
         WorkoutFlowCoachCard(
@@ -7756,6 +7788,7 @@ private fun TrainingPage(
             onOpenNutrition = onOpenNutrition,
             onOpenMetrics = onOpenMetrics,
             onOpenAi = onOpenAi,
+            onCompleteSet = onCompleteSet,
             onPickTrainingPhoto = onPickTrainingPhoto
         )
         SectionCard(

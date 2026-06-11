@@ -776,6 +776,7 @@ class AndroidAppStructureTest(unittest.TestCase):
             "Next set target",
             "Rest prescription",
             "Next training action",
+            "Primary action completes active set",
             "训练自动教练",
             "LiveSetCoachCard",
             "LIVE SET COACH",
@@ -1524,6 +1525,11 @@ class AndroidAppStructureTest(unittest.TestCase):
         self.assertIn("if (isEditing || !setup.canRunAi)", ui)
         self.assertIn('language.t("AI setup folded when ready",', ui)
         self.assertIn('language.t("Configured AI key stays hidden until Edit",', ui)
+        self.assertIn("viewModel.applyPlanDayToToday(dayIndex)", ui)
+        self.assertIn("showTrainingPlan = false", ui)
+        self.assertIn("onCompleteSet(activeExerciseIndex, activeSetIndex)", ui)
+        self.assertIn("canCompleteActiveSet -> language.t(\"Complete this set + start AI rest\"", ui)
+        self.assertIn('language.t("Primary action completes active set"', ui)
 
     def test_four_main_sections_use_semantic_navigation_icons(self) -> None:
         gradle = (APP / "app/build.gradle.kts").read_text(encoding="utf-8")
@@ -2302,6 +2308,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "AI Plan Adjustment Proposal",
             "Apply AI split template",
             "template proposal from linked evidence",
+            "data-apply-today",
+            "data-plan-today-status",
+            "applyTodayPlanPreview",
+            "Applied -> Continue workout",
             "NEXT PLAN ACTION",
             "Training plan layers",
             "profile, templates, weekly plan, visual map, exercise editing",
