@@ -945,6 +945,77 @@
       line-height: 1.24;
     }
 
+    .meal-estimate-details {
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(18px) saturate(150%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.84),
+        0 12px 30px rgba(29, 29, 31, 0.07);
+      overflow: hidden;
+    }
+
+    .meal-estimate-summary {
+      min-height: 54px;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .meal-estimate-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .meal-estimate-summary strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.18;
+    }
+
+    .meal-estimate-summary .subtle {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+      font-weight: 650;
+      white-space: normal;
+    }
+
+    .meal-estimate-summary > span:last-child {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .meal-estimate-details[open] {
+      padding-bottom: 12px;
+    }
+
+    .meal-estimate-details:not([open]) > :not(summary) {
+      display: none;
+    }
+
+    .meal-estimate-details[open] .meal-estimate-summary {
+      border-bottom: 1px solid rgba(209, 209, 214, 0.56);
+      margin-bottom: 12px;
+    }
+
+    .meal-estimate-details > :not(summary) {
+      margin-left: 12px;
+      margin-right: 12px;
+    }
+
+    .meal-estimate-details > :last-child {
+      margin-bottom: 0;
+    }
+
     .nutrition-autopilot-card {
       position: relative;
       overflow: hidden;
@@ -4708,6 +4779,19 @@
               <div class="metric"><span class="label" data-en="Carbs" data-zh="碳水">Carbs</span><span class="value">105g</span></div>
               <div class="metric"><span class="label" data-en="Fat" data-zh="脂肪">Fat</span><span class="value">24g</span></div>
             </div>
+            <details class="meal-estimate-details" data-component="MealEstimateDetailsToggle">
+              <summary class="meal-estimate-summary">
+                <span>
+                  <strong data-en="Meal estimate details" data-zh="餐食估算细节">Meal estimate details</strong>
+                  <span class="subtle" data-en="Meal estimate details folded by default. Default nutrition flow stays simple." data-zh="餐食估算细节默认折叠。默认饮食流程保持简单。">Meal estimate details folded by default. Default nutrition flow stays simple.</span>
+                </span>
+                <span
+                  data-meal-estimate-toggle
+                  data-en="Show meal estimate details"
+                  data-zh="展开餐食估算细节"
+                  data-open-en="Hide meal estimate details"
+                  data-open-zh="收起餐食估算细节">Show meal estimate details</span>
+              </summary>
             <div class="quick-capture">
               <input class="meal-input" value="Chicken rice bowl, sauce on side" aria-label="Describe meal" data-value-en="Chicken rice bowl, sauce on side" data-value-zh="鸡肉米饭碗，酱汁另放">
               <div class="action-row action-shortcuts">
@@ -4750,6 +4834,7 @@
                 <button class="button" type="button" data-en="Add photo" data-zh="添加照片">Add photo</button>
               </div>
             </div>
+            </details>
             <div class="food-log-item">
               <div class="food-icon">AI</div>
               <div>
@@ -6247,6 +6332,7 @@
       });
       updateDailyEvidenceSummaries();
       updateQuickAiSetupSummaries();
+      updateMealEstimateSummaries();
       document.querySelectorAll("[data-value-en][data-value-zh]").forEach((element) => {
         element.value = lang === "zh" ? element.dataset.valueZh : element.dataset.valueEn;
       });
@@ -6282,6 +6368,18 @@
     function updateQuickAiSetupSummaries() {
       document.querySelectorAll(".quick-ai-edit-panel").forEach((details) => {
         const toggle = details.querySelector("[data-quick-ai-toggle]");
+        if (!toggle) return;
+        if (details.open) {
+          toggle.textContent = currentLang === "zh" ? toggle.dataset.openZh : toggle.dataset.openEn;
+        } else {
+          toggle.textContent = currentLang === "zh" ? toggle.dataset.zh : toggle.dataset.en;
+        }
+      });
+    }
+
+    function updateMealEstimateSummaries() {
+      document.querySelectorAll(".meal-estimate-details").forEach((details) => {
+        const toggle = details.querySelector("[data-meal-estimate-toggle]");
         if (!toggle) return;
         if (details.open) {
           toggle.textContent = currentLang === "zh" ? toggle.dataset.openZh : toggle.dataset.openEn;
@@ -6365,6 +6463,10 @@
 
     document.querySelectorAll(".quick-ai-edit-panel").forEach((details) => {
       details.addEventListener("toggle", updateQuickAiSetupSummaries);
+    });
+
+    document.querySelectorAll(".meal-estimate-details").forEach((details) => {
+      details.addEventListener("toggle", updateMealEstimateSummaries);
     });
 
     const restBanner = document.getElementById("rest-banner");

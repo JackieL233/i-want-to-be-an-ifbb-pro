@@ -8829,6 +8829,7 @@ private fun NutritionPage(
     var notes by remember { mutableStateOf("") }
     var mealDescription by remember { mutableStateOf("") }
     var showNutritionDetails by remember { mutableStateOf(false) }
+    var showMealEstimateDetails by remember { mutableStateOf(false) }
     val totals = state.dailyLog.nutritionTotals()
     val prefillMeal: (NextMealBuilder) -> Unit = { builder ->
         mealName = builder.localizedTitle(language)
@@ -8891,6 +8892,40 @@ private fun NutritionPage(
             onPickMealPhoto = onPickMealPhoto,
             onOpenAi = onOpenAi
         )
+        SectionCard(
+            title = language.t("Meal estimate details", "餐食估算细节"),
+            subtitle = language.t(
+                "Keep duplicate quick-capture and receipt tools folded unless you need to audit the estimate.",
+                "重复的快速记录和估算回执默认收起，只在需要核对估算时展开。"
+            )
+        ) {
+            Text(
+                text = language.t(
+                    "Default nutrition flow stays simple: capture meal, log estimate, see remaining macros, then review with AI.",
+                    "默认饮食流程保持简单：记录这一餐、计入估算、查看剩余宏量，再交给 AI 复盘。"
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TextButton(onClick = { showMealEstimateDetails = !showMealEstimateDetails }, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    if (showMealEstimateDetails) {
+                        language.t("Hide meal estimate details", "收起餐食估算细节")
+                    } else {
+                        language.t("Show meal estimate details", "展开餐食估算细节")
+                    }
+                )
+            }
+            DataChipGrid(
+                items = listOf(
+                    language.t("Meal estimate details folded by default", "餐食估算细节默认折叠"),
+                    language.t("Default nutrition flow stays simple", "默认饮食流程保持简单"),
+                    language.t("Show meal estimate details", "展开餐食估算细节"),
+                    language.t("Hide meal estimate details", "收起餐食估算细节")
+                )
+            )
+        }
+        if (showMealEstimateDetails) {
         QuickMealCaptureCard(
             log = state.dailyLog,
             language = language,
@@ -8938,6 +8973,7 @@ private fun NutritionPage(
             onPickMealPhoto = onPickMealPhoto,
             onOpenAi = onOpenAi
         )
+        }
         if (showNutritionDetails) {
             NutritionPacingCard(log = state.dailyLog, language = language)
             NextMealBuilderCard(log = state.dailyLog, language = language)
