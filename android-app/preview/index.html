@@ -1472,13 +1472,63 @@
       gap: 8px;
     }
 
+    .quick-ai-ready-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
     .quick-ai-setup-grid .metric {
       min-height: 58px;
+    }
+
+    .quick-ai-ready-grid .metric {
+      min-height: 58px;
+    }
+
+    .quick-ai-setup-card > .quick-ai-setup-grid,
+    .quick-ai-setup-card > .quick-ai-fields {
+      display: none;
     }
 
     .quick-ai-fields {
       display: grid;
       gap: 8px;
+    }
+
+    .quick-ai-edit-panel {
+      display: grid;
+      gap: 8px;
+    }
+
+    .quick-ai-edit-panel summary {
+      width: fit-content;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 13px;
+      border: 1px solid rgba(0, 122, 255, 0.26);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    .quick-ai-edit-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .quick-ai-edit-panel:not([open]) > :not(summary) {
+      display: none;
+    }
+
+    .quick-ai-edit-panel[open] summary {
+      color: var(--text);
+      border-color: rgba(209, 209, 214, 0.82);
     }
 
     .quick-ai-fields .field input {
@@ -5278,6 +5328,27 @@
               <h2 data-en="Quick AI Setup" data-zh="快速 AI 设置">Quick AI Setup</h2>
               <p class="subtle" data-en="API key quick setup for daily review, food photos, form checks, and equipment recognition." data-zh="快速填写 API key，用于每日复盘、食物照片、动作检查和器械识别。">API key quick setup for daily review, food photos, form checks, and equipment recognition.</p>
             </div>
+            <div class="quick-ai-ready-grid" aria-label="Configured AI status">
+              <div class="metric"><span class="label" data-en="API status" data-zh="API 状态">API status</span><span class="value" data-en="Ready" data-zh="已就绪">Ready</span></div>
+              <div class="metric"><span class="label" data-en="API key" data-zh="API key">API key</span><span class="value" data-en="Configured" data-zh="已配置">Configured</span></div>
+              <div class="metric"><span class="label" data-en="OpenAI-compatible endpoint" data-zh="OpenAI 兼容接口">OpenAI-compatible endpoint</span><span class="value">/v1</span></div>
+              <div class="metric"><span class="label" data-en="Model" data-zh="模型">Model</span><span class="value">gpt-4.1-mini</span></div>
+            </div>
+            <p class="subtle" data-en="AI setup folded when ready. Configured AI key stays hidden until Edit." data-zh="AI 设置就绪后会自动折叠。已配置的 AI key 会保持隐藏，直到点击编辑。">AI setup folded when ready. Configured AI key stays hidden until Edit.</p>
+            <details class="quick-ai-edit-panel">
+              <summary
+                data-quick-ai-toggle
+                data-en="Edit AI setup"
+                data-zh="编辑 AI 设置"
+                data-open-en="Hide AI setup"
+                data-open-zh="收起 AI 设置">Edit AI setup</summary>
+              <div class="quick-ai-fields">
+                <div class="field"><label for="quick-ai-ready-key" data-en="API key" data-zh="API key">API key</label><input id="quick-ai-ready-key" type="password" value="" placeholder="sk-..."></div>
+                <div class="field"><label for="quick-ai-ready-base-url" data-en="Base URL" data-zh="接口地址">Base URL</label><input id="quick-ai-ready-base-url" value="https://api.openai.com/v1"></div>
+                <div class="field"><label for="quick-ai-ready-model" data-en="Model" data-zh="模型">Model</label><input id="quick-ai-ready-model" value="gpt-4.1-mini"></div>
+              </div>
+              <p class="subtle" data-en="Hide AI setup after editing to return to the focused daily-review screen." data-zh="编辑后收起 AI 设置，回到聚焦的每日复盘页面。">Hide AI setup after editing to return to the focused daily-review screen.</p>
+            </details>
             <div class="quick-ai-setup-grid">
               <div class="metric"><span class="label" data-en="API status" data-zh="API 状态">API status</span><span class="value" data-en="Missing setup" data-zh="缺少设置">Missing setup</span></div>
               <div class="metric"><span class="label" data-en="API key" data-zh="API key">API key</span><span class="value" data-en="Missing" data-zh="未填写">Missing</span></div>
@@ -6175,6 +6246,7 @@
         element.textContent = lang === "zh" ? element.dataset.zh : element.dataset.en;
       });
       updateDailyEvidenceSummaries();
+      updateQuickAiSetupSummaries();
       document.querySelectorAll("[data-value-en][data-value-zh]").forEach((element) => {
         element.value = lang === "zh" ? element.dataset.valueZh : element.dataset.valueEn;
       });
@@ -6198,6 +6270,18 @@
     function updateDailyEvidenceSummaries() {
       document.querySelectorAll(".daily-evidence-details").forEach((details) => {
         const toggle = details.querySelector("[data-evidence-toggle]");
+        if (!toggle) return;
+        if (details.open) {
+          toggle.textContent = currentLang === "zh" ? toggle.dataset.openZh : toggle.dataset.openEn;
+        } else {
+          toggle.textContent = currentLang === "zh" ? toggle.dataset.zh : toggle.dataset.en;
+        }
+      });
+    }
+
+    function updateQuickAiSetupSummaries() {
+      document.querySelectorAll(".quick-ai-edit-panel").forEach((details) => {
+        const toggle = details.querySelector("[data-quick-ai-toggle]");
         if (!toggle) return;
         if (details.open) {
           toggle.textContent = currentLang === "zh" ? toggle.dataset.openZh : toggle.dataset.openEn;
@@ -6254,6 +6338,10 @@
 
     document.querySelectorAll(".daily-evidence-details").forEach((details) => {
       details.addEventListener("toggle", updateDailyEvidenceSummaries);
+    });
+
+    document.querySelectorAll(".quick-ai-edit-panel").forEach((details) => {
+      details.addEventListener("toggle", updateQuickAiSetupSummaries);
     });
 
     const restBanner = document.getElementById("rest-banner");

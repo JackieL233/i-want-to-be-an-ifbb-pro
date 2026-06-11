@@ -10987,6 +10987,7 @@ private fun QuickAiSetupCard(
     language: AppLanguage,
     onChange: (AiSettings) -> Unit
 ) {
+    var isEditing by remember(setup.canRunAi) { mutableStateOf(!setup.canRunAi) }
     SectionCard(
         title = language.t("Quick AI Setup", "快速 AI 设置"),
         subtitle = language.t(
@@ -11008,30 +11009,62 @@ private fun QuickAiSetupCard(
                 language.t("Model", "模型") to settings.model.ifBlank { language.t("Not set", "未填写") }
             )
         )
-        OutlinedTextField(
-            value = settings.apiKey,
-            onValueChange = { onChange(settings.copy(apiKey = it)) },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(language.t("API key", "API key")) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation()
+        Text(
+            text = if (setup.canRunAi && !isEditing) {
+                language.t(
+                    "AI setup folded when ready. Configured AI key stays hidden until Edit.",
+                    "AI 设置就绪后会自动折叠。已配置的 AI key 会保持隐藏，直到点击编辑。"
+                )
+            } else {
+                language.t(
+                    "Fill API key, base URL, and model once; after setup is ready this card folds back into a simple status.",
+                    "首次填入 API key、接口地址和模型；设置就绪后这张卡会折叠回简单状态。"
+                )
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        OutlinedTextField(
-            value = settings.baseUrl,
-            onValueChange = { onChange(settings.copy(baseUrl = it)) },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(language.t("Base URL", "接口地址")) },
-            singleLine = true
-        )
-        OutlinedTextField(
-            value = settings.model,
-            onValueChange = { onChange(settings.copy(model = it)) },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(language.t("Model", "模型")) },
-            singleLine = true
-        )
+        if (setup.canRunAi) {
+            TextButton(onClick = { isEditing = !isEditing }, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    if (isEditing) {
+                        language.t("Hide AI setup", "收起 AI 设置")
+                    } else {
+                        language.t("Edit AI setup", "编辑 AI 设置")
+                    }
+                )
+            }
+        }
+        if (isEditing || !setup.canRunAi) {
+            OutlinedTextField(
+                value = settings.apiKey,
+                onValueChange = { onChange(settings.copy(apiKey = it)) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(language.t("API key", "API key")) },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation()
+            )
+            OutlinedTextField(
+                value = settings.baseUrl,
+                onValueChange = { onChange(settings.copy(baseUrl = it)) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(language.t("Base URL", "接口地址")) },
+                singleLine = true
+            )
+            OutlinedTextField(
+                value = settings.model,
+                onValueChange = { onChange(settings.copy(model = it)) },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(language.t("Model", "模型")) },
+                singleLine = true
+            )
+        }
         DataChipGrid(
             items = listOf(
+                language.t("AI setup folded when ready", "AI 设置就绪后折叠"),
+                language.t("Configured AI key stays hidden until Edit", "已配置的 AI key 保持隐藏直到编辑"),
+                language.t("Edit AI setup", "编辑 AI 设置"),
+                language.t("Hide AI setup", "收起 AI 设置"),
                 language.t("API key quick setup", "快速填写 API key"),
                 language.t("Save API key, base URL, and model", "保存 API key、接口地址和模型"),
                 language.t("OpenAI-compatible endpoint", "OpenAI 兼容接口")

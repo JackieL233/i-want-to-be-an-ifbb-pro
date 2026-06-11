@@ -891,6 +891,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "QUICK AI SETUP",
             "Quick AI Setup",
             "API key quick setup",
+            "AI setup folded when ready",
+            "Configured AI key stays hidden until Edit",
+            "Edit AI setup",
+            "Hide AI setup",
             "Save API key, base URL, and model",
             "OpenAI-compatible endpoint",
             "快速 AI 设置",
@@ -1515,6 +1519,11 @@ class AndroidAppStructureTest(unittest.TestCase):
         for term in expected_terms:
             with self.subTest(term=term):
                 self.assertIn(term, combined)
+        self.assertIn("remember(setup.canRunAi) { mutableStateOf(!setup.canRunAi) }", ui)
+        self.assertIn("if (setup.canRunAi && !isEditing)", ui)
+        self.assertIn("if (isEditing || !setup.canRunAi)", ui)
+        self.assertIn('language.t("AI setup folded when ready",', ui)
+        self.assertIn('language.t("Configured AI key stays hidden until Edit",', ui)
 
     def test_four_main_sections_use_semantic_navigation_icons(self) -> None:
         gradle = (APP / "app/build.gradle.kts").read_text(encoding="utf-8")
@@ -2656,6 +2665,10 @@ class AndroidAppStructureTest(unittest.TestCase):
             "QUICK AI SETUP",
             "Quick AI Setup",
             "API key quick setup",
+            "AI setup folded when ready",
+            "Configured AI key stays hidden until Edit",
+            "Edit AI setup",
+            "Hide AI setup",
             "Save API key, base URL, and model",
             "OpenAI-compatible endpoint",
             "快速 AI 设置",
@@ -2741,6 +2754,17 @@ class AndroidAppStructureTest(unittest.TestCase):
         self.assertIn('<section class="folded-panel" data-folded-panel="ai" aria-label="AI daily overview" hidden>', html)
         self.assertIn('<section class="folded-panel" data-folded-panel="training" aria-label="Training plan" hidden>', html)
         self.assertIn("mountFoldedPanels", html)
+        self.assertIn(".quick-ai-ready-grid", html)
+        self.assertIn(
+            ".quick-ai-setup-card > .quick-ai-setup-grid,\n    .quick-ai-setup-card > .quick-ai-fields",
+            html,
+        )
+        self.assertIn("display: none", html)
+        self.assertIn(".quick-ai-edit-panel:not([open]) > :not(summary)", html)
+        self.assertIn("data-quick-ai-toggle", html)
+        self.assertIn('data-open-en="Hide AI setup"', html)
+        self.assertIn("updateQuickAiSetupSummaries", html)
+        self.assertIn('details.addEventListener("toggle", updateQuickAiSetupSummaries)', html)
         self.assertEqual(
             ["training", "nutrition", "metrics", "ai"],
             re.findall(r'<section class="panel(?: active)?" data-panel="([^"]+)"', html),
